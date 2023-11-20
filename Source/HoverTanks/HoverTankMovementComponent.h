@@ -6,6 +6,27 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankMovementComponent.generated.h"
 
+USTRUCT()
+struct FHoverTankMove
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	float Throttle;
+	UPROPERTY()
+	float Steering;
+
+	UPROPERTY()
+	float DeltaTime;
+	UPROPERTY()
+	float Time;
+
+	bool IsValid() const
+	{
+		return FMath::Abs(Throttle) <= 1 && FMath::Abs(Steering) <= 1;
+	}
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UHoverTankMovementComponent : public UActorComponent
@@ -19,6 +40,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SimulateMove(FHoverTankMove Move);
+	
 	// define setter for Throttle
 	void SetThrottle(float InThrottle) { Throttle = InThrottle; }
 	// define setter for Steering
@@ -28,6 +51,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+
 private:
 	/** In Newtons. The max driving force */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -35,7 +59,7 @@ private:
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BaseTurnRate = 45;
+	float BaseTurnRate = 60;
 
 	/** The mass of the tank (kg). */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -51,7 +75,8 @@ private:
 	FVector Velocity;
 
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
-	
 
+	FHoverTankMove LastMove;
+	FHoverTankMove CreateMove(float DeltaTime);
 		
 };
