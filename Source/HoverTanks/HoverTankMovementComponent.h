@@ -41,11 +41,12 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SimulateMove(FHoverTankMove Move);
-	
-	// define setter for Throttle
+
 	void SetThrottle(float InThrottle) { Throttle = InThrottle; }
-	// define setter for Steering
 	void SetSteering(float InSteering) { Steering = InSteering; }
+	
+	FHoverTankMove GetLastMove() { return LastMove; }
+	FVector GetVelocity() { return Velocity; }
 	
 protected:
 	// Called when the game starts

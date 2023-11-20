@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HoverTankMovementComponent.h"
+#include "MovementReplicatorComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -22,6 +23,9 @@ AHoverTank::AHoverTank()
 	/**
 	 * Create Components
 	 */
+	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
+	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
+	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
 	RootComponent = BoxCollider;
 
@@ -51,8 +55,6 @@ AHoverTank::AHoverTank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-
-	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 
 	/**
 	 * Components Setup

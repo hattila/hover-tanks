@@ -6,13 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+class UHoverTankMovementComponent;
+class UMovementReplicatorComponent;
+
 struct FInputActionValue;
 class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-class UHoverTankMovementComponent;
 
 UCLASS()
 class HOVERTANKS_API AHoverTank : public APawn
@@ -34,6 +36,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UHoverTankMovementComponent* HoverTankMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UMovementReplicatorComponent* MovementReplicatorComponent;
+	
 	// create a Box collider
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* BoxCollider;
@@ -75,9 +83,6 @@ private:
 	/** Barrel pitch rate in degrees per second, looking up and down */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float BarrelPitchRate = 90;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	UHoverTankMovementComponent* HoverTankMovementComponent;
 
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
