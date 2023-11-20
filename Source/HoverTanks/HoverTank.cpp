@@ -61,6 +61,13 @@ AHoverTank::AHoverTank()
 	SpringArm->TargetArmLength = 700;
 
 	Camera->SetRelativeRotation(FRotator(20, 0, 0));
+
+	// Set the BoxColliders collision to BlockAll
+	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BoxCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	
 }
 
 // Called when the game starts or when spawned
@@ -108,27 +115,49 @@ void AHoverTank::Tick(float DeltaTime)
 	/**
 	 * FORWARD MOVEMENT AND TURNING
 	 */
-	FVector ForceOnObject = GetActorForwardVector() * Throttle * MaxThrottle; // 500000 Newtons is the max driving force
-	FVector Acceleration = ForceOnObject / Mass; // 1000 kg is the mass
-	FVector Velocity = GetVelocity() + Acceleration * DeltaTime;
+	FVector ForceOnObject = GetActorForwardVector() * Throttle * MaxThrottle;
+
+	FVector AirResistance = Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
+
+	// UE_LOG(LogTemp, Warning, TEXT("AirResistance: %f"), AirResistance.Size());
+
+	ForceOnObject = ForceOnObject + AirResistance;
+
+	FVector Acceleration = ForceOnObject / Mass;
+	Velocity = Velocity + Acceleration * DeltaTime;
 
 	// Rotate Pawn based on Steering
 	FRotator Rotation = GetActorRotation();
 	float YawRotation = Throttle >= 0
 		                    ? Steering * BaseTurnRate * DeltaTime
 		                    : -1 * Steering * BaseTurnRate * DeltaTime; // 90 degrees per second
-
+	
 	Rotation.Yaw += YawRotation;
 	SetActorRotation(Rotation);
-
-	FQuat RotationDelta(GetActorUpVector(), YawRotation);
-	Velocity = RotationDelta.RotateVector(Velocity);
-
+	
+	
+	// Move the Actor
 	FVector Translation = Velocity * DeltaTime * 100; // * 100 to be in meters per seconds
-
 	FHitResult HitResult;
 	AddActorWorldOffset(Translation, true, &HitResult);
 
+	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
+	
+	if (HitResult.IsValidBlockingHit())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit something"));
+		
+		// impact point
+		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25, 10, FColor::Red, false, 1, 0, 1);
+		// impact normal
+		DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + HitResult.ImpactNormal * 100, 100, FColor::Green, false, 1, 0, 1);
+		FVector ReflectionVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
+		// reflection vector
+		DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + ReflectionVector * 1000, 200, FColor::Red, false, 1, 0, 2);
+		// Velocity = FVector::ZeroVector;
+		Velocity = ReflectionVector * Velocity.Size() / 2;
+	}
+	
 	/**
 	 * ROTATE CANNON AND BARREL WITH CAMERA
 	 */
@@ -144,13 +173,6 @@ void AHoverTank::Tick(float DeltaTime)
 	BarrelRotation.Pitch += BarrelPitchRotation;
 	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
 	TankBarrelMesh->SetWorldRotation(BarrelRotation);
-
-
-	if (HitResult.IsValidBlockingHit())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit something"));
-		// set actor velocity to 0
-	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -168,6 +190,8 @@ void AHoverTank::MoveCompleted()
 {
 	Throttle = 0;
 	Steering = 0;
+
+	// UE_LOG(LogTemp, Warning, TEXT("Move Completed, Throttle: %f, Steering: %f"), Throttle, Steering);
 }
 
 void AHoverTank::LookTriggered(const FInputActionValue& Value)
@@ -184,4 +208,17 @@ void AHoverTank::LookCompleted()
 {
 	LookUp = 0;
 	LookRight = 0;
+}
+
+
+FVector AHoverTank::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
+{
+	// Ensure that the incoming velocity and wall normal are normalized
+	FVector NormalizedVelocity = InVelocity.GetSafeNormal();
+	FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
+
+	// Calculate the reflection vector using the formula: R = I - 2 * (I dot N) * N
+	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
+
+	return BounceVector;
 }

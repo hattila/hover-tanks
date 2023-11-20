@@ -69,7 +69,7 @@ private:
 
 	/** In Newtons. The max driving force */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxThrottle = 3000000;
+	float MaxThrottle = 40000;
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -85,10 +85,16 @@ private:
 
 	/** The mass of the tank (kg). */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float Mass = 5000; 
-	
+	float Mass = 5000;
+
+	/** Higher values means more drag. kg/m */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true"))
+	float DragCoefficient = 320;
+
 	float Throttle;
 	float Steering;
+
+	FVector Velocity;
 	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
@@ -100,4 +106,6 @@ private:
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);
 	void LookCompleted();
+
+	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 };
