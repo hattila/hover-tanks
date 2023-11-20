@@ -108,15 +108,15 @@ void AHoverTank::Tick(float DeltaTime)
 	/**
 	 * FORWARD MOVEMENT AND TURNING
 	 */
-	FVector ForceOnObject = GetActorForwardVector() * Throttle * 3000000; // 500000 Newtons is the max driving force
-	FVector Acceleration = ForceOnObject / 5000; // 1000 kg is the mass
+	FVector ForceOnObject = GetActorForwardVector() * Throttle * MaxThrottle; // 500000 Newtons is the max driving force
+	FVector Acceleration = ForceOnObject / Mass; // 1000 kg is the mass
 	FVector Velocity = GetVelocity() + Acceleration * DeltaTime;
 
 	// Rotate Pawn based on Steering
 	FRotator Rotation = GetActorRotation();
 	float YawRotation = Throttle >= 0
-		                    ? Steering * 45 * DeltaTime
-		                    : -1 * Steering * 45 * DeltaTime; // 90 degrees per second
+		                    ? Steering * BaseTurnRate * DeltaTime
+		                    : -1 * Steering * BaseTurnRate * DeltaTime; // 90 degrees per second
 
 	Rotation.Yaw += YawRotation;
 	SetActorRotation(Rotation);
@@ -134,13 +134,13 @@ void AHoverTank::Tick(float DeltaTime)
 	 */
 	// Rotate the TankCannon mesh based on the LookRight input
 	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	float CannonYawRotation = LookRight * 90 * DeltaTime; // 90 degrees per second
+	float CannonYawRotation = LookRight * CannonTurnRate * DeltaTime; // 90 degrees per second
 	CannonRotation.Yaw += CannonYawRotation;
 	TankCannonMesh->SetWorldRotation(CannonRotation);
 
 	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
 	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	float BarrelPitchRotation = LookUp * 90 * DeltaTime; // 90 degrees per second
+	float BarrelPitchRotation = LookUp * BarrelPitchRate * DeltaTime; // 90 degrees per second
 	BarrelRotation.Pitch += BarrelPitchRotation;
 	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
 	TankBarrelMesh->SetWorldRotation(BarrelRotation);

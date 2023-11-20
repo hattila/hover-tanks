@@ -67,7 +67,26 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** In Newtons. The max driving force */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float MaxThrottle = 3000000;
 
+	/** Tank turn rate in degrees per second */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BaseTurnRate = 45;
+
+	/** Cannon turn rate in degrees per second, looking left and right */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CannonTurnRate = 90;
+
+	/** Barrel pitch rate in degrees per second, looking up and down */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BarrelPitchRate = 90;
+
+	/** The mass of the tank (kg). */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float Mass = 5000; 
+	
 	float Throttle;
 	float Steering;
 	
