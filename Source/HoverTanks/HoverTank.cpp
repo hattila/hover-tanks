@@ -4,6 +4,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HoverTankMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -33,26 +34,25 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankBase"));
+	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
+	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannon"));
+	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
+	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannonBarrel"));
+	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
+	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->SetupAttachment(TankCannonMesh);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(
-		TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankBase"));
-	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
-	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(
-		TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannon"));
-	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
-	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(
-		TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannonBarrel"));
-	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
-	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
+	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 
 	/**
 	 * Components Setup
@@ -113,52 +113,6 @@ void AHoverTank::Tick(float DeltaTime)
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
 	/**
-	 * FORWARD MOVEMENT AND TURNING
-	 */
-	FVector ForceOnObject = GetActorForwardVector() * Throttle * MaxThrottle;
-
-	FVector AirResistance = Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
-
-	// UE_LOG(LogTemp, Warning, TEXT("AirResistance: %f"), AirResistance.Size());
-
-	ForceOnObject = ForceOnObject + AirResistance;
-
-	FVector Acceleration = ForceOnObject / Mass;
-	Velocity = Velocity + Acceleration * DeltaTime;
-
-	// Rotate Pawn based on Steering
-	FRotator Rotation = GetActorRotation();
-	float YawRotation = Throttle >= 0
-		                    ? Steering * BaseTurnRate * DeltaTime
-		                    : -1 * Steering * BaseTurnRate * DeltaTime; // 90 degrees per second
-	
-	Rotation.Yaw += YawRotation;
-	SetActorRotation(Rotation);
-	
-	
-	// Move the Actor
-	FVector Translation = Velocity * DeltaTime * 100; // * 100 to be in meters per seconds
-	FHitResult HitResult;
-	AddActorWorldOffset(Translation, true, &HitResult);
-
-	DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
-	
-	if (HitResult.IsValidBlockingHit())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit something"));
-		
-		// impact point
-		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25, 10, FColor::Red, false, 1, 0, 1);
-		// impact normal
-		DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + HitResult.ImpactNormal * 100, 100, FColor::Green, false, 1, 0, 1);
-		FVector ReflectionVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
-		// reflection vector
-		DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + ReflectionVector * 1000, 200, FColor::Red, false, 1, 0, 2);
-		// Velocity = FVector::ZeroVector;
-		Velocity = ReflectionVector * Velocity.Size() / 2;
-	}
-	
-	/**
 	 * ROTATE CANNON AND BARREL WITH CAMERA
 	 */
 	// Rotate the TankCannon mesh based on the LookRight input
@@ -182,15 +136,27 @@ void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	Throttle = MovementVector.Y;
-	Steering = MovementVector.X;
+	// Throttle = MovementVector.Y;
+	// Steering = MovementVector.X;
+
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->SetThrottle(MovementVector.Y);
+		HoverTankMovementComponent->SetSteering(MovementVector.X);
+	}
 }
 
 void AHoverTank::MoveCompleted()
 {
-	Throttle = 0;
-	Steering = 0;
+	// Throttle = 0;
+	// Steering = 0;
 
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->SetThrottle(0);
+		HoverTankMovementComponent->SetSteering(0);
+	}
+	
 	// UE_LOG(LogTemp, Warning, TEXT("Move Completed, Throttle: %f, Steering: %f"), Throttle, Steering);
 }
 
@@ -211,14 +177,3 @@ void AHoverTank::LookCompleted()
 }
 
 
-FVector AHoverTank::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
-{
-	// Ensure that the incoming velocity and wall normal are normalized
-	FVector NormalizedVelocity = InVelocity.GetSafeNormal();
-	FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
-
-	// Calculate the reflection vector using the formula: R = I - 2 * (I dot N) * N
-	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
-
-	return BounceVector;
-}

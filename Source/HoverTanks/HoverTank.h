@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UHoverTankMovementComponent;
 
 UCLASS()
 class HOVERTANKS_API AHoverTank : public APawn
@@ -67,14 +68,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	/** In Newtons. The max driving force */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxThrottle = 40000;
-
-	/** Tank turn rate in degrees per second */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BaseTurnRate = 45;
-
 	/** Cannon turn rate in degrees per second, looking left and right */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float CannonTurnRate = 90;
@@ -83,19 +76,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float BarrelPitchRate = 90;
 
-	/** The mass of the tank (kg). */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float Mass = 5000;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UHoverTankMovementComponent* HoverTankMovementComponent;
 
-	/** Higher values means more drag. kg/m */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true"))
-	float DragCoefficient = 320;
-
-	float Throttle;
-	float Steering;
-
-	FVector Velocity;
-	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
 	void MoveCompleted();
@@ -106,6 +89,4 @@ private:
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);
 	void LookCompleted();
-
-	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 };
