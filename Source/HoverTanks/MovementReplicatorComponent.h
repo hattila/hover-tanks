@@ -22,6 +22,24 @@ struct FHoverTankState
 	FHoverTankMove LastMove;
 };
 
+/**
+ * Based on the KrazyKarts Course
+ */
+struct FHermiteCubicSpline
+{
+	FVector StartLocation, StartDerivative, TargetLocation, TargetDerivative;
+
+	FVector InterpolateLocation(float LerpRatio) const
+	{
+		return FMath::CubicInterp(StartLocation, StartDerivative, TargetLocation, TargetDerivative, LerpRatio);
+	}
+
+	FVector InterpolateDerivative(float LerpRatio) const
+	{
+		return FMath::CubicInterpDerivative(StartLocation, StartDerivative, TargetLocation, TargetDerivative, LerpRatio);
+	}
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UMovementReplicatorComponent : public UActorComponent
 {
@@ -42,20 +60,34 @@ private:
 	UPROPERTY()
 	UHoverTankMovementComponent* HoverTankMovementComponent;
 
+	void ClientTick(float DeltaTime);
+	
 	UPROPERTY(ReplicatedUsing=OnRep_ServerState)
 	FHoverTankState ServerState;
-
+	
 	UFUNCTION() // must be a UFUNCTION
 	void OnRep_ServerState();
 	void SimulatedProxy_OnRep_ServerState();
 	void AutonomousProxy_OnRep_ServerState();
 	
 	TArray<FHoverTankMove> UnacknowledgedMoves;
+	
+	void ClearAcknowledgedMoves(FHoverTankMove LastMove);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSendMove(FHoverTankMove Move);
 
 	void UpdateServerState(const FHoverTankMove& Move);
+	
+	/**
+	 * Client Interpolation
+	 */
+	float ClientTimeSinceUpdate;
+	float ClientTimeBetweenLastUpdates;
+	FTransform ClientStartTransform;
+	FVector ClientStartVelocity;
+
+	FHermiteCubicSpline CreateSpline();
 
 		
 };

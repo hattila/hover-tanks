@@ -17,6 +17,7 @@ AHoverTank::AHoverTank()
 	  * Actor setup
 	  */
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	bUseControllerRotationYaw = false;
 
@@ -77,6 +78,13 @@ void AHoverTank::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetReplicateMovement(false);
+	
+	if (HasAuthority())
+	{
+		NetUpdateFrequency = 1;
+	}
+	
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -113,6 +121,11 @@ void AHoverTank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
+
+	// Draw a debug text above the Pawn showing it's network role
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	DrawDebugString(GetWorld(), FVector(0, 0, 100), RoleString, this, FColor::White, 0);
 
 	/**
 	 * ROTATE CANNON AND BARREL WITH CAMERA

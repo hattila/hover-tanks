@@ -46,7 +46,9 @@ public:
 	void SetSteering(float InSteering) { Steering = InSteering; }
 	
 	FHoverTankMove GetLastMove() { return LastMove; }
+
 	FVector GetVelocity() { return Velocity; }
+	void SetVelocity(FVector InVelocity) { Velocity = InVelocity; }
 	
 protected:
 	// Called when the game starts
