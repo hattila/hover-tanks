@@ -22,6 +22,21 @@ struct FHoverTankMoveState
 	FHoverTankMove LastMove;
 };
 
+USTRUCT()
+struct FHoverTankCannonRotateState
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FHoverTankCannonRotate LastCannonRotate;
+
+	UPROPERTY()
+	FRotator CannonRotation;
+
+	UPROPERTY()
+	FRotator BarrelRotation;
+};
+
 /**
  * Based on the KrazyKarts Course
  */
@@ -90,13 +105,16 @@ private:
 	FHermiteCubicSpline CreateSpline();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerSendCannonRotate(FHoverTankCannonRotate CannonRotate);
+	void ServerSendCannonRotate(const FHoverTankCannonRotate& CannonRotate);
 
-	UPROPERTY(ReplicatedUsing=OnRep_LastCannonRotate)
-	FHoverTankCannonRotate LastCannonRotate;
+	UPROPERTY(ReplicatedUsing=OnRep_LastCannonRotateState)
+	FHoverTankCannonRotateState ServerCannonRotateState;
 	
 	UFUNCTION()
-	void OnRep_LastCannonRotate();
+	void OnRep_LastCannonRotateState();
+	void SimulatedProxy_OnRep_LastCannonRotateState();
+	void AutonomousProxy_OnRep_LastCannonRotateState();
 
+	FRotator ClientStartCannonRotation;
 		
 };

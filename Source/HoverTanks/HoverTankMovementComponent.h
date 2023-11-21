@@ -75,6 +75,9 @@ public:
 	void SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate);
 	FHoverTankCannonRotate GetLastCannonRotate() { return LastCannonRotate; }
 
+	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
+	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
+	
 	
 protected:
 	// Called when the game starts

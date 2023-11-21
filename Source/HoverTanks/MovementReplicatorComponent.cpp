@@ -28,7 +28,7 @@ void UMovementReplicatorComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UMovementReplicatorComponent, ServerMoveState);
-	DOREPLIFETIME(UMovementReplicatorComponent, LastCannonRotate);
+	DOREPLIFETIME(UMovementReplicatorComponent, ServerCannonRotateState);
 }
 
 // Called every frame
@@ -73,7 +73,11 @@ void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	if (GetOwnerRole() == ROLE_Authority && Owner->IsLocallyControlled())
 	{
 		UpdateServerMoveState(LastMove);
-		LastCannonRotate = LastCannonRotateReceived;
+		
+		// extract function
+		ServerCannonRotateState.LastCannonRotate = LastCannonRotateReceived;
+		ServerCannonRotateState.CannonRotation = HoverTankMovementComponent->GetTankCannonMesh()->GetComponentRotation(); // maybe a getter for the rotation only?
+		ServerCannonRotateState.BarrelRotation = HoverTankMovementComponent->GetTankBarrelMesh()->GetComponentRotation();
 	}
 
 	/**
@@ -86,7 +90,7 @@ void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 		ClientTick(DeltaTime);
 
-		HoverTankMovementComponent->SimulateCannonRotate(LastCannonRotate);
+		// HoverTankMovementComponent->SimulateCannonRotate(LastCannonRotateState.LastCannonRotate);
 	}
 	
 }
@@ -125,6 +129,19 @@ void UMovementReplicatorComponent::ClientTick(float DeltaTime)
 	FQuat InterpolatedRotation = FQuat::Slerp(StartRotation, TargetRotation, LerpRatio);
 
 	GetOwner()->SetActorRotation(InterpolatedRotation);
+
+
+	/**
+	 * CANNON
+	 */
+	if (HoverTankMovementComponent->GetTankCannonMesh() == nullptr || HoverTankMovementComponent->GetTankBarrelMesh() == nullptr)
+	{
+		return;
+	}
+
+	FRotator InterpolatedCannonRotation = FMath::Lerp(ClientStartCannonRotation, ServerCannonRotateState.CannonRotation, LerpRatio);
+	HoverTankMovementComponent->GetTankCannonMesh()->SetWorldRotation(InterpolatedCannonRotation);
+	
 }
 
 void UMovementReplicatorComponent::OnRep_ServerMoveState()
@@ -233,7 +250,7 @@ FHermiteCubicSpline UMovementReplicatorComponent::CreateSpline()
 	return Spline;
 }
 
-void UMovementReplicatorComponent::ServerSendCannonRotate_Implementation(FHoverTankCannonRotate CannonRotate)
+void UMovementReplicatorComponent::ServerSendCannonRotate_Implementation(const FHoverTankCannonRotate& CannonRotate)
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -242,21 +259,50 @@ void UMovementReplicatorComponent::ServerSendCannonRotate_Implementation(FHoverT
 
 	HoverTankMovementComponent->SimulateCannonRotate(CannonRotate);
 	
-	LastCannonRotate = CannonRotate;
+	ServerCannonRotateState.LastCannonRotate = CannonRotate;
+	ServerCannonRotateState.CannonRotation = HoverTankMovementComponent->GetTankCannonMesh()->GetComponentRotation(); // maybe a getter for the rotation only?
+	ServerCannonRotateState.BarrelRotation = HoverTankMovementComponent->GetTankBarrelMesh()->GetComponentRotation();
 }
 
-bool UMovementReplicatorComponent::ServerSendCannonRotate_Validate(FHoverTankCannonRotate CannonRotate)
+bool UMovementReplicatorComponent::ServerSendCannonRotate_Validate(const FHoverTankCannonRotate& CannonRotate)
 {
 	// return CannonRotate.IsValid();
 	return true;
 }
 
-void UMovementReplicatorComponent::OnRep_LastCannonRotate()
+void UMovementReplicatorComponent::OnRep_LastCannonRotateState()
+{
+	switch (GetOwnerRole())
+	{
+	case ROLE_AutonomousProxy:
+		AutonomousProxy_OnRep_LastCannonRotateState();
+		break;
+	case ROLE_SimulatedProxy:
+		SimulatedProxy_OnRep_LastCannonRotateState();
+		break;
+	default:
+		break;
+	}
+}
+
+void UMovementReplicatorComponent::AutonomousProxy_OnRep_LastCannonRotateState()
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
 		return;
 	}
 
-	HoverTankMovementComponent->SimulateCannonRotate(LastCannonRotate);
+	// HoverTankMovementComponent->SimulateCannonRotate(ServerCannonRotateState.LastCannonRotate);
+}
+
+void UMovementReplicatorComponent::SimulatedProxy_OnRep_LastCannonRotateState()
+{
+	if (HoverTankMovementComponent == nullptr || HoverTankMovementComponent->GetTankCannonMesh() == nullptr)
+	{
+		return;
+	}
+
+	ClientStartCannonRotation = HoverTankMovementComponent->GetTankCannonMesh()->GetComponentRotation();
+
+	UE_LOG(LogTemp, Warning, TEXT("Simulated Proxies current cannon rotation %s"), *ClientStartCannonRotation.ToString());
 }
