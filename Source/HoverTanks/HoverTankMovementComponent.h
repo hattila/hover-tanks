@@ -49,6 +49,9 @@ public:
 
 	FVector GetVelocity() { return Velocity; }
 	void SetVelocity(FVector InVelocity) { Velocity = InVelocity; }
+
+	void SetLookUp(float InLookUp) { LookUp = InLookUp; }
+	void SetLookRight(float InLookRight) { LookRight = InLookRight; }
 	
 protected:
 	// Called when the game starts
@@ -74,6 +77,17 @@ private:
 
 	float Throttle;
 	float Steering;
+
+	/** Cannon turn rate in degrees per second, looking left and right */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float CannonTurnRate = 90;
+
+	/** Barrel pitch rate in degrees per second, looking up and down */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BarrelPitchRate = 90;
+
+	float LookUp;
+	float LookRight;
 	
 	FVector Velocity;
 
@@ -81,5 +95,11 @@ private:
 
 	FHoverTankMove LastMove;
 	FHoverTankMove CreateMove(float DeltaTime);
+
+	UPROPERTY()
+	UStaticMeshComponent* TankCannonMesh;
+
+	UPROPERTY()
+	UStaticMeshComponent* TankBarrelMesh;
 		
 };

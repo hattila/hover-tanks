@@ -30,6 +30,12 @@ public:
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// UFUNCTION(BlueprintPure)
+	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
+
+	// UFUNCTION(BlueprintPure)
+	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
 	
 protected:
 	// Called when the game starts or when spawned
@@ -76,20 +82,20 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	/** Cannon turn rate in degrees per second, looking left and right */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float CannonTurnRate = 90;
-
-	/** Barrel pitch rate in degrees per second, looking up and down */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BarrelPitchRate = 90;
+	// /** Cannon turn rate in degrees per second, looking left and right */
+	// UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	// float CannonTurnRate = 90;
+	//
+	// /** Barrel pitch rate in degrees per second, looking up and down */
+	// UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	// float BarrelPitchRate = 90;
 
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
 	void MoveCompleted();
 
-	float LookUp;
-	float LookRight;
+	// float LookUp;
+	// float LookRight;
 
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);

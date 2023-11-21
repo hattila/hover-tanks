@@ -126,22 +126,6 @@ void AHoverTank::Tick(float DeltaTime)
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
 	DrawDebugString(GetWorld(), FVector(0, 0, 100), RoleString, this, FColor::White, 0);
-
-	/**
-	 * ROTATE CANNON AND BARREL WITH CAMERA
-	 */
-	// Rotate the TankCannon mesh based on the LookRight input
-	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	float CannonYawRotation = LookRight * CannonTurnRate * DeltaTime; // 90 degrees per second
-	CannonRotation.Yaw += CannonYawRotation;
-	TankCannonMesh->SetWorldRotation(CannonRotation);
-
-	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
-	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	float BarrelPitchRotation = LookUp * BarrelPitchRate * DeltaTime; // 90 degrees per second
-	BarrelRotation.Pitch += BarrelPitchRotation;
-	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
-	TankBarrelMesh->SetWorldRotation(BarrelRotation);
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -177,18 +161,24 @@ void AHoverTank::MoveCompleted()
 
 void AHoverTank::LookTriggered(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
 
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	LookUp = -LookAxisVector.Y; // beware!
-	LookRight = LookAxisVector.X;
+	if (HoverTankMovementComponent)
+	{
+		FVector2D LookAxisVector = Value.Get<FVector2D>();
+		
+		HoverTankMovementComponent->SetLookUp(-LookAxisVector.Y); // beware! -1 is up, 1 is down
+		HoverTankMovementComponent->SetLookRight(LookAxisVector.X);
+	}
 }
 
 void AHoverTank::LookCompleted()
 {
-	LookUp = 0;
-	LookRight = 0;
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->SetLookUp(0);
+		HoverTankMovementComponent->SetLookRight(0);
+	}
 }
 
 
