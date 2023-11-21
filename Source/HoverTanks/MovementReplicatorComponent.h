@@ -8,7 +8,7 @@
 #include "MovementReplicatorComponent.generated.h"
 
 USTRUCT()
-struct FHoverTankState
+struct FHoverTankMoveState
 {
 	GENERATED_BODY()
 
@@ -62,13 +62,13 @@ private:
 
 	void ClientTick(float DeltaTime);
 	
-	UPROPERTY(ReplicatedUsing=OnRep_ServerState)
-	FHoverTankState ServerState;
+	UPROPERTY(ReplicatedUsing=OnRep_ServerMoveState)
+	FHoverTankMoveState ServerMoveState;
 	
 	UFUNCTION() // must be a UFUNCTION
-	void OnRep_ServerState();
-	void SimulatedProxy_OnRep_ServerState();
-	void AutonomousProxy_OnRep_ServerState();
+	void OnRep_ServerMoveState();
+	void SimulatedProxy_OnRep_ServerMoveState();
+	void AutonomousProxy_OnRep_ServerMoveState();
 	
 	TArray<FHoverTankMove> UnacknowledgedMoves;
 	
@@ -77,7 +77,7 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSendMove(FHoverTankMove Move);
 
-	void UpdateServerState(const FHoverTankMove& Move);
+	void UpdateServerMoveState(const FHoverTankMove& Move);
 	
 	/**
 	 * Client Interpolation
@@ -88,6 +88,15 @@ private:
 	FVector ClientStartVelocity;
 
 	FHermiteCubicSpline CreateSpline();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSendCannonRotate(FHoverTankCannonRotate CannonRotate);
+
+	UPROPERTY(ReplicatedUsing=OnRep_LastCannonRotate)
+	FHoverTankCannonRotate LastCannonRotate;
+	
+	UFUNCTION()
+	void OnRep_LastCannonRotate();
 
 		
 };

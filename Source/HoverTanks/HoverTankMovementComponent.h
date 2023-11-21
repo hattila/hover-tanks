@@ -27,6 +27,26 @@ struct FHoverTankMove
 	}
 };
 
+USTRUCT()
+struct FHoverTankCannonRotate
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	float LookUp;
+
+	UPROPERTY();
+	float LookRight;
+
+	UPROPERTY()
+	float DeltaTime;
+
+	bool IsValid() const
+	{
+		return FMath::Abs(LookUp) <= 1 && FMath::Abs(LookRight) <= 1;
+	}
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UHoverTankMovementComponent : public UActorComponent
@@ -40,11 +60,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SimulateMove(FHoverTankMove Move);
-
 	void SetThrottle(float InThrottle) { Throttle = InThrottle; }
 	void SetSteering(float InSteering) { Steering = InSteering; }
 	
+	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
 
 	FVector GetVelocity() { return Velocity; }
@@ -52,11 +71,14 @@ public:
 
 	void SetLookUp(float InLookUp) { LookUp = InLookUp; }
 	void SetLookRight(float InLookRight) { LookRight = InLookRight; }
+
+	void SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate);
+	FHoverTankCannonRotate GetLastCannonRotate() { return LastCannonRotate; }
+
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 
 private:
 	/** In Newtons. The max driving force */
@@ -101,5 +123,8 @@ private:
 
 	UPROPERTY()
 	UStaticMeshComponent* TankBarrelMesh;
+
+	FHoverTankCannonRotate LastCannonRotate;
+	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime);
 		
 };

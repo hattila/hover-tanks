@@ -47,30 +47,16 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	{
 		LastMove = CreateMove(DeltaTime);
 		SimulateMove(LastMove);
+
+
+		if (!TankCannonMesh || !TankBarrelMesh)
+		{
+			return;
+		}
+
+		LastCannonRotate = CreateCannonRotate(DeltaTime);
+		SimulateCannonRotate(LastCannonRotate);
 	}
-
-
-	if (!TankCannonMesh || !TankBarrelMesh)
-	{
-		return;
-	}
-	
-	/**
-	 * ROTATE CANNON AND BARREL WITH CAMERA
-	 */
-	// Rotate the TankCannon mesh based on the LookRight input
-	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	float CannonYawRotation = LookRight * CannonTurnRate * DeltaTime; // 90 degrees per second
-	CannonRotation.Yaw += CannonYawRotation;
-	TankCannonMesh->SetWorldRotation(CannonRotation);
-
-	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
-	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	float BarrelPitchRotation = LookUp * BarrelPitchRate * DeltaTime; // 90 degrees per second
-	BarrelRotation.Pitch += BarrelPitchRotation;
-	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
-	TankBarrelMesh->SetWorldRotation(BarrelRotation);
-	
 }
 
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
@@ -115,6 +101,24 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	}
 }
 
+/**
+ * ROTATE CANNON AND BARREL WITH CAMERA
+ */
+void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
+{
+	// Rotate the TankCannon mesh based on the LookRight input
+	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
+	float CannonYawRotation = CannonRotate.LookRight * CannonTurnRate * CannonRotate.DeltaTime; // 90 degrees per second
+	CannonRotation.Yaw += CannonYawRotation;
+	TankCannonMesh->SetWorldRotation(CannonRotation);
+
+	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
+	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
+	float BarrelPitchRotation = CannonRotate.LookUp * BarrelPitchRate * CannonRotate.DeltaTime; // 90 degrees per second
+	BarrelRotation.Pitch += BarrelPitchRotation;
+	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
+	TankBarrelMesh->SetWorldRotation(BarrelRotation);
+}
 
 FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
 {
@@ -137,5 +141,15 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 	
 	return Move;
+}
+
+FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float DeltaTime)
+{
+	FHoverTankCannonRotate CannonRotate;
+	CannonRotate.DeltaTime = DeltaTime;
+	CannonRotate.LookUp = LookUp;
+	CannonRotate.LookRight = LookRight;
+
+	return CannonRotate;
 }
 
