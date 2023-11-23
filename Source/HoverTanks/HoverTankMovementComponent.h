@@ -122,10 +122,12 @@ private:
 	
 	FVector Velocity;
 
-	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
-
 	FHoverTankMove LastMove;
 	FHoverTankMove CreateMove(float DeltaTime);
+
+	/**
+	 * Tank Cannon and Barrel Rotations
+	 */
 
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;
@@ -135,5 +137,13 @@ private:
 
 	FHoverTankCannonRotate LastCannonRotate;
 	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime);
-		
+
+	/**
+	 * Helper Functions
+	 */
+	FVector CalculateAirResistance();
+	FVector CalculateRollingResistance();
+	void SimulateTurning(const FHoverTankMove& Move);
+	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
+	
 };

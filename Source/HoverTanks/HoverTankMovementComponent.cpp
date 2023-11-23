@@ -59,57 +59,22 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	}
 }
 
+/**
+ * Movement Simulation covers Throttle and Steering with drift 
+ */
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
-	/**
-	 * FORWARD MOVEMENT AND TURNING
-	 */
 	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * MaxThrottle;
 
-	FVector AirResistance = Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
-
-	float AccelerationDueToGravity = GetWorld()->GetGravityZ() / 100; // 1 to 100 to be in meters per seconds
-	float NormalForce = Mass * AccelerationDueToGravity;
-
-	FVector RollingResistance = Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
-
-	// UE_LOG(LogTemp, Warning, TEXT("Rolling Resistance is : %f, speed: %f"), RollingResistance.Size(), Velocity.Size());
+	FVector AirResistance = CalculateAirResistance();
+	FVector RollingResistance = CalculateRollingResistance();
 
 	ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 
 	FVector Acceleration = ForceOnObject / Mass;
 	Velocity = Velocity + Acceleration * Move.DeltaTime;
 
-	// Rotate Actor based on Steering
-	FRotator Rotation = GetOwner()->GetActorRotation();
-	float YawRotation = Move.Steering * BaseTurnRate * Move.DeltaTime; // 90 degrees per second
-	Rotation.Yaw += YawRotation;
-	GetOwner()->SetActorRotation(Rotation);
-
-
-	float RotationAngle = BaseTurnRate * Move.Steering * Move.DeltaTime;
-	// UE_LOG(LogTemp, Warning, TEXT("RotationAngle: %f"), RotationAngle);
-	
-
-	// DriftRatio=0 is no drift DriftRatio=1 is full drift, 0 should give a divider of 1 and 1 should give a divider of 2
-	float DriftDivider = 1 + (0 + MaxDriftRatio);
-
-	// smaller velocity should give a smaller DriftRatio
-
-	// As velocity appraoches 0, DriftDivider should approach 1, and as Velocity approaches 20 DriftDivider should approach 2
-	DriftDivider = 1 + (Velocity.Size() / 20) * MaxDriftRatio;
-	
-	
-	UE_LOG(LogTemp, Warning, TEXT("Velocity.Size(): %f, DriftDivider: %f"), Velocity.Size(), DriftDivider);
-	
-
-	// make radians from RotationAngle
-	RotationAngle = FMath::DegreesToRadians(RotationAngle) / DriftDivider; // rotation angle could be devided to drift the tank
-	// UE_LOG(LogTemp, Warning, TEXT("RotationAngle: %f"), RotationAngle);
-	FQuat RotationDelta(GetOwner()->GetActorUpVector(), RotationAngle);
-	
-	// GetOwner()->SetActorRotation(RotationAsRotator);
-	Velocity = RotationDelta.RotateVector(Velocity);
+	SimulateTurning(Move);
 	
 	// Move the Actor
 	FVector Translation = Velocity * Move.DeltaTime * 100; // * 100 to be in meters per seconds
@@ -132,7 +97,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 }
 
 /**
- * ROTATE CANNON AND BARREL WITH CAMERA
+ * Cannon Rotation Simulation covers the rotation of the TankCannon and TankBarrel meshes
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
@@ -148,18 +113,6 @@ void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRot
 	BarrelRotation.Pitch += BarrelPitchRotation;
 	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
 	TankBarrelMesh->SetWorldRotation(BarrelRotation);
-}
-
-FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
-{
-	// Ensure that the incoming velocity and wall normal are normalized
-	FVector NormalizedVelocity = InVelocity.GetSafeNormal();
-	FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
-
-	// Calculate the reflection vector using the formula: R = I - 2 * (I dot N) * N
-	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
-
-	return BounceVector;
 }
 
 FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
@@ -183,3 +136,48 @@ FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float Del
 	return CannonRotate;
 }
 
+void UHoverTankMovementComponent::SimulateTurning(const FHoverTankMove& Move)
+{
+	// Rotate Actor based on Steering
+	FRotator Rotation = GetOwner()->GetActorRotation();
+	float RotationAngle = BaseTurnRate * Move.Steering * Move.DeltaTime;
+	Rotation.Yaw += RotationAngle;
+	GetOwner()->SetActorRotation(Rotation);
+
+	// Rotate Velocity based on Steering, and Drift Ratio
+	
+	// As velocity appraoches 0, DriftDivider should approach 1, and as Velocity approaches 20 DriftDivider should approach 2
+	float DriftDivider = MaxDriftRatio > KINDA_SMALL_NUMBER
+		? 1 + (Velocity.Size() / 20) * MaxDriftRatio
+		: 1;
+	
+	RotationAngle = FMath::DegreesToRadians(RotationAngle) / DriftDivider;
+	FQuat RotationDelta(GetOwner()->GetActorUpVector(), RotationAngle);
+
+	Velocity = RotationDelta.RotateVector(Velocity);
+}
+
+FVector UHoverTankMovementComponent::CalculateAirResistance()
+{
+	return Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
+}
+
+FVector UHoverTankMovementComponent::CalculateRollingResistance()
+{
+	float AccelerationDueToGravity = GetWorld()->GetGravityZ() / 100; // 1 to 100 to be in meters per seconds
+	float NormalForce = Mass * AccelerationDueToGravity;
+
+	return Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
+}
+
+FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
+{
+	// Ensure that the incoming velocity and wall normal are normalized
+	FVector NormalizedVelocity = InVelocity.GetSafeNormal();
+	FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
+
+	// Calculate the reflection vector using the formula: R = I - 2 * (I dot N) * N
+	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
+
+	return BounceVector;
+}
