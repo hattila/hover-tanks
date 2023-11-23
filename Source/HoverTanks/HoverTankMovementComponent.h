@@ -90,7 +90,7 @@ private:
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BaseTurnRate = 60;
+	float BaseTurnRate = 75;
 
 	/** The mass of the tank (kg). */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -98,7 +98,13 @@ private:
 
 	/** Higher values means more drag. kg/m */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true"))
-	float DragCoefficient = 320;
+	float DragCoefficient = 32;
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true"))
+	float RollingResistanceCoefficient = 0.03f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
+	float MaxDriftRatio = 1.f;
 
 	float Throttle;
 	float Steering;
