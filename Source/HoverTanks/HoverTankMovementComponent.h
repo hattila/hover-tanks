@@ -149,5 +149,12 @@ private:
 	FVector CalculateRollingResistance();
 	void SimulateTurning(const FHoverTankMove& Move);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
+
+	bool IsGrounded();
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float UpDraft = .5f;
+
+	FVector CalculateDownForce(const FHoverTankMove& Move);
 	
 };

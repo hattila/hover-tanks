@@ -71,11 +71,13 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 
-	FVector Acceleration = ForceOnObject / Mass;
-	Velocity = Velocity + Acceleration * Move.DeltaTime;
+	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
+	FVector DownForce = CalculateDownForce(Move);
+
+	Velocity = Velocity + Acceleration + DownForce;
 
 	SimulateTurning(Move);
-	
+
 	// Move the Actor
 	FVector Translation = Velocity * Move.DeltaTime * 100; // * 100 to be in meters per seconds
 	FHitResult HitResult;
@@ -174,7 +176,7 @@ FVector UHoverTankMovementComponent::CalculateRollingResistance()
 		NormalForce *= 20;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Normal Force: %f"), NormalForce);
+	// UE_LOG(LogTemp, Warning, TEXT("Normal Force: %f"), NormalForce);
 
 	return Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
 }
@@ -189,4 +191,52 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
 
 	return BounceVector;
+}
+
+bool UHoverTankMovementComponent::IsGrounded()
+{
+	// Get the pawn owner
+	// APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	// if (!OwnerPawn)
+	// {
+	// 	// Handle the case where there is no valid pawn owner
+	// 	return false;
+	// }
+
+	
+
+	float GroundCheckDistance = 200.f;
+	float GroundNormalThreshold = 0.7f;
+	
+	// Set up the parameters for the line trace
+	FVector StartLocation = GetOwner()->GetActorLocation();
+	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance); // Adjust the Z component based on your needs
+
+	// Perform a line trace to check for the ground
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());
+
+	// Uncomment the next line for debugging purposes
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, CollisionParams))
+	{
+		// Check if the hit surface is walkable (you may need to adjust this based on your game)
+		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold)
+		{
+			// The pawn is considered grounded
+			return true;
+		}
+	}
+
+	// The pawn is not grounded
+	return false;
+}
+
+FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Move)
+{
+	return IsGrounded()
+		? GetOwner()->GetActorUpVector().GetSafeNormal() * UpDraft * Move.DeltaTime // float the tank	
+		: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
 }
