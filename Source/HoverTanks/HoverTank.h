@@ -82,13 +82,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	// /** Cannon turn rate in degrees per second, looking left and right */
-	// UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	// float CannonTurnRate = 90;
-	//
-	// /** Barrel pitch rate in degrees per second, looking up and down */
-	// UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	// float BarrelPitchRate = 90;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* EBrakeAction;
 
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
@@ -100,4 +95,7 @@ private:
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);
 	void LookCompleted();
+
+	void EBrakeStarted();
+	void EBrakeCompleted();
 };

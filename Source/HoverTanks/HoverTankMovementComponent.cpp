@@ -121,6 +121,7 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	Move.DeltaTime = DeltaTime;
 	Move.Throttle = Throttle;
 	Move.Steering = Steering;
+	Move.bIsEBraking = bIsEBraking;
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 	
 	return Move;
@@ -165,7 +166,15 @@ FVector UHoverTankMovementComponent::CalculateAirResistance()
 FVector UHoverTankMovementComponent::CalculateRollingResistance()
 {
 	float AccelerationDueToGravity = GetWorld()->GetGravityZ() / 100; // 1 to 100 to be in meters per seconds
+	
 	float NormalForce = Mass * AccelerationDueToGravity;
+	
+	if (bIsEBraking)
+	{
+		NormalForce *= 20;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Normal Force: %f"), NormalForce);
 
 	return Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
 }

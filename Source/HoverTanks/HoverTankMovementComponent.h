@@ -15,6 +15,8 @@ struct FHoverTankMove
 	float Throttle;
 	UPROPERTY()
 	float Steering;
+	UPROPERTY()
+	bool bIsEBraking;
 
 	UPROPERTY()
 	float DeltaTime;
@@ -62,6 +64,7 @@ public:
 
 	void SetThrottle(float InThrottle) { Throttle = InThrottle; }
 	void SetSteering(float InSteering) { Steering = InSteering; }
+	void SetIsEBraking(bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 	
 	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
@@ -108,6 +111,7 @@ private:
 
 	float Throttle;
 	float Steering;
+	bool bIsEBraking = false;
 
 	/** Cannon turn rate in degrees per second, looking left and right */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))

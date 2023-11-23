@@ -111,6 +111,10 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHoverTank::LookTriggered);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &AHoverTank::LookCompleted);
 
+		//EBrake
+		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Started, this, &AHoverTank::EBrakeStarted);
+		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Completed, this, &AHoverTank::EBrakeCompleted);
+		
 		// todo: on shift pressed, strafe
 	}
 }
@@ -130,14 +134,8 @@ void AHoverTank::Tick(float DeltaTime)
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
-	// log out the values in Value
-	// UE_LOG(LogTemp, Warning, TEXT("Move Value: %s"), *Value.ToString());
-
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	// Throttle = MovementVector.Y;
-	// Steering = MovementVector.X;
-
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetThrottle(MovementVector.Y);
@@ -147,16 +145,11 @@ void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 
 void AHoverTank::MoveCompleted()
 {
-	// Throttle = 0;
-	// Steering = 0;
-
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetThrottle(0);
 		HoverTankMovementComponent->SetSteering(0);
 	}
-	
-	// UE_LOG(LogTemp, Warning, TEXT("Move Completed, Throttle: %f, Steering: %f"), Throttle, Steering);
 }
 
 void AHoverTank::LookTriggered(const FInputActionValue& Value)
@@ -178,6 +171,22 @@ void AHoverTank::LookCompleted()
 	{
 		HoverTankMovementComponent->SetLookUp(0);
 		HoverTankMovementComponent->SetLookRight(0);
+	}
+}
+
+void AHoverTank::EBrakeStarted()
+{
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->SetIsEBraking(true);
+	}
+}
+
+void AHoverTank::EBrakeCompleted()
+{
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->SetIsEBraking(false);
 	}
 }
 
