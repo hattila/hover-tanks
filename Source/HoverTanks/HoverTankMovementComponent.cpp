@@ -64,6 +64,9 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
  */
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
+	/**
+	 * Initial Forces
+	 */
 	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * MaxThrottle;
 
 	FVector AirResistance = CalculateAirResistance();
@@ -76,9 +79,19 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	Velocity = Velocity + Acceleration + DownForce;
 
-	SimulateTurning(Move);
+	/**
+	 * Turning and Rotation
+	 */
+	FRotator HorizontalRotation;
+	FQuat RotationDelta;
+	CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	// Move the Actor
+	GetOwner()->SetActorRotation(HorizontalRotation);
+	Velocity = RotationDelta.RotateVector(Velocity);
+
+	/**
+	 * Move the Actor in 3d space
+	 */
 	FVector Translation = Velocity * Move.DeltaTime * 100; // * 100 to be in meters per seconds
 	FHitResult HitResult;
 	GetOwner()->AddActorWorldOffset(Translation, true, &HitResult);
@@ -94,7 +107,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
 		// Velocity = FVector::ZeroVector;
-		Velocity = BounceVector * Velocity.Size() / 2;
+		Velocity = BounceVector * Velocity.Size() / BounceDampening;
 	}
 }
 
@@ -139,25 +152,24 @@ FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float Del
 	return CannonRotate;
 }
 
-void UHoverTankMovementComponent::SimulateTurning(const FHoverTankMove& Move)
+void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta)
 {
 	// Rotate Actor based on Steering
-	FRotator Rotation = GetOwner()->GetActorRotation();
+	HorizontalRotation = GetOwner()->GetActorRotation();
 	float RotationAngle = BaseTurnRate * Move.Steering * Move.DeltaTime;
-	Rotation.Yaw += RotationAngle;
-	GetOwner()->SetActorRotation(Rotation);
+	HorizontalRotation.Yaw += RotationAngle;
+	// GetOwner()->SetActorRotation(HorizontalRotation);
 
 	// Rotate Velocity based on Steering, and Drift Ratio
-	
 	// As velocity appraoches 0, DriftDivider should approach 1, and as Velocity approaches 20 DriftDivider should approach 2
 	float DriftDivider = MaxDriftRatio > KINDA_SMALL_NUMBER
 		? 1 + (Velocity.Size() / 20) * MaxDriftRatio
 		: 1;
 	
 	RotationAngle = FMath::DegreesToRadians(RotationAngle) / DriftDivider;
-	FQuat RotationDelta(GetOwner()->GetActorUpVector(), RotationAngle);
+	RotationDelta = FQuat(GetOwner()->GetActorUpVector(), RotationAngle);
 
-	Velocity = RotationDelta.RotateVector(Velocity);
+	// Velocity = RotationDelta.RotateVector(Velocity);
 }
 
 FVector UHoverTankMovementComponent::CalculateAirResistance()

@@ -109,6 +109,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float MaxDriftRatio = 1.f;
 
+	/** Higher value means more loss of momentum on collision */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="1.0", ClampMax="3.0"))
+	float BounceDampening = 2.0f;
+
 	float Throttle;
 	float Steering;
 	bool bIsEBraking = false;
@@ -147,7 +151,7 @@ private:
 	 */
 	FVector CalculateAirResistance();
 	FVector CalculateRollingResistance();
-	void SimulateTurning(const FHoverTankMove& Move);
+	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 
 	bool IsGrounded();
