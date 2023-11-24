@@ -66,7 +66,7 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -82,9 +82,9 @@ private:
 	
 	UFUNCTION() // must be a UFUNCTION
 	void OnRep_ServerMoveState();
-	void SimulatedProxy_OnRep_ServerMoveState();
 	void AutonomousProxy_OnRep_ServerMoveState();
-	
+	void SimulatedProxy_OnRep_ServerMoveState();
+
 	TArray<FHoverTankMove> UnacknowledgedMoves;
 	
 	void ClearAcknowledgedMoves(FHoverTankMove LastMove);
@@ -95,26 +95,35 @@ private:
 	void UpdateServerMoveState(const FHoverTankMove& Move);
 	
 	/**
-	 * Client Interpolation
+	 * Client Interpolation of movement
 	 */
 	float ClientTimeSinceUpdate;
 	float ClientTimeBetweenLastUpdates;
 	FTransform ClientStartTransform;
 	FVector ClientStartVelocity;
 
+	void InterpolateMovement(float LerpRatio);
+	
 	FHermiteCubicSpline CreateSpline();
 
+	/**
+	 * Cannon and barrel rotation replication
+	 */
+	FRotator ClientStartCannonRotation;
+	FRotator ClientStartBarrelRotation;
+	
+	void InterpolateCannon(float LerpRatio);
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSendCannonRotate(const FHoverTankCannonRotate& CannonRotate);
+	void UpdateServerCannonRotate(FHoverTankCannonRotate LastCannonRotateReceived);
 
-	UPROPERTY(ReplicatedUsing=OnRep_LastCannonRotateState)
+	UPROPERTY(ReplicatedUsing=OnRep_ServerCannonRotateState)
 	FHoverTankCannonRotateState ServerCannonRotateState;
 	
 	UFUNCTION()
-	void OnRep_LastCannonRotateState();
-	void SimulatedProxy_OnRep_LastCannonRotateState();
-	void AutonomousProxy_OnRep_LastCannonRotateState();
-
-	FRotator ClientStartCannonRotation;
+	void OnRep_ServerCannonRotateState();
+	void AutonomousProxy_OnRep_ServerCannonRotateState();
+	void SimulatedProxy_OnRep_ServerCannonRotateState();
 		
 };

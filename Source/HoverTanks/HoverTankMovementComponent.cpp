@@ -195,15 +195,10 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 
 bool UHoverTankMovementComponent::IsGrounded()
 {
-	// Get the pawn owner
-	// APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	// if (!OwnerPawn)
-	// {
-	// 	// Handle the case where there is no valid pawn owner
-	// 	return false;
-	// }
-
-	
+	if (GetOwner() == nullptr)
+	{
+		return false;
+	}
 
 	float GroundCheckDistance = 200.f;
 	float GroundNormalThreshold = 0.7f;
@@ -217,20 +212,18 @@ bool UHoverTankMovementComponent::IsGrounded()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
-	// Uncomment the next line for debugging purposes
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+	// DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
 
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, CollisionParams))
 	{
-		// Check if the hit surface is walkable (you may need to adjust this based on your game)
+		// todo: Check if the hit surface is walkable
+
 		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold)
 		{
-			// The pawn is considered grounded
 			return true;
 		}
 	}
 
-	// The pawn is not grounded
 	return false;
 }
 
