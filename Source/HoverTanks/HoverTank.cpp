@@ -114,6 +114,9 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		//EBrake
 		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Started, this, &AHoverTank::EBrakeStarted);
 		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Completed, this, &AHoverTank::EBrakeCompleted);
+
+		//Jump
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AHoverTank::JumpStarted);
 		
 		// todo: on shift pressed, strafe
 	}
@@ -190,4 +193,12 @@ void AHoverTank::EBrakeCompleted()
 	}
 }
 
+void AHoverTank::JumpStarted()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Jump started"));
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->JumpPressed();
+	}
+}
 

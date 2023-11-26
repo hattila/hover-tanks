@@ -60,6 +60,12 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	}
 }
 
+void UHoverTankMovementComponent::JumpPressed()
+{
+	// could handle CD
+	bJumpOnNextTick = true;
+}
+
 /**
  * Movement Simulation covers Throttle and Steering with drift 
  */
@@ -151,8 +157,11 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	Move.Throttle = Throttle;
 	Move.Steering = Steering;
 	Move.bIsEBraking = bIsEBraking;
+	Move.bJumpOnNextTick = bJumpOnNextTick;
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-	
+
+	bJumpOnNextTick = false;
+
 	return Move;
 }
 
@@ -293,7 +302,12 @@ FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Mo
 	float CurrentUpDraft = ((1 - (DistanceFromGround / DesiredFloatHeight)) * -Gravity.Z) / HoveBounceDivider;
 	FVector DownForce = FVector(0, 0, 1) * CurrentUpDraft * Move.DeltaTime;
 
-	UE_LOG(LogTemp, Warning, TEXT("DST: %f, CurrentUpDraft: %f, DownForce: %s"), DistanceFromGround, CurrentUpDraft, *DownForce.ToString());
+	if (Move.bJumpOnNextTick)
+	{
+		DownForce = DownForce + FVector(0, 0, 1) * 2;
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("DST: %f, CurrentUpDraft: %f, DownForce: %s"), DistanceFromGround, CurrentUpDraft, *DownForce.ToString());
 		
 	return DownForce;
 	

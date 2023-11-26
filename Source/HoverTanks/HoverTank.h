@@ -85,6 +85,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* EBrakeAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpAction;
+	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
 	void MoveCompleted();
@@ -98,4 +101,7 @@ private:
 
 	void EBrakeStarted();
 	void EBrakeCompleted();
+
+	void JumpStarted();
+	void JumpCompleted();
 };
