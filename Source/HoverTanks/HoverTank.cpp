@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
+#include "TankProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -56,6 +57,8 @@ AHoverTank::AHoverTank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	ProjectileClass = ATankProjectile::StaticClass();
 
 	/**
 	 * Components Setup
@@ -117,6 +120,9 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 		//Jump
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AHoverTank::JumpStarted);
+
+		//Shoot
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
 		
 		// todo: on shift pressed, strafe
 	}
@@ -199,6 +205,22 @@ void AHoverTank::JumpStarted()
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->JumpPressed();
+	}
+}
+
+void AHoverTank::ShootStarted()
+{
+	// spawn a ATankProjectile at the end of the BarrelMesh
+	if (TankBarrelMesh)
+	{
+		FVector BarrelEndLocation = TankBarrelMesh->GetSocketLocation(FName("BarrelEnd"));
+		FRotator BarrelEndRotation = TankBarrelMesh->GetSocketRotation(FName("BarrelEnd"));
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.Owner = this;
+		SpawnParameters.Instigator = GetInstigator();
+
+		ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
 	}
 }
 
