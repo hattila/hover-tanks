@@ -313,6 +313,6 @@ void UMovementReplicatorComponent::SimulatedProxy_OnRep_ServerCannonRotateState(
 	ClientStartCannonRotation = HoverTankMovementComponent->GetTankCannonMesh()->GetComponentRotation();
 	ClientStartBarrelRotation = HoverTankMovementComponent->GetTankBarrelMesh()->GetComponentRotation();
 
-	UE_LOG(LogTemp, Warning, TEXT("Simulated Proxies current cannon rotation %s"), *ClientStartCannonRotation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("Simulated Proxies current cannon rotation %s"), *ClientStartCannonRotation.ToString());
 }
 

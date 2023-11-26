@@ -4,6 +4,7 @@
 #include "HoverTankMovementComponent.h"
 
 #include "HoverTank.h"
+#include "Animation/AnimNode_TransitionPoseEvaluator.h"
 #include "GameFramework/GameStateBase.h"
 
 // Sets default values for this component's properties
@@ -68,15 +69,18 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	 * Initial Forces
 	 */
 	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * MaxThrottle;
-
 	FVector AirResistance = CalculateAirResistance();
 	FVector RollingResistance = CalculateRollingResistance();
 
 	ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 
-	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
-	FVector DownForce = CalculateDownForce(Move);
+	FVector GroundSurfaceNormal;
+	float DistanceFromGround;
 
+	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
+	FVector DownForce = CalculateDownForce(Move, bIsGrounded, DistanceFromGround);
+	
+	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
 	Velocity = Velocity + Acceleration + DownForce;
 
 	/**
@@ -86,7 +90,17 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FQuat RotationDelta;
 	CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	GetOwner()->SetActorRotation(HorizontalRotation);
+	FRotator NewActorRotation = HorizontalRotation;
+	
+	// FRotator InterpolatedRotationTowardSurfaceNormal = CalculateSurfaceNormalRotation(GroundSurfaceNormal, Move.DeltaTime);
+	// NewActorRotation = HorizontalRotation + InterpolatedRotationTowardSurfaceNormal;
+	//
+	// // GetOwner()->SetActorRotation(HorizontalRotation + InterpolatedRotationTowardNormal);
+	// UE_LOG(LogTemp, Warning, TEXT("HorizontalRotation: %s"), *HorizontalRotation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("InterpolatedRotationTowardNormal: %s"), *InterpolatedRotationTowardSurfaceNormal.ToString());
+
+
+	GetOwner()->SetActorRotation(NewActorRotation);
 	Velocity = RotationDelta.RotateVector(Velocity);
 
 	/**
@@ -172,6 +186,26 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	// Velocity = RotationDelta.RotateVector(Velocity);
 }
 
+FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, float DeltaTime)
+{
+	FRotator InterpolatedRotationTowardNormal;
+	
+	// calculate a new actor rotation that pitches toward the surface normal
+
+	// calculate the new rotation that keeps the Actor perpendicular to the surface, and orthogonal to the surface normal
+	FQuat RotationDifference = FQuat::FindBetweenNormals(GetOwner()->GetActorUpVector().GetSafeNormal(), GroundSurfaceNormal);
+	// FQuat SurfaceNormalRotation = FQuat::Slerp(GetOwner()->GetActorRotation().Quaternion(), RotationDifference, 0.1f);
+	FRotator RotationTowardNormal = RotationDifference.Rotator();
+
+	InterpolatedRotationTowardNormal = FMath::RInterpTo(FRotator::ZeroRotator, RotationTowardNormal, DeltaTime, 5);
+	
+	// interpolate toward this new rotation
+	// InterpolatedRotationTowardNormal = FMath::RInterpTo(GetOwner()->GetActorRotation(), SurfaceNormalRotation.Rotation(), GetWorld()->GetDeltaSeconds(), 2);
+
+
+	return InterpolatedRotationTowardNormal;
+}
+
 FVector UHoverTankMovementComponent::CalculateAirResistance()
 {
 	return Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
@@ -205,33 +239,38 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 	return BounceVector;
 }
 
-bool UHoverTankMovementComponent::IsGrounded()
+bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround)
 {
 	if (GetOwner() == nullptr)
 	{
 		return false;
 	}
 
-	float GroundCheckDistance = 200.f;
+	float GroundCheckDistance = 20000.f;
 	float GroundNormalThreshold = 0.7f;
 	
 	// Set up the parameters for the line trace
 	FVector StartLocation = GetOwner()->GetActorLocation();
-	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance); // Adjust the Z component based on your needs
+	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance);
 
 	// Perform a line trace to check for the ground
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
-	// DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
 
+	GroundSurfaceNormal = FVector(0, 0, 1);
+	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, CollisionParams))
 	{
-		// todo: Check if the hit surface is walkable
+		GroundSurfaceNormal = HitResult.ImpactNormal.GetSafeNormal();
+		DistanceFromGround = HitResult.Distance;
 
-		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold)
+		// Check if the hit surface is walkable and is close enough
+		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold && HitResult.Distance <= 200)
 		{
+			// DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location + GroundSurfaceNormal * 500 , FColor::Red, false, 1, 0, 2);
 			return true;
 		}
 	}
@@ -239,9 +278,59 @@ bool UHoverTankMovementComponent::IsGrounded()
 	return false;
 }
 
-FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Move)
+FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround)
 {
-	return IsGrounded()
-		? GetOwner()->GetActorUpVector().GetSafeNormal() * UpDraft * Move.DeltaTime // float the tank	
-		: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
+	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
+
+	/**
+	 * TODO: create a scene component at the bottom, and trace from there
+	 */
+	DistanceFromGround = DistanceFromGround - 75;
+	
+	float DesiredFloatHeight = 100; // 1.0 meters todo make property
+	float HoveBounceDivider = 3; // 1 - 6 todo make property
+
+	float CurrentUpDraft = ((1 - (DistanceFromGround / DesiredFloatHeight)) * -Gravity.Z) / HoveBounceDivider;
+	FVector DownForce = FVector(0, 0, 1) * CurrentUpDraft * Move.DeltaTime;
+
+	UE_LOG(LogTemp, Warning, TEXT("DST: %f, CurrentUpDraft: %f, DownForce: %s"), DistanceFromGround, CurrentUpDraft, *DownForce.ToString());
+		
+	return DownForce;
+	
+
+	// if (DistanceFromGround > 800)
+	// {
+	// 	return Gravity;
+	// }
+	// else
+	// {
+	// 	float CurrentUpDraftMultiplier = FMath::Clamp(1 - (DistanceFromGround / 200), 0, 1);
+	// 	// UE_LOG(LogTemp, Warning, TEXT("CurrentUpDraftMultiplier: %f"), CurrentUpDraftMultiplier);
+	// 	
+	//
+	// 	FVector UpDraft = FVector(0, 0, 1) * (MaxUpDraftForce + MaxUpDraftForce * CurrentUpDraftMultiplier);
+	// 	// FVector UpDraft = (FVector(0, 0, 1) * (MaxUpDraftForce * 100) * 1) / Move.DeltaTime;
+	//
+	// 	UE_LOG(LogTemp, Warning, TEXT("Distance from ground: %f, CurrentUpDraftMultiplier: %f, UpDraftForce %f"), DistanceFromGround, CurrentUpDraftMultiplier, MaxUpDraftForce);
+	// 	UE_LOG(LogTemp, Warning, TEXT("Gravity: %s, UpDraft %s"), *Gravity.ToString(), *UpDraft.ToString());
+	//
+	// 	return Gravity + UpDraft;
+	// }
+
+
+	// Calculate updraft against gravity. When DistanceFromGround is 0, the updraft should be big enough to counter
+	// gravity and lift the tank. When the DistanceFromGround reaches 200 units, the updraft should be the same as gravity
+	// in order for the tank to hover.
+	
+	FVector AntiGravity = -Gravity;
+	FVector UpDraft = FVector(0, 0, 1);
+
+	UE_LOG(LogTemp, Warning, TEXT("dst: %f, Gravity: %s, UpDraft %s"), DistanceFromGround, *Gravity.ToString(), *UpDraft.ToString());
+	
+	return Gravity + UpDraft;
+	
+	// return bIsGrounded
+	// 	? GetOwner()->GetActorUpVector().GetSafeNormal() * MaxUpDraftForce * Move.DeltaTime // float the tank	
+	// 	: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
 }
+

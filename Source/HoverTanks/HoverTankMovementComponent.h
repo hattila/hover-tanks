@@ -152,13 +152,15 @@ private:
 	FVector CalculateAirResistance();
 	FVector CalculateRollingResistance();
 	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
+	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, float DeltaTime);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 
-	bool IsGrounded();
+	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
 
+	/** In Newtons. */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float UpDraft = .5f;
+	float MaxUpDraftForce = 9.8f;
 
-	FVector CalculateDownForce(const FHoverTankMove& Move);
+	FVector CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround);
 	
 };
