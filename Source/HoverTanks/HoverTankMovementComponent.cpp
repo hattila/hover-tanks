@@ -70,7 +70,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	 */
 	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * MaxThrottle;
 	FVector AirResistance = CalculateAirResistance();
-	FVector RollingResistance = CalculateRollingResistance();
+	FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
 
 	ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 
@@ -211,13 +211,13 @@ FVector UHoverTankMovementComponent::CalculateAirResistance()
 	return Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
 }
 
-FVector UHoverTankMovementComponent::CalculateRollingResistance()
+FVector UHoverTankMovementComponent::CalculateRollingResistance(bool InIsEBraking)
 {
 	float AccelerationDueToGravity = GetWorld()->GetGravityZ() / 100; // 1 to 100 to be in meters per seconds
 	
 	float NormalForce = Mass * AccelerationDueToGravity;
 	
-	if (bIsEBraking)
+	if (InIsEBraking)
 	{
 		NormalForce *= 20;
 	}

@@ -150,7 +150,7 @@ private:
 	 * Helper Functions
 	 */
 	FVector CalculateAirResistance();
-	FVector CalculateRollingResistance();
+	FVector CalculateRollingResistance(bool InIsEBraking);
 	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
 	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, float DeltaTime);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
