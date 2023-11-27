@@ -54,7 +54,10 @@ void ATankProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	// bind the OnHit event to the OnHit function
-	SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);
+	if (HasAuthority())
+	{
+		SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);	
+	}
 }
 
 // Called every frame
@@ -78,6 +81,17 @@ void ATankProjectile::OnHit(
 		return;
 	}
 
+	// FString DebugString = FString::Printf(
+	// 	TEXT("Projectile hit!, Role: %s HitComp: %s, OtherActor: %s, OtherComp: %s"),
+	// 	HasAuthority() ? TEXT("Server") : TEXT("Client"),
+	// 	*HitComp->GetName(),
+	// 	*OtherActor->GetName(),
+	// 	*OtherComp->GetName()
+	// );
+
+	// DrawDebugString(GetWorld(), Hit.Location, DebugString, this, FColor::Red, 5);
+	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
+	
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		// apply damage to the OtherActor
@@ -88,5 +102,12 @@ void ATankProjectile::OnHit(
 			this,
 			UDamageType::StaticClass()
 		);
+	}
+
+	BounceCount++;
+
+	if (BounceCount > 1)
+	{
+		Destroy();
 	}
 }

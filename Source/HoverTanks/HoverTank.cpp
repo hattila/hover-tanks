@@ -28,7 +28,10 @@ AHoverTank::AHoverTank()
 	 */
 	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
+	MovementReplicatorComponent->SetIsReplicated(true);
+
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+	HealthComponent->SetIsReplicated(true);
 	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
 	RootComponent = BoxCollider;

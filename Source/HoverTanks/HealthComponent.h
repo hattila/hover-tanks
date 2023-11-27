@@ -34,11 +34,14 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(ReplicatedUsing=OnRep_Health, VisibleAnywhere)
 	float Health = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float MaxHealth = 100.f;
 
+	UFUNCTION()
+	void OnRep_Health();
 	
 		
 };
