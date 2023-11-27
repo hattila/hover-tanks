@@ -210,7 +210,21 @@ void AHoverTank::JumpStarted()
 
 void AHoverTank::ShootStarted()
 {
-	// spawn a ATankProjectile at the end of the BarrelMesh
+	if (GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		ServerShoot();
+	}
+
+	if (GetLocalRole() == ROLE_Authority && IsLocallyControlled())
+	{
+		ServerShoot();
+	}
+	
+	// todo Shoot Action, should be handled by the replicator
+}
+
+void AHoverTank::SpawnProjectile()
+{
 	if (TankBarrelMesh)
 	{
 		FVector BarrelEndLocation = TankBarrelMesh->GetSocketLocation(FName("BarrelEnd"));
@@ -221,6 +235,17 @@ void AHoverTank::ShootStarted()
 		SpawnParameters.Instigator = GetInstigator();
 
 		ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
-	}
+	}	
+}
+
+void AHoverTank::ServerShoot_Implementation()
+{
+	SpawnProjectile();
+}
+
+bool AHoverTank::ServerShoot_Validate()
+{
+	// todo fire rate check
+	return true;
 }
 

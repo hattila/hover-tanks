@@ -112,4 +112,14 @@ private:
 	TSubclassOf<class ATankProjectile> ProjectileClass;
 	
 	void ShootStarted();
+
+	/**
+	 * Multiplayer ready shooting prototype
+	 */
+
+	void SpawnProjectile();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerShoot();
+	
 };
