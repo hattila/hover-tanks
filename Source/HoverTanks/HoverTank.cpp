@@ -4,6 +4,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HealthComponent.h"
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
 #include "TankProjectile.h"
@@ -27,6 +28,7 @@ AHoverTank::AHoverTank()
 	 */
 	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
 	RootComponent = BoxCollider;
@@ -138,7 +140,10 @@ void AHoverTank::Tick(float DeltaTime)
 	// Draw a debug text above the Pawn showing it's network role
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	DrawDebugString(GetWorld(), FVector(0, 0, 100), RoleString, this, FColor::White, 0);
+
+	FString DebugString = FString::Printf(TEXT("Role: %s, HP: %.0f"), *RoleString,  HealthComponent->GetHealth());
+	
+	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)

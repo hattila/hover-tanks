@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+class UHealthComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
 
@@ -47,6 +48,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UMovementReplicatorComponent* MovementReplicatorComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UHealthComponent* HealthComponent;
 	
 	// create a Box collider
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

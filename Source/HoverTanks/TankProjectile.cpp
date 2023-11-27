@@ -5,11 +5,12 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATankProjectile::ATankProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
@@ -25,12 +26,13 @@ ATankProjectile::ATankProjectile()
 	ProjectileMesh->SetupAttachment(RootComponent);
 
 	// initialize the projectile movement component
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(
+		TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->InitialSpeed = 10000.f;
 	ProjectileMovementComponent->MaxSpeed = 20000.f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = true;
-	
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
 	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
 	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
@@ -44,21 +46,47 @@ ATankProjectile::ATankProjectile()
 
 	// Set the mesh transform scale to .5
 	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
-	
-
 }
 
 // Called when the game starts or when spawned
 void ATankProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// bind the OnHit event to the OnHit function
+	SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);
 }
 
 // Called every frame
 void ATankProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+void ATankProjectile::OnHit(
+	UPrimitiveComponent* HitComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse,
+	const FHitResult& Hit
+)
+{
+	AActor* MyOwner = GetOwner();
+	if (MyOwner == nullptr)
+	{
+		Destroy();
+		return;
+	}
+
+	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
+	{
+		// apply damage to the OtherActor
+		UGameplayStatics::ApplyDamage(
+			OtherActor,
+			50.f,
+			GetInstigatorController(),
+			this,
+			UDamageType::StaticClass()
+		);
+	}
+}
