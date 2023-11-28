@@ -39,7 +39,7 @@ AHoverTank::AHoverTank()
 	 * Create Visible Components
 	 */
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
-	BoxCollider->SetupAttachment(RootComponent);
+	RootComponent = BoxCollider;
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
 	TankBaseMesh->SetupAttachment(BoxCollider);
