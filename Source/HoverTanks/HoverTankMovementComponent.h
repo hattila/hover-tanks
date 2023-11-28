@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankMovementComponent.generated.h"
 
+class UBoxComponent;
+
 USTRUCT()
 struct FHoverTankMove
 {
@@ -41,6 +43,9 @@ struct FHoverTankCannonRotate
 
 	UPROPERTY();
 	float LookRight;
+
+	UPROPERTY()
+	FRotator ControlRotation;
 
 	UPROPERTY()
 	float DeltaTime;
@@ -142,7 +147,6 @@ private:
 	/**
 	 * Tank Cannon and Barrel Rotations
 	 */
-
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;
 
@@ -150,7 +154,7 @@ private:
 	UStaticMeshComponent* TankBarrelMesh;
 
 	FHoverTankCannonRotate LastCannonRotate;
-	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime);
+	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation);
 
 	/**
 	 * Helper Functions

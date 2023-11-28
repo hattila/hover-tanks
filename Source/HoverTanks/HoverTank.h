@@ -32,10 +32,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
 
-	// UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
 	
 protected:

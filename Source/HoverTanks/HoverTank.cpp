@@ -24,7 +24,7 @@ AHoverTank::AHoverTank()
 	bUseControllerRotationYaw = false;
 
 	/**
-	 * Create Components
+	 * Create ActorComponents
 	 */
 	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 
@@ -33,15 +33,18 @@ AHoverTank::AHoverTank()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->SetIsReplicated(true);
-	
+
+	/**
+	 * Create Visible Components
+	 */
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
-	RootComponent = BoxCollider;
+	BoxCollider->SetupAttachment(RootComponent);
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
-	TankBaseMesh->SetupAttachment(RootComponent);
+	TankBaseMesh->SetupAttachment(BoxCollider);
 
 	TankCannonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Cannon Mesh"));
-	TankCannonMesh->SetupAttachment(TankBaseMesh);
+	TankCannonMesh->SetupAttachment(BoxCollider);
 
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
@@ -57,9 +60,9 @@ AHoverTank::AHoverTank()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannonBarrel"));
 	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
-
+	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
-	SpringArm->SetupAttachment(TankCannonMesh);
+	SpringArm->SetupAttachment(BoxCollider);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
@@ -69,10 +72,10 @@ AHoverTank::AHoverTank()
 	/**
 	 * Components Setup
 	 */
-	SpringArm->SetRelativeRotation(FRotator(-20, 0, 0));
-	SpringArm->TargetArmLength = 700;
-
-	Camera->SetRelativeRotation(FRotator(20, 0, 0));
+	
+	// SpringArm->SetRelativeRotation(FRotator(-20, 0, 0));
+	SpringArm->TargetArmLength = 800;
+	// Camera->SetRelativeRotation(FRotator(20, 0, 0));
 
 	// Set the BoxColliders collision to BlockAll
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -178,7 +181,7 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		
-		HoverTankMovementComponent->SetLookUp(-LookAxisVector.Y); // beware! -1 is up, 1 is down
+		HoverTankMovementComponent->SetLookUp(LookAxisVector.Y); // beware! -1 is up, 1 is down
 		HoverTankMovementComponent->SetLookRight(LookAxisVector.X);
 	}
 }
