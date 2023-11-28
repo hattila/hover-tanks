@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankMovementComponent.generated.h"
 
+class UBoxComponent;
+
 USTRUCT()
 struct FHoverTankMove
 {
@@ -43,6 +45,9 @@ struct FHoverTankCannonRotate
 	float LookRight;
 
 	UPROPERTY()
+	FRotator ControlRotation;
+
+	UPROPERTY()
 	float DeltaTime;
 
 	bool IsValid() const
@@ -69,7 +74,7 @@ public:
 	void SetIsEBraking(bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 
 	void JumpPressed();
-	
+
 	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
 
@@ -142,7 +147,6 @@ private:
 	/**
 	 * Tank Cannon and Barrel Rotations
 	 */
-
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;
 
@@ -150,7 +154,7 @@ private:
 	UStaticMeshComponent* TankBarrelMesh;
 
 	FHoverTankCannonRotate LastCannonRotate;
-	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime);
+	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation);
 
 	/**
 	 * Helper Functions
@@ -168,5 +172,9 @@ private:
 	float MaxUpDraftForce = 9.8f;
 
 	FVector CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround);
-	
+
+	/**
+	 * Debug
+	 */
+	void DebugDrawForwardAndVelocity() const;
 };

@@ -4,7 +4,6 @@
 #include "HoverTankMovementComponent.h"
 
 #include "HoverTank.h"
-#include "Animation/AnimNode_TransitionPoseEvaluator.h"
 #include "GameFramework/GameStateBase.h"
 
 // Sets default values for this component's properties
@@ -55,7 +54,11 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 			return;
 		}
 
-		LastCannonRotate = CreateCannonRotate(DeltaTime);
+		Owner->AddControllerYawInput(LastCannonRotate.LookRight);
+		Owner->AddControllerPitchInput(LastCannonRotate.LookUp);
+		FRotator ControlRotation = Owner->GetControlRotation();
+		
+		LastCannonRotate = CreateCannonRotate(DeltaTime, ControlRotation);
 		SimulateCannonRotate(LastCannonRotate);
 	}
 }
@@ -67,7 +70,12 @@ void UHoverTankMovementComponent::JumpPressed()
 }
 
 /**
- * Movement Simulation covers Throttle and Steering with drift 
+ * Movement Simulation covers
+ *  - Throttle, acceleration, drag, rolling resistance
+ *  - Updraft and gravity
+ *  - Slopes and rotation along surface normals
+ *  - Turning and Rotation
+ *  - Cannon and barrel rotation 
  */
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
@@ -105,7 +113,6 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	// UE_LOG(LogTemp, Warning, TEXT("HorizontalRotation: %s"), *HorizontalRotation.ToString());
 	// UE_LOG(LogTemp, Warning, TEXT("InterpolatedRotationTowardNormal: %s"), *InterpolatedRotationTowardSurfaceNormal.ToString());
 
-
 	GetOwner()->SetActorRotation(NewActorRotation);
 	Velocity = RotationDelta.RotateVector(Velocity);
 
@@ -116,17 +123,12 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FHitResult HitResult;
 	GetOwner()->AddActorWorldOffset(Translation, true, &HitResult);
 
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
+	DebugDrawForwardAndVelocity();
 	
 	if (HitResult.IsValidBlockingHit())
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("Hit something"));
-		
-		// DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25, 10, FColor::Red, false, 1, 0, 1);
-		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + HitResult.ImpactNormal * 100, 100, FColor::Green, false, 1, 0, 1);
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
-		// Velocity = FVector::ZeroVector;
 		Velocity = BounceVector * Velocity.Size() / BounceDampening;
 	}
 }
@@ -136,18 +138,21 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
-	// Rotate the TankCannon mesh based on the LookRight input
 	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	float CannonYawRotation = CannonRotate.LookRight * CannonTurnRate * CannonRotate.DeltaTime; // 90 degrees per second
-	CannonRotation.Yaw += CannonYawRotation;
+	CannonRotation.Yaw = CannonRotate.ControlRotation.Yaw;
 	TankCannonMesh->SetWorldRotation(CannonRotation);
 
-	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
+	// try to rotate the TankBarrelMesh toward the ControlRotation
 	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	float BarrelPitchRotation = CannonRotate.LookUp * BarrelPitchRate * CannonRotate.DeltaTime; // 90 degrees per second
-	BarrelRotation.Pitch += BarrelPitchRotation;
-	BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
-	TankBarrelMesh->SetWorldRotation(BarrelRotation);
+	FRotator BarrelRotationTowardControlRotation = FMath::RInterpTo(BarrelRotation, CannonRotate.ControlRotation, CannonRotate.DeltaTime, 10);
+	BarrelRotationTowardControlRotation.Pitch = BarrelRotationTowardControlRotation.Pitch + .25f; // zeroing 
+	BarrelRotationTowardControlRotation.Yaw = CannonRotate.ControlRotation.Yaw;
+	BarrelRotationTowardControlRotation.Roll = 0;
+
+	// Clamp Pitch between -10 and 15 degrees
+	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -10.0f, 15.0f);
+	
+	TankBarrelMesh->SetWorldRotation(BarrelRotationTowardControlRotation);
 }
 
 FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
@@ -165,12 +170,13 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	return Move;
 }
 
-FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float DeltaTime)
+FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation)
 {
 	FHoverTankCannonRotate CannonRotate;
 	CannonRotate.DeltaTime = DeltaTime;
 	CannonRotate.LookUp = LookUp;
 	CannonRotate.LookRight = LookRight;
+	CannonRotate.ControlRotation = ControlRotation;
 
 	return CannonRotate;
 }
@@ -348,3 +354,8 @@ FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Mo
 	// 	: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
 }
 
+void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
+{
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 1000, 10, FColor::Green, false, 0, 0, 4);
+}

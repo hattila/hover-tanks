@@ -10,6 +10,7 @@
 #include "TankProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -24,7 +25,7 @@ AHoverTank::AHoverTank()
 	bUseControllerRotationYaw = false;
 
 	/**
-	 * Create Components
+	 * Create ActorComponents
 	 */
 	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
 
@@ -33,15 +34,18 @@ AHoverTank::AHoverTank()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->SetIsReplicated(true);
-	
+
+	/**
+	 * Create Visible Components
+	 */
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
 	RootComponent = BoxCollider;
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
-	TankBaseMesh->SetupAttachment(RootComponent);
+	TankBaseMesh->SetupAttachment(BoxCollider);
 
 	TankCannonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Cannon Mesh"));
-	TankCannonMesh->SetupAttachment(TankBaseMesh);
+	TankCannonMesh->SetupAttachment(BoxCollider);
 
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
@@ -57,9 +61,9 @@ AHoverTank::AHoverTank()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannonBarrel"));
 	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
-
+	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
-	SpringArm->SetupAttachment(TankCannonMesh);
+	SpringArm->SetupAttachment(BoxCollider);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
@@ -69,16 +73,14 @@ AHoverTank::AHoverTank()
 	/**
 	 * Components Setup
 	 */
-	SpringArm->SetRelativeRotation(FRotator(-20, 0, 0));
-	SpringArm->TargetArmLength = 700;
-
-	Camera->SetRelativeRotation(FRotator(20, 0, 0));
+	SpringArm->TargetArmLength = SpringArmLength;
+	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 
 	// Set the BoxColliders collision to BlockAll
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BoxCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToAllChannels(ECR_Block);
+	BoxCollider->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	
 }
 
@@ -141,13 +143,11 @@ void AHoverTank::Tick(float DeltaTime)
 
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	// Draw a debug text above the Pawn showing it's network role
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-
-	FString DebugString = FString::Printf(TEXT("Role: %s, HP: %.0f"), *RoleString,  HealthComponent->GetHealth());
-	
-	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+	DebugDrawPlayerTitle();
+	if (IsLocallyControlled())
+	{
+		DebugDrawSphereAsCrosshair();	
+	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -178,7 +178,7 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		
-		HoverTankMovementComponent->SetLookUp(-LookAxisVector.Y); // beware! -1 is up, 1 is down
+		HoverTankMovementComponent->SetLookUp(LookAxisVector.Y); // beware! -1 is up, 1 is down
 		HoverTankMovementComponent->SetLookRight(LookAxisVector.X);
 	}
 }
@@ -258,3 +258,28 @@ bool AHoverTank::ServerShoot_Validate()
 	return true;
 }
 
+
+void AHoverTank::DebugDrawPlayerTitle()
+{
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+
+	APlayerState* CurrentPlayerState = GetPlayerState();
+	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
+	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+}
+
+void AHoverTank::DebugDrawSphereAsCrosshair() const
+{
+	FHitResult Hit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector End = Start + Camera->GetForwardVector() * 20000;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
+	float SphereRadius = FMath::Clamp((Hit.Location - Start).Size() / 100, 25.f, 100.f);
+	DrawDebugSphere(GetWorld(), Hit.Location, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
+}

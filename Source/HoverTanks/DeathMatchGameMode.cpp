@@ -16,6 +16,13 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	// find the BP_HoverTankController blueprint class
+	// static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/HoverTanks/Controllers/BP_HoverTankController"));
+	// if (PlayerControllerBPClass.Class != NULL)
+	// {
+	// 	PlayerControllerClass = PlayerControllerBPClass.Class;
+	// }
 	
 	// find all players starts in the map and add them to the spawn points array
 	TArray<AActor*> SpawnPointsInWorld;

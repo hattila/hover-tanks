@@ -27,15 +27,15 @@ public:
 	AHoverTank();
 
 	// create definition of the standard input binding method
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;	
-	
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
 
-	// UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
 	
 protected:
@@ -70,6 +70,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* SpringArm;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true", ClampMin = "0.0", ClampMax = "2000.0"))
+	float SpringArmLength = 800.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true", ClampMin = "0.0", ClampMax = "1000.0"))
+	float SpringArmZOffset = 200.f;
+	
 	// create a camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
@@ -125,5 +131,10 @@ private:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
-	
+
+	/**
+	 * Debug 
+	 */
+	void DebugDrawPlayerTitle();
+	void DebugDrawSphereAsCrosshair() const;
 };

@@ -137,7 +137,8 @@ void UMovementReplicatorComponent::InterpolateCannon(const float LerpRatio)
 		return;
 	}
 
-	FRotator InterpolatedCannonRotation = FMath::Lerp(ClientStartCannonRotation, ServerCannonRotateState.CannonRotation, LerpRatio);
+	// FRotator InterpolatedCannonRotation = FMath::Lerp(ClientStartCannonRotation, ServerCannonRotateState.CannonRotation, LerpRatio);
+	FQuat InterpolatedCannonRotation = FQuat::Slerp(ClientStartCannonRotation.Quaternion(), ServerCannonRotateState.CannonRotation.Quaternion(), LerpRatio);
 	HoverTankMovementComponent->GetTankCannonMesh()->SetWorldRotation(InterpolatedCannonRotation);
 
 	FRotator InterpolatedBarrelRotation = FMath::Lerp(ClientStartBarrelRotation, ServerCannonRotateState.BarrelRotation, LerpRatio);
