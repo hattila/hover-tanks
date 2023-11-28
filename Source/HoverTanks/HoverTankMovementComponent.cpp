@@ -141,46 +141,25 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
-	// Rotate the TankCannon mesh based on the LookRight input
-	// FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	// float CannonYawRotation = CannonRotate.LookRight * CannonTurnRate * CannonRotate.DeltaTime; // 90 degrees per second
-	// CannonRotation.Yaw += CannonYawRotation;
-	// TankCannonMesh->SetWorldRotation(CannonRotation);
-
-	// GetOwner()->SetActorRotation(CannonRotation);
-	
-	// Rotate the TankBarrel mesh up and down based on LookUp input, with a maximum of 15 degrees up and -10 degrees down
-	// FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	// float BarrelPitchRotation = CannonRotate.LookUp * BarrelPitchRate * CannonRotate.DeltaTime; // 90 degrees per second
-	// BarrelRotation.Pitch += BarrelPitchRotation;
-	// BarrelRotation.Pitch = FMath::Clamp(BarrelRotation.Pitch, -10.0f, 15.0f);
-	// TankBarrelMesh->SetWorldRotation(BarrelRotation);
-
-	// APawn* Owner = Cast<APawn>(GetOwner());
-	// Owner->AddControllerYawInput(CannonRotate.LookRight);
-	// Owner->AddControllerPitchInput(-CannonRotate.LookUp);
-	//
-	// FRotator ControlRotation = Owner->GetControlRotation();
-
-	// Create a new FRotator for the CannonMesh that rotates toward the ControlRotation with a maximum of CannonTurnRate
-	// FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
-	// FRotator CannonRotationTowardControlRotation = FMath::RInterpTo(CannonRotation, ControlRotation, CannonRotate.DeltaTime, 1);
-	// CannonRotationTowardControlRotation.Pitch = 0;
-	// CannonRotationTowardControlRotation.Roll = 0;
-	// TankCannonMesh->SetWorldRotation(CannonRotationTowardControlRotation);
-	
-
 	FString RoleString;
 	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("Role: %s, ControlRotation: %s"), *RoleString,  *CannonRotate.ControlRotation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("Role: %s, ControlRotation: %s"), *RoleString,  *CannonRotate.ControlRotation.ToString());
 	
 	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
 	CannonRotation.Yaw = CannonRotate.ControlRotation.Yaw;
 	TankCannonMesh->SetWorldRotation(CannonRotation);
-	//
-	// FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
-	// BarrelRotation.Pitch = FMath::Clamp(CannonRotation.Pitch, -10.0f, 15.0f);
-	// TankBarrelMesh->SetWorldRotation(BarrelRotation);
+
+	// try to rotate the TankBarrelMesh toward the ControlRotation
+	FRotator BarrelRotation = TankBarrelMesh->GetComponentRotation();
+	FRotator BarrelRotationTowardControlRotation = FMath::RInterpTo(BarrelRotation, CannonRotate.ControlRotation, CannonRotate.DeltaTime, 10);
+	BarrelRotationTowardControlRotation.Pitch = BarrelRotationTowardControlRotation.Pitch + .25f; // zeroing 
+	BarrelRotationTowardControlRotation.Yaw = CannonRotate.ControlRotation.Yaw;
+	BarrelRotationTowardControlRotation.Roll = 0;
+
+	// Clamp Pitch between -10 and 15 degrees
+	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -10.0f, 15.0f);
+	
+	TankBarrelMesh->SetWorldRotation(BarrelRotationTowardControlRotation);
 }
 
 FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
