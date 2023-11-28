@@ -74,7 +74,7 @@ public:
 	void SetIsEBraking(bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 
 	void JumpPressed();
-	
+
 	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
 
@@ -172,5 +172,9 @@ private:
 	float MaxUpDraftForce = 9.8f;
 
 	FVector CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround);
-	
+
+	/**
+	 * Debug
+	 */
+	void DebugDrawForwardAndVelocity() const;
 };

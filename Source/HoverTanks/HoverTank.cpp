@@ -150,7 +150,10 @@ void AHoverTank::Tick(float DeltaTime)
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
 	DebugDrawPlayerTitle();
-	DebugDrawSphereAsCrosshair();
+	if (IsLocallyControlled())
+	{
+		DebugDrawSphereAsCrosshair();	
+	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)

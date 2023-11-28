@@ -4,8 +4,6 @@
 #include "HoverTankMovementComponent.h"
 
 #include "HoverTank.h"
-#include "Animation/AnimNode_TransitionPoseEvaluator.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/GameStateBase.h"
 
 // Sets default values for this component's properties
@@ -72,7 +70,12 @@ void UHoverTankMovementComponent::JumpPressed()
 }
 
 /**
- * Movement Simulation covers Throttle and Steering with drift 
+ * Movement Simulation covers
+ *  - Throttle, acceleration, drag, rolling resistance
+ *  - Updraft and gravity
+ *  - Slopes and rotation along surface normals
+ *  - Turning and Rotation
+ *  - Cannon and barrel rotation 
  */
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
@@ -120,18 +123,12 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FHitResult HitResult;
 	GetOwner()->AddActorWorldOffset(Translation, true, &HitResult);
 
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 1000, 10, FColor::Green, false, 0, 0, 4);
+	DebugDrawForwardAndVelocity();
 	
 	if (HitResult.IsValidBlockingHit())
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("Hit something"));
-		
-		// DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25, 10, FColor::Red, false, 1, 0, 1);
-		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + HitResult.ImpactNormal * 100, 100, FColor::Green, false, 1, 0, 1);
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
-		// Velocity = FVector::ZeroVector;
 		Velocity = BounceVector * Velocity.Size() / BounceDampening;
 	}
 }
@@ -141,10 +138,6 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
-	FString RoleString;
-	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	// UE_LOG(LogTemp, Warning, TEXT("Role: %s, ControlRotation: %s"), *RoleString,  *CannonRotate.ControlRotation.ToString());
-	
 	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
 	CannonRotation.Yaw = CannonRotate.ControlRotation.Yaw;
 	TankCannonMesh->SetWorldRotation(CannonRotation);
@@ -361,3 +354,8 @@ FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Mo
 	// 	: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
 }
 
+void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
+{
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 1000, 10, FColor::Green, false, 0, 0, 4);
+}
