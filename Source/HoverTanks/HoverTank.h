@@ -27,8 +27,8 @@ public:
 	AHoverTank();
 
 	// create definition of the standard input binding method
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;	
-	
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -125,5 +125,10 @@ private:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
-	
+
+	/**
+	 * Debug 
+	 */
+	void DebugDrawPlayerTitle();
+	void DebugDrawSphereAsCrosshair() const;
 };

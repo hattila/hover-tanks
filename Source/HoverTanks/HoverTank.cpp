@@ -10,6 +10,7 @@
 #include "TankProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -75,6 +76,10 @@ AHoverTank::AHoverTank()
 	
 	// SpringArm->SetRelativeRotation(FRotator(-20, 0, 0));
 	SpringArm->TargetArmLength = 800;
+	// add 200 to the Spring Arm Transforms Z Location
+	SpringArm->AddLocalOffset(FVector(0, 0, 200));
+
+	
 	// Camera->SetRelativeRotation(FRotator(20, 0, 0));
 
 	// Set the BoxColliders collision to BlockAll
@@ -144,13 +149,8 @@ void AHoverTank::Tick(float DeltaTime)
 
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	// Draw a debug text above the Pawn showing it's network role
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-
-	FString DebugString = FString::Printf(TEXT("Role: %s, HP: %.0f"), *RoleString,  HealthComponent->GetHealth());
-	
-	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+	DebugDrawPlayerTitle();
+	DebugDrawSphereAsCrosshair();
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -261,3 +261,28 @@ bool AHoverTank::ServerShoot_Validate()
 	return true;
 }
 
+
+void AHoverTank::DebugDrawPlayerTitle()
+{
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+
+	APlayerState* CurrentPlayerState = GetPlayerState();
+	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
+	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+}
+
+void AHoverTank::DebugDrawSphereAsCrosshair() const
+{
+	FHitResult Hit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector End = Start + Camera->GetForwardVector() * 20000;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
+	float SphereRadius = FMath::Clamp((Hit.Location - Start).Size() / 100, 25.f, 100.f);
+	DrawDebugSphere(GetWorld(), Hit.Location, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
+}
