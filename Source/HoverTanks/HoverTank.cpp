@@ -73,20 +73,14 @@ AHoverTank::AHoverTank()
 	/**
 	 * Components Setup
 	 */
-	
-	// SpringArm->SetRelativeRotation(FRotator(-20, 0, 0));
-	SpringArm->TargetArmLength = 800;
-	// add 200 to the Spring Arm Transforms Z Location
-	SpringArm->AddLocalOffset(FVector(0, 0, 200));
-
-	
-	// Camera->SetRelativeRotation(FRotator(20, 0, 0));
+	SpringArm->TargetArmLength = SpringArmLength;
+	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 
 	// Set the BoxColliders collision to BlockAll
 	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BoxCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
-	BoxCollider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	BoxCollider->SetCollisionResponseToAllChannels(ECR_Block);
+	BoxCollider->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	BoxCollider->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	
 }
 
