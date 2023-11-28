@@ -7,6 +7,8 @@
 #include "HealthComponent.generated.h"
 
 
+class ADeathMatchGameMode;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UHealthComponent : public UActorComponent
 {
@@ -34,6 +36,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	ADeathMatchGameMode* GameModeRef; // todo: respawn able game mode interface?
+	
 	UPROPERTY(ReplicatedUsing=OnRep_Health, VisibleAnywhere)
 	float Health = 0.f;
 

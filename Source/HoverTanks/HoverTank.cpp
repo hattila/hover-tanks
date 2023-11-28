@@ -27,6 +27,7 @@ AHoverTank::AHoverTank()
 	 * Create Components
 	 */
 	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
+
 	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
 	MovementReplicatorComponent->SetIsReplicated(true);
 
