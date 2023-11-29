@@ -21,6 +21,8 @@ struct FHoverTankMove
 	bool bIsEBraking;
 	UPROPERTY()
 	bool bIsJumping;
+	UPROPERTY()
+	bool bIsBoosting;
 
 	UPROPERTY()
 	float DeltaTime;
@@ -76,6 +78,9 @@ public:
 	void JumpTriggered();
 	void JumpCompleted();
 
+	void BoostTriggered();
+	void BoostCompleted();
+	
 	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
 
@@ -99,6 +104,13 @@ private:
 	/** In Newtons. The max driving force */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float MaxThrottle = 40000;
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float BoostThrottle = 80000;
+
+	/** In Metres per second. The max speed */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float MaxSpeed = 25;
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -125,8 +137,8 @@ private:
 	float Throttle;
 	float Steering;
 	bool bIsEBraking = false;
-
 	bool bIsJumping = false;
+	bool bIsBoosting = false;
 
 	/** Cannon turn rate in degrees per second, looking left and right */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))

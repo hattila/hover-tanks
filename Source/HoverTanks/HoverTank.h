@@ -99,6 +99,9 @@ private:
 	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* BoostAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
 	
 	/** Called for movement input */
@@ -117,6 +120,9 @@ private:
 
 	void JumpTriggered();
 	void JumpCompleted();
+
+	void BoostTriggered();
+	void BoostCompleted();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class ATankProjectile> ProjectileClass;

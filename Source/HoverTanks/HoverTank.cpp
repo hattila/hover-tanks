@@ -130,6 +130,10 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AHoverTank::JumpTriggered);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AHoverTank::JumpCompleted);
 
+		//Boost
+		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Triggered, this, &AHoverTank::BoostTriggered);
+		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Completed, this, &AHoverTank::BoostCompleted);
+
 		//Shoot
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
 		
@@ -223,6 +227,22 @@ void AHoverTank::JumpCompleted()
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->JumpCompleted();
+	}
+}
+
+void AHoverTank::BoostTriggered()
+{
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->BoostTriggered();
+	}
+}
+
+void AHoverTank::BoostCompleted()
+{
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->BoostCompleted();
 	}
 }
 

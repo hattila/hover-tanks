@@ -73,6 +73,17 @@ void UHoverTankMovementComponent::JumpCompleted()
 	bIsJumping = false;
 }
 
+void UHoverTankMovementComponent::BoostTriggered()
+{
+	// handle boost reserve, CD
+	bIsBoosting = true;
+}
+
+void UHoverTankMovementComponent::BoostCompleted()
+{
+	bIsBoosting = false;
+}
+
 /**
  * Movement Simulation covers
  *  - Throttle, acceleration, drag, rolling resistance
@@ -86,7 +97,10 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	/**
 	 * Initial Forces
 	 */
-	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * MaxThrottle;
+
+	float ThrottleValue = Move.bIsBoosting ? BoostThrottle : MaxThrottle;
+	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * ThrottleValue;
+	
 	FVector AirResistance = CalculateAirResistance();
 	FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
 
@@ -100,6 +114,10 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	
 	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
 	Velocity = Velocity + Acceleration + VerticalForce;
+
+	// clamp max speed
+	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("Is Boosting %s, Force is : %f, Velocity Size: %f"), bIsBoosting ? TEXT("true") : TEXT("false"), ForceOnObject.Size(), Velocity.Size());
 
 	/**
 	 * Turning and Rotation
@@ -169,9 +187,8 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	Move.Steering = Steering;
 	Move.bIsEBraking = bIsEBraking;
 	Move.bIsJumping = bIsJumping;
+	Move.bIsBoosting = bIsBoosting;
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-
-	bIsJumping = false;
 
 	return Move;
 }
