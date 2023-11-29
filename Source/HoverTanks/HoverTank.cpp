@@ -127,7 +127,8 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Completed, this, &AHoverTank::EBrakeCompleted);
 
 		//Jump
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AHoverTank::JumpStarted);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AHoverTank::JumpTriggered);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AHoverTank::JumpCompleted);
 
 		//Shoot
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
@@ -208,12 +209,20 @@ void AHoverTank::EBrakeCompleted()
 	}
 }
 
-void AHoverTank::JumpStarted()
+void AHoverTank::JumpTriggered()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Jump started"));
 	if (HoverTankMovementComponent)
 	{
-		HoverTankMovementComponent->JumpPressed();
+		HoverTankMovementComponent->JumpTriggered();
+	}
+}
+
+void AHoverTank::JumpCompleted()
+{
+	if (HoverTankMovementComponent)
+	{
+		HoverTankMovementComponent->JumpCompleted();
 	}
 }
 

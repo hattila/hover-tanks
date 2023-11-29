@@ -20,7 +20,7 @@ struct FHoverTankMove
 	UPROPERTY()
 	bool bIsEBraking;
 	UPROPERTY()
-	bool bJumpOnNextTick;
+	bool bIsJumping;
 
 	UPROPERTY()
 	float DeltaTime;
@@ -73,7 +73,8 @@ public:
 	void SetSteering(float InSteering) { Steering = InSteering; }
 	void SetIsEBraking(bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 
-	void JumpPressed();
+	void JumpTriggered();
+	void JumpCompleted();
 
 	void SimulateMove(FHoverTankMove Move);
 	FHoverTankMove GetLastMove() { return LastMove; }
@@ -89,8 +90,7 @@ public:
 
 	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
 	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
-	
-	
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -126,7 +126,7 @@ private:
 	float Steering;
 	bool bIsEBraking = false;
 
-	bool bJumpOnNextTick = false;
+	bool bIsJumping = false;
 
 	/** Cannon turn rate in degrees per second, looking left and right */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))

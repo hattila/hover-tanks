@@ -63,10 +63,14 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	}
 }
 
-void UHoverTankMovementComponent::JumpPressed()
+void UHoverTankMovementComponent::JumpTriggered()
 {
-	// could handle CD
-	bJumpOnNextTick = true;
+	bIsJumping = true;
+}
+
+void UHoverTankMovementComponent::JumpCompleted()
+{
+	bIsJumping = false;
 }
 
 /**
@@ -164,10 +168,10 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	Move.Throttle = Throttle;
 	Move.Steering = Steering;
 	Move.bIsEBraking = bIsEBraking;
-	Move.bJumpOnNextTick = bJumpOnNextTick;
+	Move.bIsJumping = bIsJumping;
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 
-	bJumpOnNextTick = false;
+	bIsJumping = false;
 
 	return Move;
 }
@@ -323,9 +327,9 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 		VerticalForce = Gravity;
 	}
 
-	if (Move.bJumpOnNextTick)
+	if (Move.bIsJumping)
 	{
-		VerticalForce = VerticalForce + FVector(0, 0, 1) * 100;
+		VerticalForce = VerticalForce + FVector(0, 0, 1) * 5;
 	}
 
 	if (Move.bIsEBraking)

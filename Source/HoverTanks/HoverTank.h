@@ -115,7 +115,7 @@ private:
 	void EBrakeStarted();
 	void EBrakeCompleted();
 
-	void JumpStarted();
+	void JumpTriggered();
 	void JumpCompleted();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
