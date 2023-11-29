@@ -167,11 +167,11 @@ private:
 
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
 
-	/** In Newtons. */
+	/** In Unreal Units (Centimeters) */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxUpDraftForce = 9.8f;
+	float DesiredFloatHeight = 100;
 
-	FVector CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround);
+	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
 
 	/**
 	 * Debug

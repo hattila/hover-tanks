@@ -92,10 +92,10 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	float DistanceFromGround;
 
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
-	FVector DownForce = CalculateDownForce(Move, bIsGrounded, DistanceFromGround);
+	FVector VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
 	
 	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
-	Velocity = Velocity + Acceleration + DownForce;
+	Velocity = Velocity + Acceleration + VerticalForce;
 
 	/**
 	 * Turning and Rotation
@@ -131,6 +131,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
 		Velocity = BounceVector * Velocity.Size() / BounceDampening;
+		// Velocity = FVector::ZeroVector;
 	}
 }
 
@@ -299,65 +300,40 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	return false;
 }
 
-FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Move, bool bIsGrounded, float DistanceFromGround)
+FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround)
 {
 	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
-
 	/**
 	 * TODO: create a scene component at the bottom, and trace from there
 	 */
 	DistanceFromGround = DistanceFromGround - 75;
 	
-	float DesiredFloatHeight = 100; // 1.0 meters todo make property
-	float HoveBounceDivider = 3; // 1 - 6 todo make property
-
-	float CurrentUpDraft = ((1 - (DistanceFromGround / DesiredFloatHeight)) * -Gravity.Z) / HoveBounceDivider;
-	FVector DownForce = FVector(0, 0, 1) * CurrentUpDraft * Move.DeltaTime;
+	FVector VerticalForce;
+	if (DistanceFromGround < DesiredFloatHeight * 2)
+	{
+		float UpDraftMultiplier = 1 - DistanceFromGround / DesiredFloatHeight;
+		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z; // * HoverBounceMultiplier
+	
+		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
+		// FVector DownForce = VerticalForce - Gravity;
+		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, GRV: %f UpDraft: %f, VForce %f, m: %f"), DistanceFromGround, Gravity.Z, DownForce.Size(), VerticalForce.Z, UpDraftMultiplier);
+	}
+	else
+	{
+		VerticalForce = Gravity;
+	}
 
 	if (Move.bJumpOnNextTick)
 	{
-		DownForce = DownForce + FVector(0, 0, 1) * 2;
+		VerticalForce = VerticalForce + FVector(0, 0, 1) * 100;
 	}
-	
-	// UE_LOG(LogTemp, Warning, TEXT("DST: %f, CurrentUpDraft: %f, DownForce: %s"), DistanceFromGround, CurrentUpDraft, *DownForce.ToString());
-		
-	return DownForce;
-	
 
-	// if (DistanceFromGround > 800)
-	// {
-	// 	return Gravity;
-	// }
-	// else
-	// {
-	// 	float CurrentUpDraftMultiplier = FMath::Clamp(1 - (DistanceFromGround / 200), 0, 1);
-	// 	// UE_LOG(LogTemp, Warning, TEXT("CurrentUpDraftMultiplier: %f"), CurrentUpDraftMultiplier);
-	// 	
-	//
-	// 	FVector UpDraft = FVector(0, 0, 1) * (MaxUpDraftForce + MaxUpDraftForce * CurrentUpDraftMultiplier);
-	// 	// FVector UpDraft = (FVector(0, 0, 1) * (MaxUpDraftForce * 100) * 1) / Move.DeltaTime;
-	//
-	// 	UE_LOG(LogTemp, Warning, TEXT("Distance from ground: %f, CurrentUpDraftMultiplier: %f, UpDraftForce %f"), DistanceFromGround, CurrentUpDraftMultiplier, MaxUpDraftForce);
-	// 	UE_LOG(LogTemp, Warning, TEXT("Gravity: %s, UpDraft %s"), *Gravity.ToString(), *UpDraft.ToString());
-	//
-	// 	return Gravity + UpDraft;
-	// }
+	if (Move.bIsEBraking)
+	{
+		VerticalForce = VerticalForce - FVector(0, 0, 1) * 5;
+	}
 
-
-	// Calculate updraft against gravity. When DistanceFromGround is 0, the updraft should be big enough to counter
-	// gravity and lift the tank. When the DistanceFromGround reaches 200 units, the updraft should be the same as gravity
-	// in order for the tank to hover.
-	
-	FVector AntiGravity = -Gravity;
-	FVector UpDraft = FVector(0, 0, 1);
-
-	UE_LOG(LogTemp, Warning, TEXT("dst: %f, Gravity: %s, UpDraft %s"), DistanceFromGround, *Gravity.ToString(), *UpDraft.ToString());
-	
-	return Gravity + UpDraft;
-	
-	// return bIsGrounded
-	// 	? GetOwner()->GetActorUpVector().GetSafeNormal() * MaxUpDraftForce * Move.DeltaTime // float the tank	
-	// 	: GetWorld()->GetGravityZ() / 100 * GetOwner()->GetActorUpVector() * Move.DeltaTime; // apply gravity
+	return VerticalForce * Move.DeltaTime;
 }
 
 void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
