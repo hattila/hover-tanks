@@ -106,8 +106,9 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	FRotator NewActorRotation = HorizontalRotation;
 	
-	// FRotator InterpolatedRotationTowardSurfaceNormal = CalculateSurfaceNormalRotation(GroundSurfaceNormal, Move.DeltaTime);
-	// NewActorRotation = HorizontalRotation + InterpolatedRotationTowardSurfaceNormal;
+	FRotator InterpolatedRotationTowardNormal = CalculateSurfaceNormalRotation(GroundSurfaceNormal, Move.DeltaTime);
+	NewActorRotation = HorizontalRotation + InterpolatedRotationTowardNormal;
+
 	//
 	// // GetOwner()->SetActorRotation(HorizontalRotation + InterpolatedRotationTowardNormal);
 	// UE_LOG(LogTemp, Warning, TEXT("HorizontalRotation: %s"), *HorizontalRotation.ToString());
@@ -203,21 +204,26 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 
 FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, float DeltaTime)
 {
-	FRotator InterpolatedRotationTowardNormal;
-	
-	// calculate a new actor rotation that pitches toward the surface normal
+	FRotator InterpolatedRotationTowardNormal = FRotator::ZeroRotator;
 
-	// calculate the new rotation that keeps the Actor perpendicular to the surface, and orthogonal to the surface normal
-	FQuat RotationDifference = FQuat::FindBetweenNormals(GetOwner()->GetActorUpVector().GetSafeNormal(), GroundSurfaceNormal);
-	// FQuat SurfaceNormalRotation = FQuat::Slerp(GetOwner()->GetActorRotation().Quaternion(), RotationDifference, 0.1f);
-	FRotator RotationTowardNormal = RotationDifference.Rotator();
+	// I would like to rotate the Actor, so it will remain parallel to the ground that it hovers above.
+	// GroundSurfaceNormal is the current Normal vector of the ground that we are above.
+	// find the rotation that will rotate the Actor to be parallel to the ground
+	// FQuat RotationDifference = FQuat::FindBetweenVectors(GetOwner()->GetActorUpVector().GetSafeNormal(), GroundSurfaceNormal);
+	// // InterpolatedRotationTowardNormal = FMath::RInterpTo(FRotator::ZeroRotator, RotationDifference.Rotator(), DeltaTime, 3);
+	//
+	// InterpolatedRotationTowardNormal = RotationDifference.Rotator();
+	//
+	// // Clamp the new rotations Pitch and Roll to be between -10 and 10 degrees
+	// InterpolatedRotationTowardNormal.Pitch = FMath::Clamp(InterpolatedRotationTowardNormal.Pitch, -10.0f, 10.0f);
+	// InterpolatedRotationTowardNormal.Roll = FMath::Clamp(InterpolatedRotationTowardNormal.Roll, -10.0f, 10.0f);
+	// InterpolatedRotationTowardNormal.Yaw = 0;
+	//
+	// // debug visualize the rotation
+	// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + InterpolatedRotationTowardNormal.Vector() * 1000, 200, FColor::Purple, false, 1, 0, 2);
+	//
 
-	InterpolatedRotationTowardNormal = FMath::RInterpTo(FRotator::ZeroRotator, RotationTowardNormal, DeltaTime, 5);
-	
-	// interpolate toward this new rotation
-	// InterpolatedRotationTowardNormal = FMath::RInterpTo(GetOwner()->GetActorRotation(), SurfaceNormalRotation.Rotation(), GetWorld()->GetDeltaSeconds(), 2);
-
-
+	// return InterpolatedRotationTowardNormalQuat.Rotator();
 	return InterpolatedRotationTowardNormal;
 }
 
@@ -356,6 +362,6 @@ FVector UHoverTankMovementComponent::CalculateDownForce(const FHoverTankMove& Mo
 
 void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
 {
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Blue, false, 0, 0, 4);
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Purple, false, 0, 0, 4);
 	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 1000, 10, FColor::Green, false, 0, 0, 4);
 }
