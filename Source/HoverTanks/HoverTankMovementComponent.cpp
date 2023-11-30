@@ -155,8 +155,10 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
-	FRotator CannonRotation = TankCannonMesh->GetComponentRotation();
+	FRotator CannonRotation;
+	CannonRotation.Pitch = 0;
 	CannonRotation.Yaw = CannonRotate.ControlRotation.Yaw;
+	CannonRotation.Roll = 0;
 	TankCannonMesh->SetWorldRotation(CannonRotation);
 
 	// try to rotate the TankBarrelMesh toward the ControlRotation
