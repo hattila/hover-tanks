@@ -5,6 +5,7 @@
 
 #include "HoverTank.h"
 #include "GameFramework/GameStateBase.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
 UHoverTankMovementComponent::UHoverTankMovementComponent()
@@ -111,14 +112,13 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
 	FVector VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
+	// FVector VerticalForce = FVector::ZeroVector;
 	
 	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
 	Velocity = Velocity + Acceleration + VerticalForce;
-
 	// clamp max speed
 	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
-	UE_LOG(LogTemp, Warning, TEXT("Is Boosting %s, Force is : %f, Velocity Size: %f"), bIsBoosting ? TEXT("true") : TEXT("false"), ForceOnObject.Size(), Velocity.Size());
-
+	
 	/**
 	 * Turning and Rotation
 	 */
@@ -126,15 +126,8 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FQuat RotationDelta;
 	CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	FRotator NewActorRotation = HorizontalRotation;
-	
-	FRotator InterpolatedRotationTowardNormal = CalculateSurfaceNormalRotation(GroundSurfaceNormal, Move.DeltaTime);
-	NewActorRotation = HorizontalRotation + InterpolatedRotationTowardNormal;
-
-	//
-	// // GetOwner()->SetActorRotation(HorizontalRotation + InterpolatedRotationTowardNormal);
-	// UE_LOG(LogTemp, Warning, TEXT("HorizontalRotation: %s"), *HorizontalRotation.ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("InterpolatedRotationTowardNormal: %s"), *InterpolatedRotationTowardSurfaceNormal.ToString());
+	FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorUpVector(), GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
+	FRotator NewActorRotation = FMath::RInterpTo(HorizontalRotation, AlignedRotation, Move.DeltaTime, 2);
 
 	GetOwner()->SetActorRotation(NewActorRotation);
 	Velocity = RotationDelta.RotateVector(Velocity);
@@ -224,29 +217,19 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	// Velocity = RotationDelta.RotateVector(Velocity);
 }
 
-FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, float DeltaTime)
+FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector UpVector, FVector RightVector, float ActorYawRotation)
 {
-	FRotator InterpolatedRotationTowardNormal = FRotator::ZeroRotator;
+	float OutSlopePitchDegreeAngle;
+	float OutSlopeRollDegreeAngle;
+	UKismetMathLibrary::GetSlopeDegreeAngles(RightVector.GetSafeNormal(), GroundSurfaceNormal.GetSafeNormal(), UpVector.GetSafeNormal(), OutSlopePitchDegreeAngle, OutSlopeRollDegreeAngle);
 
-	// I would like to rotate the Actor, so it will remain parallel to the ground that it hovers above.
-	// GroundSurfaceNormal is the current Normal vector of the ground that we are above.
-	// find the rotation that will rotate the Actor to be parallel to the ground
-	// FQuat RotationDifference = FQuat::FindBetweenVectors(GetOwner()->GetActorUpVector().GetSafeNormal(), GroundSurfaceNormal);
-	// // InterpolatedRotationTowardNormal = FMath::RInterpTo(FRotator::ZeroRotator, RotationDifference.Rotator(), DeltaTime, 3);
-	//
-	// InterpolatedRotationTowardNormal = RotationDifference.Rotator();
-	//
-	// // Clamp the new rotations Pitch and Roll to be between -10 and 10 degrees
-	// InterpolatedRotationTowardNormal.Pitch = FMath::Clamp(InterpolatedRotationTowardNormal.Pitch, -10.0f, 10.0f);
-	// InterpolatedRotationTowardNormal.Roll = FMath::Clamp(InterpolatedRotationTowardNormal.Roll, -10.0f, 10.0f);
-	// InterpolatedRotationTowardNormal.Yaw = 0;
-	//
-	// // debug visualize the rotation
-	// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + InterpolatedRotationTowardNormal.Vector() * 1000, 200, FColor::Purple, false, 1, 0, 2);
-	//
+	OutSlopeRollDegreeAngle = -OutSlopeRollDegreeAngle;
+	FRotator AlignedRotation = FRotator(OutSlopePitchDegreeAngle, ActorYawRotation, OutSlopeRollDegreeAngle);
 
-	// return InterpolatedRotationTowardNormalQuat.Rotator();
-	return InterpolatedRotationTowardNormal;
+	// DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 500), FVector(100, 100, 100), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);
+	// UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s AlignedRotation: %s"), *GetOwner()->GetActorRotation().ToString(), *AlignedRotation.ToString());
+
+	return AlignedRotation;
 }
 
 FVector UHoverTankMovementComponent::CalculateAirResistance()
