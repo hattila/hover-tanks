@@ -128,7 +128,7 @@ private:
 	float RollingResistanceCoefficient = 0.03f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
-	float MaxDriftRatio = 1.f;
+	float MaxDriftRatio = 0.5f;
 
 	/** Higher value means more loss of momentum on collision */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="1.0", ClampMax="3.0"))
@@ -140,18 +140,14 @@ private:
 	bool bIsJumping = false;
 	bool bIsBoosting = false;
 
-	/** Cannon turn rate in degrees per second, looking left and right */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float CannonTurnRate = 90;
-
-	/** Barrel pitch rate in degrees per second, looking up and down */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BarrelPitchRate = 90;
-
 	float LookUp;
 	float LookRight;
 	
 	FVector Velocity;
+
+	/** In Unreal Units (Centimeters) */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float DesiredFloatHeight = 100;
 
 	FHoverTankMove LastMove;
 	FHoverTankMove CreateMove(float DeltaTime);
@@ -176,14 +172,9 @@ private:
 	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
 	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
-
-	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
-
-	/** In Unreal Units (Centimeters) */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float DesiredFloatHeight = 100;
-
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
+	
+	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
 
 	/**
 	 * Debug

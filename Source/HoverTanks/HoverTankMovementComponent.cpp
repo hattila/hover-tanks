@@ -7,14 +7,10 @@
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values for this component's properties
 UHoverTankMovementComponent::UHoverTankMovementComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
 
@@ -32,7 +28,6 @@ void UHoverTankMovementComponent::BeginPlay()
 	
 }
 
-// Called every frame
 void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -167,8 +162,7 @@ void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRot
 	BarrelRotationTowardControlRotation.Pitch = BarrelRotationTowardControlRotation.Pitch + .25f; // zeroing 
 	BarrelRotationTowardControlRotation.Yaw = CannonRotate.ControlRotation.Yaw;
 	BarrelRotationTowardControlRotation.Roll = 0;
-
-	// Clamp Pitch between -10 and 15 degrees
+	
 	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -10.0f, 15.0f);
 	
 	TankBarrelMesh->SetWorldRotation(BarrelRotationTowardControlRotation);
@@ -199,13 +193,17 @@ FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float Del
 	return CannonRotate;
 }
 
+/**
+ * Steering turns the Actor.
+ * Velocity is rotated by the Steering angle. The lower the speed is, the more turning is applied to the Velocity.
+ * More speed means more drift.
+ */
 void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta)
 {
 	// Rotate Actor based on Steering
 	HorizontalRotation = GetOwner()->GetActorRotation();
 	float RotationAngle = BaseTurnRate * Move.Steering * Move.DeltaTime;
 	HorizontalRotation.Yaw += RotationAngle;
-	// GetOwner()->SetActorRotation(HorizontalRotation);
 
 	// Rotate Velocity based on Steering, and Drift Ratio
 	// As velocity appraoches 0, DriftDivider should approach 1, and as Velocity approaches 20 DriftDivider should approach 2
@@ -215,8 +213,6 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	
 	RotationAngle = FMath::DegreesToRadians(RotationAngle) / DriftDivider;
 	RotationDelta = FQuat(GetOwner()->GetActorUpVector(), RotationAngle);
-
-	// Velocity = RotationDelta.RotateVector(Velocity);
 }
 
 FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
@@ -271,6 +267,44 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 	return BounceVector;
 }
 
+FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround)
+{
+	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
+	/**
+	 * TODO: create a scene component at the bottom, and trace from there
+	 */
+	DistanceFromGround = DistanceFromGround - 75;
+	
+	FVector VerticalForce;
+	if (DistanceFromGround < DesiredFloatHeight * 2)
+	{
+		float UpDraftMultiplier = 1 - DistanceFromGround / DesiredFloatHeight;
+		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z; // * HoverBounceMultiplier
+	
+		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
+		// FVector DownForce = VerticalForce - Gravity;
+		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, GRV: %f UpDraft: %f, VForce %f, m: %f"), DistanceFromGround, Gravity.Z, DownForce.Size(), VerticalForce.Z, UpDraftMultiplier);
+	}
+	else
+	{
+		VerticalForce = Gravity;
+	}
+
+	if (Move.bIsJumping)
+	{
+		VerticalForce += FVector(0, 0, 1) * 5;
+		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(10, 0, 150), GetOwner()->GetActorLocation() + FVector(10, 0, 250), 10, FColor::Red, false, 0, 0, 8);
+	}
+
+	if (Move.bIsEBraking)
+	{
+		VerticalForce -= FVector(0, 0, 1) * 5;
+		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(-10, 0, 250), GetOwner()->GetActorLocation() + FVector(-10, 0, 150), 10, FColor::Blue, false, 0, 0, 8);
+	}
+
+	return VerticalForce * Move.DeltaTime;
+}
+
 bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround)
 {
 	if (GetOwner() == nullptr)
@@ -308,44 +342,6 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	}
 
 	return false;
-}
-
-FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround)
-{
-	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
-	/**
-	 * TODO: create a scene component at the bottom, and trace from there
-	 */
-	DistanceFromGround = DistanceFromGround - 75;
-	
-	FVector VerticalForce;
-	if (DistanceFromGround < DesiredFloatHeight * 2)
-	{
-		float UpDraftMultiplier = 1 - DistanceFromGround / DesiredFloatHeight;
-		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z; // * HoverBounceMultiplier
-	
-		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
-		// FVector DownForce = VerticalForce - Gravity;
-		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, GRV: %f UpDraft: %f, VForce %f, m: %f"), DistanceFromGround, Gravity.Z, DownForce.Size(), VerticalForce.Z, UpDraftMultiplier);
-	}
-	else
-	{
-		VerticalForce = Gravity;
-	}
-
-	if (Move.bIsJumping)
-	{
-		VerticalForce = VerticalForce + FVector(0, 0, 1) * 5;
-		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(10, 0, 150), GetOwner()->GetActorLocation() + FVector(10, 0, 250), 10, FColor::Red, false, 0, 0, 8);
-	}
-
-	if (Move.bIsEBraking)
-	{
-		VerticalForce = VerticalForce - FVector(0, 0, 1) * 5;
-		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(-10, 0, 250), GetOwner()->GetActorLocation() + FVector(-10, 0, 150), 10, FColor::Blue, false, 0, 0, 8);
-	}
-
-	return VerticalForce * Move.DeltaTime;
 }
 
 void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
