@@ -142,6 +142,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	
 	if (HitResult.IsValidBlockingHit())
 	{
+		// FMath::GetReflectionVector ?
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
 		Velocity = BounceVector * Velocity.Size() / BounceDampening;

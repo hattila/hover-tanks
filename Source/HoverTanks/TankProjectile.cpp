@@ -26,10 +26,9 @@ ATankProjectile::ATankProjectile()
 	ProjectileMesh->SetupAttachment(RootComponent);
 
 	// initialize the projectile movement component
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(
-		TEXT("Projectile Movement Component"));
-	ProjectileMovementComponent->InitialSpeed = 10000.f;
-	ProjectileMovementComponent->MaxSpeed = 20000.f;
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	ProjectileMovementComponent->InitialSpeed = 20000.f;
+	ProjectileMovementComponent->MaxSpeed = 40000.f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = true;
 
@@ -56,7 +55,7 @@ void ATankProjectile::BeginPlay()
 	// bind the OnHit event to the OnHit function
 	if (HasAuthority())
 	{
-		SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);	
+		SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);
 	}
 }
 
@@ -91,7 +90,7 @@ void ATankProjectile::OnHit(
 
 	// DrawDebugString(GetWorld(), Hit.Location, DebugString, this, FColor::Red, 5);
 	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
-	
+
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		// apply damage to the OtherActor
@@ -105,7 +104,7 @@ void ATankProjectile::OnHit(
 	}
 
 	BounceCount++;
-
+	
 	if (BounceCount > 1)
 	{
 		Destroy();
