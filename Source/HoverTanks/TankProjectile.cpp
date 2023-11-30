@@ -108,8 +108,8 @@ void ATankProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 			this,
 			UDamageType::StaticClass()
 		);
+
+		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
+		Destroy();
 	}
-	
-	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
-	Destroy();
 }
