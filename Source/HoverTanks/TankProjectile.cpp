@@ -43,6 +43,9 @@ ATankProjectile::ATankProjectile()
 	SphereCollider->SetCollisionResponseToAllChannels(ECR_Block);
 	SphereCollider->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
+	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	// Set the mesh transform scale to .5
 	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
 }
@@ -56,6 +59,7 @@ void ATankProjectile::BeginPlay()
 	if (HasAuthority())
 	{
 		SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);
+		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ATankProjectile::OnOverlap);
 	}
 }
 
@@ -73,23 +77,28 @@ void ATankProjectile::OnHit(
 	const FHitResult& Hit
 )
 {
+	BounceCount++;
+	
+	if (BounceCount > 1)
+	{
+		Destroy();
+	}
+}
+
+void ATankProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool FromSweep,
+	const FHitResult& Hit
+)
+{
 	AActor* MyOwner = GetOwner();
 	if (MyOwner == nullptr)
 	{
 		Destroy();
 		return;
 	}
-
-	// FString DebugString = FString::Printf(
-	// 	TEXT("Projectile hit!, Role: %s HitComp: %s, OtherActor: %s, OtherComp: %s"),
-	// 	HasAuthority() ? TEXT("Server") : TEXT("Client"),
-	// 	*HitComp->GetName(),
-	// 	*OtherActor->GetName(),
-	// 	*OtherComp->GetName()
-	// );
-
-	// DrawDebugString(GetWorld(), Hit.Location, DebugString, this, FColor::Red, 5);
-	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
 
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
@@ -102,11 +111,7 @@ void ATankProjectile::OnHit(
 			UDamageType::StaticClass()
 		);
 	}
-
-	BounceCount++;
 	
-	if (BounceCount > 1)
-	{
-		Destroy();
-	}
+	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
+	Destroy();
 }

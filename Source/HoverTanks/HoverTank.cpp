@@ -77,12 +77,16 @@ AHoverTank::AHoverTank()
 	SpringArm->TargetArmLength = SpringArmLength;
 	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 
-	// Set the BoxColliders collision to BlockAll
-	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BoxCollider->SetCollisionResponseToAllChannels(ECR_Block);
-	BoxCollider->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	BoxCollider->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	
+	// CollisionProfile.Name = "HoverTank" - this is set in the editor
+	BoxCollider->SetCollisionProfileName(CollisionProfile.Name, true);
+
+	// mashes shall not collide
+	TankBaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	TankBaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TankCannonMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	TankCannonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
