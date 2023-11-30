@@ -174,7 +174,7 @@ private:
 	FVector CalculateAirResistance();
 	FVector CalculateRollingResistance(bool InIsEBraking);
 	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
-	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector UpVector, FVector RightVector, float ActorYawRotation);
+	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);

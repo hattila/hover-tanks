@@ -126,7 +126,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FQuat RotationDelta;
 	CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorUpVector(), GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
+	FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
 	FRotator NewActorRotation = FMath::RInterpTo(HorizontalRotation, AlignedRotation, Move.DeltaTime, 2);
 
 	GetOwner()->SetActorRotation(NewActorRotation);
@@ -217,15 +217,19 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	// Velocity = RotationDelta.RotateVector(Velocity);
 }
 
-FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector UpVector, FVector RightVector, float ActorYawRotation)
+FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
 {
 	float OutSlopePitchDegreeAngle;
 	float OutSlopeRollDegreeAngle;
-	UKismetMathLibrary::GetSlopeDegreeAngles(RightVector.GetSafeNormal(), GroundSurfaceNormal.GetSafeNormal(), UpVector.GetSafeNormal(), OutSlopePitchDegreeAngle, OutSlopeRollDegreeAngle);
+	FVector UpVector = FVector(0, 0, 1);
+	
+	UKismetMathLibrary::GetSlopeDegreeAngles(RightVector.GetSafeNormal(), GroundSurfaceNormal.GetSafeNormal(), UpVector, OutSlopePitchDegreeAngle, OutSlopeRollDegreeAngle);
 
 	OutSlopeRollDegreeAngle = -OutSlopeRollDegreeAngle;
+	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -10.0f, 20.0f);
+	
 	FRotator AlignedRotation = FRotator(OutSlopePitchDegreeAngle, ActorYawRotation, OutSlopeRollDegreeAngle);
-
+	
 	// DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 500), FVector(100, 100, 100), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);
 	// UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s AlignedRotation: %s"), *GetOwner()->GetActorRotation().ToString(), *AlignedRotation.ToString());
 
