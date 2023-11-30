@@ -10,6 +10,7 @@
 #include "TankProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/WeaponsComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -34,6 +35,8 @@ AHoverTank::AHoverTank()
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->SetIsReplicated(true);
+
+	WeaponsComponent = CreateDefaultSubobject<UWeaponsComponent>(TEXT("Weapons Component"));
 
 	/**
 	 * Create Visible Components
@@ -67,8 +70,6 @@ AHoverTank::AHoverTank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
-
-	ProjectileClass = ATankProjectile::StaticClass();
 
 	/**
 	 * Components Setup
@@ -248,45 +249,11 @@ void AHoverTank::BoostCompleted()
 
 void AHoverTank::ShootStarted()
 {
-	if (GetLocalRole() == ROLE_AutonomousProxy)
+	if (WeaponsComponent)
 	{
-		ServerShoot();
+		WeaponsComponent->AttemptToShoot();
 	}
-
-	if (GetLocalRole() == ROLE_Authority && IsLocallyControlled())
-	{
-		ServerShoot();
-	}
-	
-	// todo Shoot Action, should be handled by the replicator
 }
-
-void AHoverTank::SpawnProjectile()
-{
-	if (TankBarrelMesh)
-	{
-		FVector BarrelEndLocation = TankBarrelMesh->GetSocketLocation(FName("BarrelEnd"));
-		FRotator BarrelEndRotation = TankBarrelMesh->GetSocketRotation(FName("BarrelEnd"));
-
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = this;
-		SpawnParameters.Instigator = GetInstigator();
-
-		ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
-	}	
-}
-
-void AHoverTank::ServerShoot_Implementation()
-{
-	SpawnProjectile();
-}
-
-bool AHoverTank::ServerShoot_Validate()
-{
-	// todo fire rate check
-	return true;
-}
-
 
 void AHoverTank::DebugDrawPlayerTitle()
 {

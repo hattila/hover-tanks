@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+class UWeaponsComponent;
 class UHealthComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
@@ -51,7 +52,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComponent;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UWeaponsComponent* WeaponsComponent;
+
 	// create a Box collider
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* BoxCollider;
@@ -123,20 +127,8 @@ private:
 
 	void BoostTriggered();
 	void BoostCompleted();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class ATankProjectile> ProjectileClass;
 	
 	void ShootStarted();
-
-	/**
-	 * Multiplayer ready shooting prototype
-	 */
-
-	void SpawnProjectile();
-	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerShoot();
 
 	/**
 	 * Debug 
