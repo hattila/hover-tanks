@@ -112,7 +112,6 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
 	FVector VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
-	// FVector VerticalForce = FVector::ZeroVector;
 	
 	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
 	Velocity = Velocity + Acceleration + VerticalForce;
@@ -334,11 +333,13 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 	if (Move.bIsJumping)
 	{
 		VerticalForce = VerticalForce + FVector(0, 0, 1) * 5;
+		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(10, 0, 150), GetOwner()->GetActorLocation() + FVector(10, 0, 250), 10, FColor::Red, false, 0, 0, 8);
 	}
 
 	if (Move.bIsEBraking)
 	{
 		VerticalForce = VerticalForce - FVector(0, 0, 1) * 5;
+		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(-10, 0, 250), GetOwner()->GetActorLocation() + FVector(-10, 0, 150), 10, FColor::Blue, false, 0, 0, 8);
 	}
 
 	return VerticalForce * Move.DeltaTime;
