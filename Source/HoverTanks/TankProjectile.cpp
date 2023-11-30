@@ -36,12 +36,8 @@ ATankProjectile::ATankProjectile()
 	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
 	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
 
-	// set up the Sphere Collider to block all dynamic
-	// objects and overlap with pawns
-	SphereCollider->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	SphereCollider->SetCollisionObjectType(ECC_WorldDynamic);
-	SphereCollider->SetCollisionResponseToAllChannels(ECR_Block);
-	SphereCollider->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	// CollisionProfile.Name = "Projectile"
+	SphereCollider->SetCollisionProfileName(TEXT("Projectile"), true);
 
 	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -77,6 +73,8 @@ void ATankProjectile::OnHit(
 	const FHitResult& Hit
 )
 {
+	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
+	
 	BounceCount++;
 	
 	if (BounceCount > 1)
