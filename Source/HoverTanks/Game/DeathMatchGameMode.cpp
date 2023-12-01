@@ -32,7 +32,8 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	{
 		SpawnPoints.Add(Cast<APlayerStart>(SpawnPoint));
 	}
-	
+
+	// Custom GameInstance should be set in DefaultEngine.ini
 }
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)

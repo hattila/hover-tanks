@@ -29,3 +29,8 @@ Here's the best workaround I know of. If someone knows of a better one, please s
 - Compile.
 - Uncomment the UPROPERTY macro.
 - Compile.
+
+### Know How
+
+- GameInstance: Create a new GameInstance class. Close Unreal, Generate project files, build
+
