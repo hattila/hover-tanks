@@ -3,7 +3,7 @@
 
 #include "HoverTankMovementComponent.h"
 
-#include "HoverTank.h"
+#include "HoverTanks/HoverTank.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 

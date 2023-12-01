@@ -2,12 +2,12 @@
 
 #include "HoverTank.h"
 
+#include "HoverTanks/Components/HealthComponent.h"
+#include "HoverTanks/Components/HoverTankMovementComponent.h"
+#include "HoverTanks/Components/MovementReplicatorComponent.h"
+
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "HealthComponent.h"
-#include "HoverTankMovementComponent.h"
-#include "MovementReplicatorComponent.h"
-#include "TankProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/WeaponsComponent.h"

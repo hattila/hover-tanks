@@ -3,8 +3,8 @@
 
 #include "HealthComponent.h"
 
-#include "DeathMatchGameMode.h"
-#include "HoverTank.h"
+#include "HoverTanks/Game/DeathMatchGameMode.h"
+#include "HoverTanks/HoverTank.h"
 #include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
