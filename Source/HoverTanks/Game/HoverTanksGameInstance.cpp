@@ -6,15 +6,26 @@
 #include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
+#include "Blueprint/UserWidget.h"
+#include "HoverTanks/MenuSystem/MainMenu.h"
 
 UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer)
 {
-	
+	// load MainMenuClass
+	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_MainMenu"));
+	if (!ensure(MainMenuBPClass.Class != nullptr))
+	{
+		return;
+	}
+
+	MainMenuClass = MainMenuBPClass.Class;
 }
 
 void UHoverTanksGameInstance::Init()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Initializing HoverTanksGameInstance"));
+	Super::Init(); // without this call, widgets cannot initialize and the menu will not show
+	
+	// UE_LOG(LogTemp, Warning, TEXT("Initializing HoverTanksGameInstance"));
 	
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 
@@ -28,6 +39,24 @@ void UHoverTanksGameInstance::Init()
 
 		SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UHoverTanksGameInstance::OnSessionUserInviteAccepted);
 	}
+	
+}
+
+void UHoverTanksGameInstance::ShowMainMenu()
+{
+	if (MainMenuClass == nullptr)
+	{
+		return;
+	}
+
+	// Create a MainMenu widget and add it to the viewport
+	UMainMenu* MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
+	if (MainMenu == nullptr)
+	{
+		return;
+	}
+
+	MainMenu->Setup();
 	
 }
 

@@ -16,11 +16,13 @@ class HOVERTANKS_API UHoverTanksGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	// constructor
 	UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer);
-	// init function
+	
 	virtual void Init();
 
+	UFUNCTION(BlueprintCallable)
+	void ShowMainMenu();
+	
 	UFUNCTION(Exec)
 	void Host();
 
@@ -28,6 +30,16 @@ public:
 	void Join(const FString& Address);
 
 private:
+	/**
+	 * Menu System
+	 */
+
+	TSubclassOf<UUserWidget> MainMenuClass;
+	
+	/**
+	 * Online Session
+	 */
+
 	IOnlineSessionPtr SessionInterface;
 
 	void StartCreateSession();
