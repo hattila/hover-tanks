@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "HoverTanksGameInstance.generated.h"
 
+class UMainMenu;
 /**
  * 
  */
@@ -35,6 +36,8 @@ private:
 	 */
 
 	TSubclassOf<UUserWidget> MainMenuClass;
+
+	UMainMenu* MainMenu;
 	
 	/**
 	 * Online Session

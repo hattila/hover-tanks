@@ -19,8 +19,10 @@ class HOVERTANKS_API UMainMenu : public UUserWidget
 public:
 	UMainMenu(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION()
 	bool Initialize() override;
 	void Setup();
+	void Teardown();
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -41,6 +43,9 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* AvailableGamesList;
 
+	UFUNCTION()
+	void OpenHostMenu();
+	
 	UFUNCTION()
 	void QuitGame();
 };

@@ -50,7 +50,7 @@ void UHoverTanksGameInstance::ShowMainMenu()
 	}
 
 	// Create a MainMenu widget and add it to the viewport
-	UMainMenu* MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
+	MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
 	if (MainMenu == nullptr)
 	{
 		return;
@@ -112,6 +112,11 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	{
 		UE_LOG(LogTemp, Error, TEXT("OnCreateSessionComplete failed"));
 		return;
+	}
+
+	if (MainMenu != nullptr)
+	{
+		MainMenu->Teardown();
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete success, Traveling ..."));
