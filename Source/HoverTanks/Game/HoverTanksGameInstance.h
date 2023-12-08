@@ -18,7 +18,6 @@ class HOVERTANKS_API UHoverTanksGameInstance : public UGameInstance
 public:
 	// constructor
 	UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer);
-	
 	// init function
 	virtual void Init();
 
@@ -31,9 +30,13 @@ public:
 private:
 	IOnlineSessionPtr SessionInterface;
 
+	void StartCreateSession();
+	
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnFindSessionsComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	void OnSessionUserInviteAccepted(bool bWasSuccess, int ControllerId, TSharedPtr<const FUniqueNetId> UserId, const FOnlineSessionSearchResult& InviteResult);
 
 };

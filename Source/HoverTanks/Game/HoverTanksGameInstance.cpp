@@ -25,6 +25,8 @@ void UHoverTanksGameInstance::Init()
 		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnDestroySessionComplete);
 		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnFindSessionsComplete);
 		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnJoinSessionComplete);
+
+		SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UHoverTanksGameInstance::OnSessionUserInviteAccepted);
 	}
 	
 }
@@ -41,6 +43,23 @@ void UHoverTanksGameInstance::Host()
 			return;
 		}
 		
+		StartCreateSession();
+	}
+}
+
+void UHoverTanksGameInstance::Join(const FString& Address)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	}
+}
+
+void UHoverTanksGameInstance::StartCreateSession()
+{
+	if (SessionInterface.IsValid())
+	{
 		FOnlineSessionSettings SessionSettings;
 
 		IOnlineSubsystem::Get()->GetSubsystemName() == "NULL"
@@ -58,15 +77,6 @@ void UHoverTanksGameInstance::Host()
 	}
 }
 
-void UHoverTanksGameInstance::Join(const FString& Address)
-{
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (PlayerController)
-	{
-		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-	}
-}
-
 void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
@@ -80,11 +90,13 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;
 
+	// todo use chosen map
 	World->ServerTravel("/Game/HoverTanks/Maps/PrototypeMap?listen");
 }
 
 void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnDestroySessionComplete was %s"), bWasSuccessful ? TEXT("successful") : TEXT("unsuccessful"));
 }
 
 void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
@@ -93,4 +105,16 @@ void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 
 void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
+}
+
+/**
+ * @see https://www.reddit.com/r/unrealengine/comments/wprvfy/unreal_steam_join_game_setup_how_does_it_work/
+ */
+void UHoverTanksGameInstance::OnSessionUserInviteAccepted(bool bWasSuccess, int ControllerId, TSharedPtr<const FUniqueNetId> UserId, const FOnlineSessionSearchResult& InviteResult)
+{
+	if (SessionInterface.IsValid())
+	{
+		SessionInterface->JoinSession(0, NAME_GameSession, InviteResult);	
+	}
+	
 }
