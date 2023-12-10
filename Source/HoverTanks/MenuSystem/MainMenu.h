@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
+class UThrobber;
 class UServerRow;
 class UHoverTanksGameInstance;
 class UWidgetSwitcher;
@@ -30,6 +31,9 @@ public:
 	void PopulateAvailableGamesList(const TArray<FString>& ServerNames);
 	void JoinServerAtIndex(uint32 ServerIndex);
 
+	void ShowSessionSearchInProgress();
+	void HideSessionSearchInProgress();
+
 private:
 	// UHoverTanksGameInstance* GameInstance;
 	
@@ -50,6 +54,9 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* AvailableGamesMenu;
+
+	UPROPERTY(meta = (BindWidget))
+	UThrobber* SessionSearchInProgress;
 
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* AvailableGamesList;

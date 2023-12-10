@@ -9,7 +9,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/MenuSystem/MainMenu.h"
 
-UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer)
+UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
 {
 	// load MainMenuClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_MainMenu"));
@@ -64,10 +64,10 @@ void UHoverTanksGameInstance::Host()
 {
 	if (SessionInterface.IsValid())
 	{
-		FNamedOnlineSession *ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
+		FNamedOnlineSession *ExistingSession = SessionInterface->GetNamedSession(GHover_Tanks_Session_Name);
 		if (ExistingSession != nullptr)
 		{
-			SessionInterface->DestroySession(NAME_GameSession);
+			SessionInterface->DestroySession(GHover_Tanks_Session_Name);
 			UE_LOG(LogTemp, Warning, TEXT("Destroying existing session"));
 			return;
 		}
@@ -96,6 +96,10 @@ void UHoverTanksGameInstance::RefreshServerList()
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+		if (MainMenu)
+		{
+			MainMenu->ShowSessionSearchInProgress();
+		}
 	}
 }
 
@@ -117,7 +121,7 @@ void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
 		MainMenu->Teardown();
 	}
 
-	SessionInterface->JoinSession(0, NAME_GameSession, SessionSearch->SearchResults[Index]);
+	SessionInterface->JoinSession(0, GHover_Tanks_Session_Name, SessionSearch->SearchResults[Index]);
 }
 
 void UHoverTanksGameInstance::StartCreateSession()
@@ -133,11 +137,11 @@ void UHoverTanksGameInstance::StartCreateSession()
 		SessionSettings.NumPublicConnections = 10;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
-		SessionSettings.bAllowJoinInProgress = true;
-		SessionSettings.bAllowJoinViaPresence = true;
+		// SessionSettings.bAllowJoinInProgress = true;
+		// SessionSettings.bAllowJoinViaPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
 		
-		SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings);
+		SessionInterface->CreateSession(0, GHover_Tanks_Session_Name, SessionSettings);
 	}
 }
 
@@ -185,7 +189,9 @@ void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 		}
 
 		MainMenu->PopulateAvailableGamesList(ServerNames);
-		
+		MainMenu->HideSessionSearchInProgress();
+
+		UE_LOG(LogTemp, Warning, TEXT("FindSessionsComplete"));
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Session not found"));
 	}
@@ -223,7 +229,7 @@ void UHoverTanksGameInstance::OnSessionUserInviteAccepted(bool bWasSuccess, int 
 	
 	if (SessionInterface.IsValid())
 	{
-		SessionInterface->JoinSession(0, NAME_GameSession, InviteResult);	
+		SessionInterface->JoinSession(0, GHover_Tanks_Session_Name, InviteResult);	
 	}
 	
 }

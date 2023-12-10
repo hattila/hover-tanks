@@ -7,6 +7,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "Components/PanelWidget.h"
+#include "Components/Throbber.h"
 #include "HoverTanks/Game/HoverTanksGameInstance.h"
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
@@ -92,6 +93,8 @@ void UMainMenu::Setup()
 	
 	PlayerController->SetInputMode(InputModeData);
 	PlayerController->SetShowMouseCursor(true);
+
+	HideSessionSearchInProgress();
 }
 
 void UMainMenu::Teardown()
@@ -158,6 +161,16 @@ void UMainMenu::JoinServerAtIndex(uint32 ServerIndex)
 		GameInstance->JoinAvailableGame(ServerIndex);
 	}
 	
+}
+
+void UMainMenu::ShowSessionSearchInProgress()
+{
+	SessionSearchInProgress->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainMenu::HideSessionSearchInProgress()
+{
+	SessionSearchInProgress->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainMenu::OpenHostMenu()

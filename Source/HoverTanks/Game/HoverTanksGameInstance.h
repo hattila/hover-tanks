@@ -8,6 +8,9 @@
 #include "HoverTanksGameInstance.generated.h"
 
 class UMainMenu;
+
+const static FName GHover_Tanks_Session_Name = TEXT("My Hover Tanks Game Session");
+
 /**
  * 
  */
