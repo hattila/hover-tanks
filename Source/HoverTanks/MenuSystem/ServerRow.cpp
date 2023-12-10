@@ -3,12 +3,15 @@
 
 #include "ServerRow.h"
 
+#include "MainMenu.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
-void UServerRow::Setup(uint32 InIndex)
+void UServerRow::Setup(uint32 InIndex, UMainMenu* InMainMenu)
 {
 	Index = InIndex;
+	MainMenu = InMainMenu;
+
 	JoinButton->OnClicked.AddDynamic(this, &UServerRow::OnJoinButtonClicked);
 }
 
@@ -24,5 +27,5 @@ void UServerRow::SetNumberOfPlayers(const FString& Players)
 
 void UServerRow::OnJoinButtonClicked()
 {
-	
+	MainMenu->JoinServerAtIndex(Index);
 }

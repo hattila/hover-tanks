@@ -64,10 +64,10 @@ void UHoverTanksGameInstance::Host()
 {
 	if (SessionInterface.IsValid())
 	{
-		FNamedOnlineSession *ExistingSession = SessionInterface->GetNamedSession(TEXT("My Hover Tanks Game"));
+		FNamedOnlineSession *ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
 		if (ExistingSession != nullptr)
 		{
-			SessionInterface->DestroySession(TEXT("My Hover Tanks Game"));
+			SessionInterface->DestroySession(NAME_GameSession);
 			UE_LOG(LogTemp, Warning, TEXT("Destroying existing session"));
 			return;
 		}
@@ -99,6 +99,27 @@ void UHoverTanksGameInstance::RefreshServerList()
 	}
 }
 
+void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
+{
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	if (!SessionSearch.IsValid())
+	{
+		return;
+	}
+
+	// teardown menu?
+	if (MainMenu)
+	{
+		MainMenu->Teardown();
+	}
+
+	SessionInterface->JoinSession(0, NAME_GameSession, SessionSearch->SearchResults[Index]);
+}
+
 void UHoverTanksGameInstance::StartCreateSession()
 {
 	if (SessionInterface.IsValid())
@@ -116,7 +137,7 @@ void UHoverTanksGameInstance::StartCreateSession()
 		SessionSettings.bAllowJoinViaPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
 		
-		SessionInterface->CreateSession(0, TEXT("My Hover Tanks Game"), SessionSettings);
+		SessionInterface->CreateSession(0, NAME_GameSession, SessionSettings);
 	}
 }
 
@@ -172,6 +193,25 @@ void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 
 void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
+	if (!SessionInterface.IsValid())
+	{
+		return;
+	}
+
+	FString Address;
+	if (!SessionInterface->GetResolvedConnectString(SessionName, Address))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Could not get resolve connect string %s"), *SessionName.ToString());
+		return;
+	}
+
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!ensure(PlayerController != nullptr))
+	{
+		return;
+	}
+
+	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 }
 
 /**
@@ -179,6 +219,8 @@ void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSe
  */
 void UHoverTanksGameInstance::OnSessionUserInviteAccepted(bool bWasSuccess, int ControllerId, TSharedPtr<const FUniqueNetId> UserId, const FOnlineSessionSearchResult& InviteResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Attempting to join with User Invite"));
+	
 	if (SessionInterface.IsValid())
 	{
 		SessionInterface->JoinSession(0, NAME_GameSession, InviteResult);	

@@ -129,10 +129,9 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
 			return;
 		}
 
-		// ServerRow->ServerName->SetText(FText::FromString(*ServerName));
 		ServerRow->SetServerName(*ServerName);
 		ServerRow->SetNumberOfPlayers(TEXT("1 / 12"));
-		ServerRow->Setup(i);
+		ServerRow->Setup(i, this);
 		++i;
 
 		AvailableGamesList->AddChild(ServerRow);
@@ -140,22 +139,26 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
 	
 }
 
-// void UMainMenu::JoinServer(uint32 ServerIndex)
-// {
-// 	if (AvailableGamesList == nullptr)
-// 	{
-// 		return;
-// 	}
-//
-// 	// Iterate over the children of the AvailableGamesList, and find the child with the index ServerIndex
-// 	// Cast it to a UServerRow, and call Join on it
-// 	UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
-// 	if (ServerRow)
-// 	{
-// 		ServerRow->Join();
-// 	}
-// 	
-// }
+void UMainMenu::JoinServerAtIndex(uint32 ServerIndex)
+{
+	if (AvailableGamesList == nullptr)
+	{
+		return;
+	}
+	
+	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
+	if (GameInstance == nullptr)
+	{
+		return;
+	}
+
+	UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
+	if (ServerRow)
+	{
+		GameInstance->JoinAvailableGame(ServerIndex);
+	}
+	
+}
 
 void UMainMenu::OpenHostMenu()
 {

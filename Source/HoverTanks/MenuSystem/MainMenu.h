@@ -27,9 +27,8 @@ public:
 	void Setup();
 	void Teardown();
 
-	// void JoinServer(uint32 ServerIndex);
-
 	void PopulateAvailableGamesList(const TArray<FString>& ServerNames);
+	void JoinServerAtIndex(uint32 ServerIndex);
 
 private:
 	// UHoverTanksGameInstance* GameInstance;

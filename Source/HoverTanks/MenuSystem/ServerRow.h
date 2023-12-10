@@ -6,6 +6,7 @@
 #include "UMG/Public/Blueprint/UserWidget.h"
 #include "ServerRow.generated.h"
 
+class UMainMenu;
 class UButton;
 class UTextBlock;
 /**
@@ -17,7 +18,7 @@ class HOVERTANKS_API UServerRow : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void Setup(uint32 InIndex);
+	void Setup(uint32 InIndex, UMainMenu* InMainMenu);
 
 	void SetServerName(const FString& Name);
 	void SetNumberOfPlayers(const FString& Players);
@@ -33,6 +34,8 @@ private:
 	UButton* JoinButton;
 
 	uint32 Index;
+
+	UMainMenu* MainMenu;
 
 	UFUNCTION()
 	void OnJoinButtonClicked();

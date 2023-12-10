@@ -31,6 +31,7 @@ public:
 	void Join(const FString& Address);
 
 	void RefreshServerList();
+	void JoinAvailableGame(uint32 Index);
 
 private:
 	/**
