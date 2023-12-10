@@ -34,3 +34,11 @@ Here's the best workaround I know of. If someone knows of a better one, please s
 
 - GameInstance: Create a new GameInstance class. Close Unreal, Generate project files, build
 
+
+```
+Start a Server on the Portotype map
+C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\UnrealProjects\HoverTanks\HoverTanks.uproject" /Game/HoverTanks/Maps/PrototypeMap?listen -server -log
+
+Start a stand alone client in the Main Menu map
+C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\UnrealProjects\HoverTanks\HoverTanks.uproject" /Game/HoverTanks/Maps/MainMenuMap?listen -game -log
+```

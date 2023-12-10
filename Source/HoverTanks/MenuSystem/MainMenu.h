@@ -6,8 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
+class UServerRow;
+class UHoverTanksGameInstance;
 class UWidgetSwitcher;
 class UButton;
+
 /**
  * 
  */
@@ -24,7 +27,13 @@ public:
 	void Setup();
 	void Teardown();
 
+	// void JoinServer(uint32 ServerIndex);
+
+	void PopulateAvailableGamesList(const TArray<FString>& ServerNames);
+
 private:
+	// UHoverTanksGameInstance* GameInstance;
+	
 	UPROPERTY(meta = (BindWidget))
 	UButton* HostButton;
 	
@@ -41,10 +50,18 @@ private:
 	UPanelWidget* HostGameMenu;
 	
 	UPROPERTY(meta = (BindWidget))
+	UPanelWidget* AvailableGamesMenu;
+
+	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* AvailableGamesList;
+
+	TSubclassOf<UUserWidget> ServerRowClass;
 
 	UFUNCTION()
 	void OpenHostMenu();
+
+	UFUNCTION()
+	void OpenFindGamesMenu();
 	
 	UFUNCTION()
 	void QuitGame();

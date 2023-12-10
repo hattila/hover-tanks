@@ -30,6 +30,8 @@ public:
 	UFUNCTION(Exec)
 	void Join(const FString& Address);
 
+	void RefreshServerList();
+
 private:
 	/**
 	 * Menu System
@@ -45,6 +47,8 @@ private:
 
 	IOnlineSessionPtr SessionInterface;
 
+	TSharedPtr<FOnlineSessionSearch> SessionSearch;
+	
 	void StartCreateSession();
 	
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);

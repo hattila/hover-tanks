@@ -85,6 +85,20 @@ void UHoverTanksGameInstance::Join(const FString& Address)
 	}
 }
 
+void UHoverTanksGameInstance::RefreshServerList()
+{
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+	if (SessionSearch.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Searching for sessions ..."));
+		
+		// SessionSearch->bIsLanQuery = true;
+		SessionSearch->MaxSearchResults = 100;
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+	}
+}
+
 void UHoverTanksGameInstance::StartCreateSession()
 {
 	if (SessionInterface.IsValid())
@@ -135,6 +149,25 @@ void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool b
 
 void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 {
+	if (bWasSuccessful && SessionSearch.IsValid())
+	{
+		TArray<FString> ServerNames;
+		// ServerNames.Add("Test 1");
+		// ServerNames.Add("Tester 2");
+		// ServerNames.Add("T 3");
+		
+		for (FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Session found: %s"), *SearchResult.GetSessionIdStr());
+
+			ServerNames.Add(SearchResult.GetSessionIdStr());
+		}
+
+		MainMenu->PopulateAvailableGamesList(ServerNames);
+		
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Session not found"));
+	}
 }
 
 void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)

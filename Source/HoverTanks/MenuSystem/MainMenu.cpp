@@ -2,6 +2,7 @@
 
 #include "MainMenu.h"
 
+#include "ServerRow.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
@@ -15,9 +16,17 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	  QuitButton(nullptr),
 	  SubmenuSwitcher(nullptr),
 	  HostGameMenu(nullptr),
-	  AvailableGamesList(nullptr)
+	  AvailableGamesMenu(nullptr)
 {
 	// Super::Construct();
+
+	ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/HoverTanks/Menu/WBP_ServerRow"));
+	if (!ensure(ServerRowBPClass.Class != nullptr))
+	{
+		return;
+	}
+	ServerRowClass = ServerRowBPClass.Class;
+	
 }
 
 bool UMainMenu::Initialize()
@@ -37,6 +46,13 @@ bool UMainMenu::Initialize()
 	}
 
 	HostButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu);
+
+	if (!ensure(FindButton != nullptr))
+	{
+		return false;	
+	}
+
+	FindButton->OnClicked.AddDynamic(this, &UMainMenu::OpenFindGamesMenu);
 	
 	if (!ensure(QuitButton != nullptr))
 	{
@@ -45,6 +61,16 @@ bool UMainMenu::Initialize()
 
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 
+	if (!ensure(AvailableGamesList != nullptr))
+	{
+		return false;	
+	}
+
+	AvailableGamesList->ClearChildren();
+	
+	// todo: get the game instance as an interface
+	// GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
+	
 	return true;
 }
 
@@ -84,6 +110,53 @@ void UMainMenu::Teardown()
 	PlayerController->bShowMouseCursor = false;
 }
 
+void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
+{
+	if (!ensure(AvailableGamesList != nullptr))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AvailableGamesList is null"));
+		return;
+	}
+	
+	AvailableGamesList->ClearChildren();
+
+	uint32 i = 0;
+	for (const FString& ServerName : ServerNames)
+	{
+		UServerRow* ServerRow = CreateWidget<UServerRow>(this, ServerRowClass);
+		if (!ensure(ServerRow != nullptr))
+		{
+			return;
+		}
+
+		// ServerRow->ServerName->SetText(FText::FromString(*ServerName));
+		ServerRow->SetServerName(*ServerName);
+		ServerRow->SetNumberOfPlayers(TEXT("1 / 12"));
+		ServerRow->Setup(i);
+		++i;
+
+		AvailableGamesList->AddChild(ServerRow);
+	}
+	
+}
+
+// void UMainMenu::JoinServer(uint32 ServerIndex)
+// {
+// 	if (AvailableGamesList == nullptr)
+// 	{
+// 		return;
+// 	}
+//
+// 	// Iterate over the children of the AvailableGamesList, and find the child with the index ServerIndex
+// 	// Cast it to a UServerRow, and call Join on it
+// 	UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
+// 	if (ServerRow)
+// 	{
+// 		ServerRow->Join();
+// 	}
+// 	
+// }
+
 void UMainMenu::OpenHostMenu()
 {
 	// todo going to be a widget switch, now just starts a game
@@ -94,12 +167,31 @@ void UMainMenu::OpenHostMenu()
 		return;
 	}
 
+	if (SubmenuSwitcher)
+	{
+		SubmenuSwitcher->SetActiveWidget(HostGameMenu);
+	}
+
 	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
 	{
 		GameInstance->Host();
 	}
 	
+}
+
+void UMainMenu::OpenFindGamesMenu()
+{
+	if (SubmenuSwitcher)
+	{
+		SubmenuSwitcher->SetActiveWidget(AvailableGamesMenu);
+	}
+
+	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
+	if (GameInstance)
+	{
+		GameInstance->RefreshServerList();
+	}
 }
 
 void UMainMenu::QuitGame()
