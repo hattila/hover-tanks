@@ -24,7 +24,7 @@ public:
 	UMainMenu(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION()
-	bool Initialize() override;
+	virtual bool Initialize() override;
 	void Setup();
 	void Teardown();
 

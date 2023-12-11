@@ -188,11 +188,11 @@ void UMainMenu::OpenHostMenu()
 		SubmenuSwitcher->SetActiveWidget(HostGameMenu);
 	}
 
-	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance)
-	{
-		GameInstance->Host();
-	}
+	// UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
+	// if (GameInstance)
+	// {
+	// 	GameInstance->Host();
+	// }
 	
 }
 
