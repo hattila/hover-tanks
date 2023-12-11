@@ -69,7 +69,7 @@ void UHoverTanksGameInstance::Host()
 		{
 			SessionInterface->DestroySession(GHover_Tanks_Session_Name);
 			UE_LOG(LogTemp, Warning, TEXT("Destroying existing session"));
-			return;
+			// return;
 		}
 		
 		StartCreateSession();
@@ -83,6 +83,15 @@ void UHoverTanksGameInstance::Join(const FString& Address)
 	{
 		PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 	}
+}
+
+void UHoverTanksGameInstance::HostGame(const FHostGameSettings& InHostGameSettings)
+{
+	HostGameSettings.MapName = InHostGameSettings.MapName;
+	HostGameSettings.GameModeName = InHostGameSettings.GameModeName;
+	HostGameSettings.MaxPlayers = InHostGameSettings.MaxPlayers;
+
+	Host();
 }
 
 void UHoverTanksGameInstance::RefreshServerList()
@@ -158,13 +167,20 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 		MainMenu->Teardown();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete success, Traveling ..."));
-
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;
 
-	// todo use chosen map
-	World->ServerTravel("/Game/HoverTanks/Maps/PrototypeMap?listen");
+	const FString MapName = HostGameSettings.MapName != "" ? HostGameSettings.MapName : "PrototypeMap";
+	FString ServerTravelURL = FString::Printf(TEXT("/Game/HoverTanks/Maps/%s?listen"), *MapName);
+
+	if (HostGameSettings.GameModeName != "")
+	{
+		ServerTravelURL.Append(FString::Printf(TEXT("&game=%s"), *HostGameSettings.GameModeName));
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete success, Traveling with string ... %s"), *ServerTravelURL);
+	
+	World->ServerTravel(ServerTravelURL, true);
 }
 
 void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)

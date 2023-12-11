@@ -23,8 +23,8 @@ bool UHostGameMenu::Initialize()
 	}
 
 	MapSelection->AddOption(TEXT("PrototypeMap"));
-	MapSelection->AddOption(TEXT("Map 2"));
-	MapSelection->AddOption(TEXT("Map 3"));
+	MapSelection->AddOption(TEXT("Map_2"));
+	MapSelection->AddOption(TEXT("Map_3"));
 	MapSelection->SetSelectedIndex(0);
 
 	MapSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnMapSelectionChanged);
@@ -34,9 +34,9 @@ bool UHostGameMenu::Initialize()
 		return false;	
 	}
 
-	GameModeSelection->AddOption(TEXT("Deathmatch"));
-	GameModeSelection->AddOption(TEXT("Team Deathmatch"));
-	GameModeSelection->AddOption(TEXT("Destruction Of The Ancients"));
+	GameModeSelection->AddOption(TEXT("DeathMatch"));
+	GameModeSelection->AddOption(TEXT("TeamDeathmatch"));
+	GameModeSelection->AddOption(TEXT("DestructionOfTheAncients"));
 	GameModeSelection->SetSelectedIndex(0);
 
 	GameModeSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnGameModeSelectionChanged);
@@ -66,6 +66,10 @@ void UHostGameMenu::OnStartGameClicked()
 	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
 	{
-		GameInstance->Host();
+		FHostGameSettings HostGameSettings;
+		HostGameSettings.MapName = MapSelection->GetSelectedOption();
+		HostGameSettings.GameModeName = GameModeSelection->GetSelectedOption();
+		
+		GameInstance->HostGame(HostGameSettings);
 	}
 }

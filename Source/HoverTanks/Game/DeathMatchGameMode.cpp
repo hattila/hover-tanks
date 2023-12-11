@@ -68,6 +68,8 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
 void ADeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
 }
 
 APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()

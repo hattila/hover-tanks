@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MultiplayerGameControls.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "UObject/Object.h"
 #include "HoverTanksGameInstance.generated.h"
@@ -15,7 +16,7 @@ const static FName GHover_Tanks_Session_Name = TEXT("My Hover Tanks Game Session
  * 
  */
 UCLASS()
-class HOVERTANKS_API UHoverTanksGameInstance : public UGameInstance
+class HOVERTANKS_API UHoverTanksGameInstance : public UGameInstance, public IMultiplayerGameControls
 {
 	GENERATED_BODY()
 
@@ -26,13 +27,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ShowMainMenu();
-	
+
+	/**
+	 * IMultiplayerGameControls
+	 */
 	UFUNCTION(Exec)
 	void Host();
-
 	UFUNCTION(Exec)
 	void Join(const FString& Address);
 
+	void HostGame(const FHostGameSettings& InHostGameSettings);
 	void RefreshServerList();
 	void JoinAvailableGame(uint32 Index);
 
@@ -48,10 +52,10 @@ private:
 	/**
 	 * Online Session
 	 */
-
 	IOnlineSessionPtr SessionInterface;
-
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
+
+	FHostGameSettings HostGameSettings;
 	
 	void StartCreateSession();
 	
