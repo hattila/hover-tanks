@@ -34,7 +34,7 @@ bool UHostGameMenu::Initialize()
 	}
 
 	GameModeSelection->AddOption(TEXT("DeathMatch"));
-	GameModeSelection->AddOption(TEXT("TeamDeathmatch"));
+	GameModeSelection->AddOption(TEXT("TeamDeathMatch"));
 	GameModeSelection->AddOption(TEXT("DestructionOfTheAncients"));
 	GameModeSelection->SetSelectedIndex(0);
 

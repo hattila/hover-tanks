@@ -20,14 +20,16 @@ class HOVERTANKS_API ADeathMatchGameMode : public AGameModeBase
 public:
 	ADeathMatchGameMode();
 
-	void TankDies(AHoverTank* DeadHoverTank);
+	virtual void TankDies(AHoverTank* DeadHoverTank);
 
 protected:
-	virtual void BeginPlay() override;
-
-private:
 	TArray<APlayerStart*> SpawnPoints;
+	
+	virtual void BeginPlay() override;
 
 	APlayerStart* FindRandomSpawnPoint();
 	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
+	
+private:
+	
 };
