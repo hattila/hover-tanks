@@ -23,8 +23,7 @@ bool UHostGameMenu::Initialize()
 	}
 
 	MapSelection->AddOption(TEXT("PrototypeMap"));
-	MapSelection->AddOption(TEXT("Map_2"));
-	MapSelection->AddOption(TEXT("Map_3"));
+	MapSelection->AddOption(TEXT("RaceTrackMap"));
 	MapSelection->SetSelectedIndex(0);
 
 	MapSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnMapSelectionChanged);
