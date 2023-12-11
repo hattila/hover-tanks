@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HostGameMenu.generated.h"
 
+class IMultiplayerGameControls;
 class UButton;
 class UComboBoxString;
 /**

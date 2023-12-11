@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
+class IMultiplayerGameControls;
 class UThrobber;
 class UServerRow;
 class UHoverTanksGameInstance;
@@ -34,8 +35,10 @@ public:
 	void ShowSessionSearchInProgress();
 	void HideSessionSearchInProgress();
 
+	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
+
 private:
-	// UHoverTanksGameInstance* GameInstance;
+	IMultiplayerGameControls* MultiplayerGameControls;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* HostButton;

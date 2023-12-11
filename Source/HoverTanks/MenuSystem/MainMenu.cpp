@@ -12,12 +12,15 @@
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	: UUserWidget(ObjectInitializer),
+      MultiplayerGameControls(nullptr),
 	  HostButton(nullptr),
 	  FindButton(nullptr),
 	  QuitButton(nullptr),
 	  SubmenuSwitcher(nullptr),
 	  HostGameMenu(nullptr),
-	  AvailableGamesMenu(nullptr)
+	  AvailableGamesMenu(nullptr),
+      SessionSearchInProgress(nullptr),
+      AvailableGamesList(nullptr)
 {
 	// Super::Construct();
 
@@ -27,7 +30,6 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 		return;
 	}
 	ServerRowClass = ServerRowBPClass.Class;
-	
 }
 
 bool UMainMenu::Initialize()
@@ -68,9 +70,6 @@ bool UMainMenu::Initialize()
 	}
 
 	AvailableGamesList->ClearChildren();
-	
-	// todo: get the game instance as an interface
-	// GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
 	
 	return true;
 }
@@ -148,17 +147,11 @@ void UMainMenu::JoinServerAtIndex(uint32 ServerIndex)
 	{
 		return;
 	}
-	
-	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance == nullptr)
-	{
-		return;
-	}
 
 	UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
-	if (ServerRow)
+	if (ServerRow && MultiplayerGameControls)
 	{
-		GameInstance->JoinAvailableGame(ServerIndex);
+		MultiplayerGameControls->JoinAvailableGame(ServerIndex);
 	}
 	
 }
@@ -175,9 +168,6 @@ void UMainMenu::HideSessionSearchInProgress()
 
 void UMainMenu::OpenHostMenu()
 {
-	// todo going to be a widget switch, now just starts a game
-
-	// Get The GameInstance
 	if (!GetWorld())
 	{
 		return;
@@ -187,13 +177,6 @@ void UMainMenu::OpenHostMenu()
 	{
 		SubmenuSwitcher->SetActiveWidget(HostGameMenu);
 	}
-
-	// UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
-	// if (GameInstance)
-	// {
-	// 	GameInstance->Host();
-	// }
-	
 }
 
 void UMainMenu::OpenFindGamesMenu()
@@ -203,10 +186,9 @@ void UMainMenu::OpenFindGamesMenu()
 		SubmenuSwitcher->SetActiveWidget(AvailableGamesMenu);
 	}
 
-	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance)
+	if (MultiplayerGameControls)
 	{
-		GameInstance->RefreshServerList();
+		MultiplayerGameControls->RefreshServerList();
 	}
 }
 
