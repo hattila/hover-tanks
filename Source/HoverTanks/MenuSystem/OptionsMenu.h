@@ -21,6 +21,7 @@ public:
 	virtual bool Initialize() override;
 	
 private:
+	UGameUserSettings* GameUserSettings;
 
 	UPROPERTY(meta = (BindWidget))
 	UComboBoxString* GraphicsSelection;

@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
+#include "GameFramework/GameUserSettings.h"
 
 bool UOptionsMenu::Initialize()
 {
@@ -19,6 +20,8 @@ bool UOptionsMenu::Initialize()
 	{
 		return false;
 	}
+
+	GameUserSettings = UGameUserSettings::GetGameUserSettings();
 
 	GraphicsSelection->AddOption(TEXT("Low"));
 	GraphicsSelection->AddOption(TEXT("Medium"));
@@ -66,6 +69,31 @@ bool UOptionsMenu::IsEveryElementInitialized() const
 void UOptionsMenu::OnGraphicsSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected graphics: %s"), *SelectedItem);
+
+	if (!ensure(GameUserSettings != nullptr))
+	{
+		return;
+	}
+
+	if (SelectedItem == "Low")
+	{
+		GameUserSettings->SetOverallScalabilityLevel(0);
+	}
+
+	if (SelectedItem == "Medium")
+	{
+		GameUserSettings->SetOverallScalabilityLevel(1);
+	}
+
+	if (SelectedItem == "High")
+	{
+		GameUserSettings->SetOverallScalabilityLevel(2);
+	}
+
+	if (SelectedItem == "Epic")
+	{
+		GameUserSettings->SetOverallScalabilityLevel(3);
+	}
 }
 
 void UOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
@@ -76,5 +104,7 @@ void UOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInf
 void UOptionsMenu::OnSaveButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Save button clicked."));
+
+	GameUserSettings->ApplySettings(false);
 }
 
