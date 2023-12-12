@@ -43,6 +43,9 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* FindButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* OptionsButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitButton;
@@ -55,6 +58,9 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UPanelWidget* AvailableGamesMenuPanel;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget* OptionsMenuPanel;
 
 	UPROPERTY(meta = (BindWidget))
 	UThrobber* SessionSearchInProgress;
@@ -71,10 +77,16 @@ private:
 
 	UFUNCTION()
 	void OpenFindGamesMenu();
+
+	UFUNCTION()
+	void OpenOptionsMenu();
 	
 	UFUNCTION()
 	void QuitGame();
 
+
+	bool IsEveryElementInitialized() const;
+	
 	/**
 	 * Setup and Teardown
 	 */

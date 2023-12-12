@@ -13,15 +13,17 @@
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	: UUserWidget(ObjectInitializer),
-      MultiplayerGameControls(nullptr),
+	  MultiplayerGameControls(nullptr),
 	  HostButton(nullptr),
 	  FindButton(nullptr),
+      OptionsButton(nullptr),
 	  QuitButton(nullptr),
 	  SubmenuSwitcher(nullptr),
 	  HostGameMenuPanel(nullptr),
 	  AvailableGamesMenuPanel(nullptr),
-      SessionSearchInProgress(nullptr),
-      AvailableGamesList(nullptr)
+      OptionsMenuPanel(nullptr),
+	  SessionSearchInProgress(nullptr),
+	  AvailableGamesList(nullptr)
 {
 	// Super::Construct();
 
@@ -49,33 +51,17 @@ bool UMainMenu::Initialize()
 	if (!Success)
 	{
 		return false;
-	};
+	}
 
-	if (!ensure(HostButton != nullptr))
+	if (!IsEveryElementInitialized())
 	{
-		return false;	
+		return false;
 	}
 
 	HostButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu);
-
-	if (!ensure(FindButton != nullptr))
-	{
-		return false;	
-	}
-
 	FindButton->OnClicked.AddDynamic(this, &UMainMenu::OpenFindGamesMenu);
-	
-	if (!ensure(QuitButton != nullptr))
-	{
-		return false;	
-	}
-
+	OptionsButton->OnClicked.AddDynamic(this, &UMainMenu::OpenOptionsMenu);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
-
-	if (!ensure(AvailableGamesList != nullptr))
-	{
-		return false;	
-	}
 
 	AvailableGamesList->ClearChildren();
 	
@@ -181,6 +167,14 @@ void UMainMenu::OpenFindGamesMenu()
 	}
 }
 
+void UMainMenu::OpenOptionsMenu()
+{
+	if (SubmenuSwitcher)
+	{
+		SubmenuSwitcher->SetActiveWidget(OptionsMenuPanel);
+	}
+}
+
 void UMainMenu::QuitGame()
 {
 	if (!GetWorld())
@@ -196,6 +190,36 @@ void UMainMenu::QuitGame()
 	}
 
 	PlayerController->ConsoleCommand("quit");
+}
+
+bool UMainMenu::IsEveryElementInitialized() const
+{
+	if (!ensure(HostButton != nullptr))
+	{
+		return false;	
+	}
+
+	if (!ensure(FindButton != nullptr))
+	{
+		return false;	
+	}
+	
+	if (!ensure(OptionsButton != nullptr))
+	{
+		return false;	
+	}
+
+	if (!ensure(QuitButton != nullptr))
+	{
+		return false;	
+	}
+
+	if (!ensure(AvailableGamesList != nullptr))
+	{
+		return false;	
+	}
+
+	return true;
 }
 
 void UMainMenu::SetupInputModeUIOnly()
