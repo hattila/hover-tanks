@@ -21,7 +21,11 @@ public:
 	UFUNCTION()
 	virtual bool Initialize() override;
 
+	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
+
 private:
+	IMultiplayerGameControls* MultiplayerGameControls;
+	
 	UPROPERTY(meta = (BindWidget))
 	UComboBoxString* MapSelection;
 

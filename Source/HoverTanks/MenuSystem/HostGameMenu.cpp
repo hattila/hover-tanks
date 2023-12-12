@@ -62,13 +62,12 @@ void UHostGameMenu::OnGameModeSelectionChanged(FString SelectedItem, ESelectInfo
 
 void UHostGameMenu::OnStartGameClicked()
 {
-	UHoverTanksGameInstance* GameInstance = Cast<UHoverTanksGameInstance>(GetWorld()->GetGameInstance());
-	if (GameInstance)
+	if (MultiplayerGameControls)
 	{
 		FHostGameSettings HostGameSettings;
 		HostGameSettings.MapName = MapSelection->GetSelectedOption();
 		HostGameSettings.GameModeName = GameModeSelection->GetSelectedOption();
 		
-		GameInstance->HostGame(HostGameSettings);
+		MultiplayerGameControls->HostGame(HostGameSettings);
 	}
 }

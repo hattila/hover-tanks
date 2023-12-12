@@ -2,6 +2,7 @@
 
 #include "MainMenu.h"
 
+#include "HostGameMenu.h"
 #include "ServerRow.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/WidgetSwitcher.h"
@@ -17,8 +18,8 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	  FindButton(nullptr),
 	  QuitButton(nullptr),
 	  SubmenuSwitcher(nullptr),
-	  HostGameMenu(nullptr),
-	  AvailableGamesMenu(nullptr),
+	  HostGameMenuPanel(nullptr),
+	  AvailableGamesMenuPanel(nullptr),
       SessionSearchInProgress(nullptr),
       AvailableGamesList(nullptr)
 {
@@ -30,6 +31,13 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 		return;
 	}
 	ServerRowClass = ServerRowBPClass.Class;
+
+	ConstructorHelpers::FClassFinder<UUserWidget> HostGameMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_HostGameMenu"));
+	if (!ensure(HostGameMenuBPClass.Class != nullptr))
+	{
+		return;
+	}
+	HostGameMenuClass = HostGameMenuBPClass.Class;
 }
 
 bool UMainMenu::Initialize()
@@ -74,42 +82,23 @@ bool UMainMenu::Initialize()
 	return true;
 }
 
-void UMainMenu::Setup()
+void UMainMenu::Setup(IMultiplayerGameControls* InMultiplayerGameControls)
 {
 	AddToViewport();
 
-	UE_LOG(LogTemp, Warning, TEXT("Setup done"));
-	
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->SetShowMouseCursor(true);
-
+	SetupInputModeUIOnly();
 	HideSessionSearchInProgress();
+
+	MultiplayerGameControls = InMultiplayerGameControls;
+
+	SetupHostGameMenu();
 }
 
 void UMainMenu::Teardown()
 {
 	RemoveFromParent();
 
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeGameOnly InputModeData;
-	PlayerController->SetInputMode(InputModeData);
-
-	PlayerController->bShowMouseCursor = false;
+	SetInputModeGameOnly();
 }
 
 void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
@@ -175,7 +164,7 @@ void UMainMenu::OpenHostMenu()
 
 	if (SubmenuSwitcher)
 	{
-		SubmenuSwitcher->SetActiveWidget(HostGameMenu);
+		SubmenuSwitcher->SetActiveWidget(HostGameMenuPanel);
 	}
 }
 
@@ -183,7 +172,7 @@ void UMainMenu::OpenFindGamesMenu()
 {
 	if (SubmenuSwitcher)
 	{
-		SubmenuSwitcher->SetActiveWidget(AvailableGamesMenu);
+		SubmenuSwitcher->SetActiveWidget(AvailableGamesMenuPanel);
 	}
 
 	if (MultiplayerGameControls)
@@ -207,4 +196,72 @@ void UMainMenu::QuitGame()
 	}
 
 	PlayerController->ConsoleCommand("quit");
+}
+
+void UMainMenu::SetupInputModeUIOnly()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))
+	{
+		return;
+	}
+
+	FInputModeUIOnly InputModeData;
+	InputModeData.SetWidgetToFocus(TakeWidget());
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	
+	PlayerController->SetInputMode(InputModeData);
+	PlayerController->SetShowMouseCursor(true);
+}
+
+void UMainMenu::SetInputModeGameOnly()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))
+	{
+		return;
+	}
+
+	FInputModeGameOnly InputModeData;
+	PlayerController->SetInputMode(InputModeData);
+
+	PlayerController->bShowMouseCursor = false;
+}
+
+void UMainMenu::SetupHostGameMenu()
+{
+	if (HostGameMenuPanel == nullptr || !HostGameMenuClass || MultiplayerGameControls == nullptr)
+	{
+		return;
+	}
+
+	/**
+	 * Creating the HostGameMenu widget here works, but I cannot figure out how to position it correctly.
+	 * So until then, I'm going to create it in the HostGameMenuPanel in the editor, and add the MultiplayerGameControls here.
+	 */
+	
+	// Create HostGameMenu widget
+	// UHostGameMenu* HostGameMenu = CreateWidget<UHostGameMenu>(this, HostGameMenuClass);
+	// HostGameMenu->SetMultiplayerGameControls(MultiplayerGameControls);
+	//
+	// HostGameMenuPanel->AddChild(HostGameMenu);
+	//
+	// FVector2d DesiredSize = FVector2d(2540, 2000);
+	// HostGameMenu->SetDesiredSizeInViewport(DesiredSize);
+	//
+	// UE_LOG(LogTemp, Warning, TEXT("HostGameMenu created, with size %f, %f"), DesiredSize.X, DesiredSize.Y);
+
+	TArray<UWidget*> HostGameMenuChildren;
+	HostGameMenuChildren = HostGameMenuPanel->GetAllChildren();
+	for (UWidget* HostGameMenuChild : HostGameMenuChildren)
+	{
+		if (HostGameMenuChild->GetClass() == HostGameMenuClass)
+		{
+			UHostGameMenu* HostGameMenu = Cast<UHostGameMenu>(HostGameMenuChild);
+			if (HostGameMenu)
+			{
+				HostGameMenu->SetMultiplayerGameControls(MultiplayerGameControls);
+			}
+		}
+	}
 }

@@ -26,7 +26,7 @@ public:
 
 	UFUNCTION()
 	virtual bool Initialize() override;
-	void Setup();
+	void Setup(IMultiplayerGameControls* InMultiplayerGameControls);
 	void Teardown();
 
 	void PopulateAvailableGamesList(const TArray<FString>& ServerNames);
@@ -34,8 +34,6 @@ public:
 
 	void ShowSessionSearchInProgress();
 	void HideSessionSearchInProgress();
-
-	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
 
 private:
 	IMultiplayerGameControls* MultiplayerGameControls;
@@ -53,10 +51,10 @@ private:
 	UWidgetSwitcher* SubmenuSwitcher;
 	
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* HostGameMenu;
+	UPanelWidget* HostGameMenuPanel;
 	
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* AvailableGamesMenu;
+	UPanelWidget* AvailableGamesMenuPanel;
 
 	UPROPERTY(meta = (BindWidget))
 	UThrobber* SessionSearchInProgress;
@@ -66,6 +64,8 @@ private:
 
 	TSubclassOf<UUserWidget> ServerRowClass;
 
+	TSubclassOf<UUserWidget> HostGameMenuClass;
+
 	UFUNCTION()
 	void OpenHostMenu();
 
@@ -74,4 +74,11 @@ private:
 	
 	UFUNCTION()
 	void QuitGame();
+
+	/**
+	 * Setup and Teardown
+	 */
+	void SetupInputModeUIOnly();
+	void SetInputModeGameOnly();
+	void SetupHostGameMenu();
 };

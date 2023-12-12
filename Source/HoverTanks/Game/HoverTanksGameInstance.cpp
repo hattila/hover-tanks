@@ -49,15 +49,13 @@ void UHoverTanksGameInstance::ShowMainMenu()
 		return;
 	}
 
-	// Create a MainMenu widget and add it to the viewport
 	MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
 	if (MainMenu == nullptr)
 	{
 		return;
 	}
 
-	MainMenu->Setup();
-	MainMenu->SetMultiplayerGameControls(this);
+	MainMenu->Setup(this);
 }
 
 void UHoverTanksGameInstance::Host()
