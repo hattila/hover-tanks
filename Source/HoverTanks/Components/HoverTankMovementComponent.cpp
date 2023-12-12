@@ -135,7 +135,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	DebugDrawForwardAndVelocity();
 	
-	if (HitResult.IsValidBlockingHit())
+	if (HitResult.IsValidBlockingHit() || HitResult.bStartPenetrating)
 	{
 		// FMath::GetReflectionVector ?
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);

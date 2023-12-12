@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+class USphereComponent;
 class UWeaponsComponent;
 class UHealthComponent;
 class UHoverTankMovementComponent;
@@ -58,7 +59,7 @@ private:
 
 	// create a Box collider
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* BoxCollider;
+	UStaticMeshComponent* ColliderMesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FCollisionProfileName CollisionProfile;

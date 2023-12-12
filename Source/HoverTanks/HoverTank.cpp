@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -41,18 +42,22 @@ AHoverTank::AHoverTank()
 	/**
 	 * Create Visible Components
 	 */
-	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Collider"));
-	RootComponent = BoxCollider;
+	ColliderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Box Collider"));
+	RootComponent = ColliderMesh;
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
-	TankBaseMesh->SetupAttachment(BoxCollider);
+	TankBaseMesh->SetupAttachment(ColliderMesh);
 
 	TankCannonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Cannon Mesh"));
-	TankCannonMesh->SetupAttachment(BoxCollider);
+	TankCannonMesh->SetupAttachment(ColliderMesh);
 
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTankCollision"));
+	UStaticMesh* ColliderMeshAssetObject = ColliderMeshAsset.Object;
+	ColliderMesh->SetStaticMesh(ColliderMeshAssetObject);
+	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankBase"));
 	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
 	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
@@ -66,7 +71,7 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
-	SpringArm->SetupAttachment(BoxCollider);
+	SpringArm->SetupAttachment(ColliderMesh);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
@@ -78,7 +83,7 @@ AHoverTank::AHoverTank()
 	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 
 	// CollisionProfile.Name = "HoverTank" - this is set in the editor
-	BoxCollider->SetCollisionProfileName(CollisionProfile.Name, true);
+	ColliderMesh->SetCollisionProfileName(CollisionProfile.Name, true);
 
 	// mashes shall not collide
 	TankBaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
