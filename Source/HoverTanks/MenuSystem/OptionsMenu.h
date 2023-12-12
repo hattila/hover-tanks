@@ -30,6 +30,9 @@ private:
 	UComboBoxString* ResolutionSelection;
 
 	UPROPERTY(meta = (BindWidget))
+	UComboBoxString* WindowModeSelection;
+
+	UPROPERTY(meta = (BindWidget))
 	UButton* SaveButton;
 
 	bool IsEveryElementInitialized() const;
@@ -41,5 +44,12 @@ private:
 	void OnResolutionSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 
 	UFUNCTION()
+	void OnWindowModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
+
+	UFUNCTION()
 	void OnSaveButtonClicked();
+
+	void SetupGraphicsSelection();
+	void SetupResolutionSelection();
+	void SetupWindowModeSelection();
 };
