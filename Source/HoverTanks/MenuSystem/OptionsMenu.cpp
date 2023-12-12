@@ -99,6 +99,20 @@ void UOptionsMenu::OnGraphicsSelectionChanged(FString SelectedItem, ESelectInfo:
 void UOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected resolution: %s"), *SelectedItem);
+
+	if (!ensure(GameUserSettings != nullptr))
+	{
+		return;
+	}
+
+	FString WidthString;
+	FString HeightString;
+	SelectedItem.Split("x", &WidthString, &HeightString);
+	FIntPoint Resolution;
+	Resolution.X = FCString::Atoi(*WidthString);
+	Resolution.Y = FCString::Atoi(*HeightString);
+	
+	GameUserSettings->SetScreenResolution(Resolution);
 }
 
 void UOptionsMenu::OnSaveButtonClicked()
