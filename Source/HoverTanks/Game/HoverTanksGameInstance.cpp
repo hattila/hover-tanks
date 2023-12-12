@@ -188,6 +188,13 @@ void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool b
 
 void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 {
+	// add an on screen debug message
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("FindSessionsComplete, was %s"), bWasSuccessful ? TEXT("successful") : TEXT("unsuccessful"));
+		GEngine->AddOnScreenDebugMessage(0, 5.f, bWasSuccessful ? FColor::Green : FColor::Red, *Message);
+	}
+	
 	if (bWasSuccessful && SessionSearch.IsValid())
 	{
 		TArray<FString> ServerNames;
