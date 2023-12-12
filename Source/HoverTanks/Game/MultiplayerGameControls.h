@@ -12,7 +12,7 @@ struct FHostGameSettings
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString MapName = "PrototypeMap";
+	FString MapName = "DesertRampsMap";
 
 	UPROPERTY()
 	FString GameModeName = "DeathMatch";
