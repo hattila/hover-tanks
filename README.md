@@ -53,3 +53,8 @@ Tail -f logs
 ```
 PS H:\UnrealProjects\BUILD\HoverTanks\Windows\HoverTanks\Saved\Logs> Get-Content .\HoverTanks.log -wait
 ```
+
+
+### Known Issues
+- Custom collision mesh as complex collision does not work on the HoverTank.
+- &Game parameter cannot be used during ServerTravel, because Steam Session is not joinable that way.
