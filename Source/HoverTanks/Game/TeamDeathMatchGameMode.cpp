@@ -4,6 +4,7 @@
 #include "TeamDeathMatchGameMode.h"
 
 #include "GameFramework/PlayerStart.h"
+#include "HoverTanks/HoverTankPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
@@ -13,6 +14,9 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	// set the default PlayerController to be HoverTankPlayerController
+	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
 	
 	TArray<AActor*> SpawnPointsInWorld;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPointsInWorld);

@@ -6,6 +6,7 @@
 #include "HoverTanks/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
+#include "HoverTanks/HoverTankPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -23,6 +24,9 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	// {
 	// 	PlayerControllerClass = PlayerControllerBPClass.Class;
 	// }
+
+	// set the default PlayerController to be HoverTankPlayerController
+	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
 	
 	// find all players starts in the map and add them to the spawn points array
 	TArray<AActor*> SpawnPointsInWorld;
