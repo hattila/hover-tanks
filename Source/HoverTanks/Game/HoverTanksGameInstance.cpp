@@ -198,14 +198,27 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	const FString MapName = HostGameSettings.MapName != "" ? HostGameSettings.MapName : "DesertRampsMap";
 	FString ServerTravelURL = FString::Printf(TEXT("/Game/HoverTanks/Maps/%s?listen"), *MapName);
 
-	if (HostGameSettings.GameModeName != "")
-	{
-		ServerTravelURL.Append(FString::Printf(TEXT("&game=%s"), *HostGameSettings.GameModeName));
-	}
+	/**
+	 * Steam Session cannot be joined if initialized with a &game= parameter todo: investigate
+	 */
+	// if (HostGameSettings.GameModeName != "")
+	// {
+	// 	ServerTravelURL.Append(FString::Printf(TEXT("&game=%s"), *HostGameSettings.GameModeName));
+	// }
 
 	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete success, Traveling with string ... %s"), *ServerTravelURL);
-	
+
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("Server Travel to: %s"), *ServerTravelURL);
+		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);
+	}
+
+	/**
+	 * Absolute or not, Steam session is joinable with ?listen param, and without a game parameter
+	 */
 	World->ServerTravel(ServerTravelURL, true);
+	// World->ServerTravel("/Game/HoverTanks/Maps/PrototypeMap?listen");
 }
 
 void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
