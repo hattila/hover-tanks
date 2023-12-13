@@ -42,3 +42,9 @@ C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\Unreal
 Start a stand alone client in the Main Menu map
 C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\UnrealProjects\HoverTanks\HoverTanks.uproject" /Game/HoverTanks/Maps/MainMenuMap?listen -game -log
 ```
+
+Manual LAN Test
+```
+C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\UnrealProjects\HoverTanks\HoverTanks.uproject" /Game/HoverTanks/Maps/DesertRampsMap?listen -game -log
+C:\UnrealEngineVersions\UE_5.1\Engine\Binaries\Win64\UnrealEditor.exe "H:\UnrealProjects\HoverTanks\HoverTanks.uproject" 127.0.0.1 -game -log
+```

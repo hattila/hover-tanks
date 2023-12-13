@@ -21,6 +21,33 @@ struct FHostGameSettings
 	uint32 MaxPlayers = 4;
 };
 
+USTRUCT()
+struct FAvailableGame
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString ServerName;
+
+	UPROPERTY()
+	FString SessionIdString;
+
+	UPROPERTY()
+	FString MapName;
+
+	UPROPERTY()
+	FString GameModeName;
+	
+	UPROPERTY()
+	uint32 CurrentPlayers;
+
+	UPROPERTY()
+	uint32 MaxPlayers;
+
+	UPROPERTY()
+	FString Ping;
+};
+
 // This class does not need to be modified.
 UINTERFACE()
 class UMultiplayerGameControls : public UInterface

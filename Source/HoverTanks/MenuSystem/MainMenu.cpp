@@ -87,7 +87,7 @@ void UMainMenu::Teardown()
 	SetInputModeGameOnly();
 }
 
-void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
+void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames)
 {
 	if (!ensure(AvailableGamesList != nullptr))
 	{
@@ -98,7 +98,7 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
 	AvailableGamesList->ClearChildren();
 
 	uint32 i = 0;
-	for (const FString& ServerName : ServerNames)
+	for (const FAvailableGame& AvailableGame : AvailableGames)
 	{
 		UServerRow* ServerRow = CreateWidget<UServerRow>(this, ServerRowClass);
 		if (!ensure(ServerRow != nullptr))
@@ -106,8 +106,15 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FString>& ServerNames)
 			return;
 		}
 
-		ServerRow->SetServerName(*ServerName);
-		ServerRow->SetNumberOfPlayers(TEXT("1 / 12"));
+		ServerRow->SetServerName(*AvailableGame.ServerName);
+		ServerRow->SetSessionIdString(*AvailableGame.SessionIdString);
+
+		ServerRow->SetMapName(*AvailableGame.MapName);
+		ServerRow->SetGameMode(*AvailableGame.GameModeName);
+
+		ServerRow->SetNumberOfPlayers(FString::Printf(TEXT("%d/%d"), AvailableGame.CurrentPlayers, AvailableGame.MaxPlayers));
+		ServerRow->SetPing(*AvailableGame.Ping);
+
 		ServerRow->Setup(i, this);
 		++i;
 

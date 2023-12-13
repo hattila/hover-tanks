@@ -128,6 +128,12 @@ void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
 		MainMenu->Teardown();
 	}
 
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("Joining game of %s"), *SessionSearch->SearchResults[Index].Session.OwningUserName);
+		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);	
+	}
+
 	SessionInterface->JoinSession(0, GHover_Tanks_Session_Name, SessionSearch->SearchResults[Index]);
 }
 
@@ -137,16 +143,37 @@ void UHoverTanksGameInstance::StartCreateSession()
 	{
 		FOnlineSessionSettings SessionSettings;
 
-		IOnlineSubsystem::Get()->GetSubsystemName() == "NULL"
-			? SessionSettings.bIsLANMatch = true
-			: SessionSettings.bIsLANMatch = false;
+		const bool bIsLanGame = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
+		
+		// IOnlineSubsystem::Get()->GetSubsystemName() == "NULL"
+		// 	? SessionSettings.bIsLANMatch = true
+		// 	: SessionSettings.bIsLANMatch = false;
 
+		SessionSettings.bIsLANMatch = bIsLanGame;
 		SessionSettings.NumPublicConnections = 10;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
 		// SessionSettings.bAllowJoinInProgress = true;
 		// SessionSettings.bAllowJoinViaPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
+
+		// add MAPNAME to SessionSettings
+		if (HostGameSettings.MapName != "")
+		{
+			SessionSettings.Set(TEXT("MAPNAME"), HostGameSettings.MapName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		}
+
+		// add GAMEMODE to SessionSettings
+		if (HostGameSettings.GameModeName != "")
+		{
+			SessionSettings.Set(TEXT("GAMEMODE"), HostGameSettings.GameModeName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		}
+		
+		if (GEngine)
+		{
+			FString Message = FString::Printf(TEXT("Creating a%s session"), SessionSettings.bIsLANMatch ? TEXT(" LAN") : TEXT("n ONLINE"));
+			GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);	
+		}
 		
 		SessionInterface->CreateSession(0, GHover_Tanks_Session_Name, SessionSettings);
 	}
@@ -201,15 +228,31 @@ void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 		// ServerNames.Add("Test 1");
 		// ServerNames.Add("Tester 2");
 		// ServerNames.Add("T 3");
+
+		TArray<FAvailableGame> AvailableGames;
 		
 		for (FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Session found: %s"), *SearchResult.GetSessionIdStr());
 
 			ServerNames.Add(SearchResult.GetSessionIdStr());
+
+			FAvailableGame AvailableGame;
+			AvailableGame.ServerName = SearchResult.Session.OwningUserName;
+			AvailableGame.ServerName.Append(FString::Printf(TEXT("'s game")));
+			AvailableGame.SessionIdString = SearchResult.GetSessionIdStr();
+			
+			AvailableGame.MapName = SearchResult.Session.SessionSettings.Settings.FindRef("MAPNAME").Data.ToString();
+			AvailableGame.GameModeName = SearchResult.Session.SessionSettings.Settings.FindRef("GAMEMODE").Data.ToString();
+			
+			AvailableGame.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
+			AvailableGame.CurrentPlayers = SearchResult.Session.SessionSettings.NumPublicConnections - SearchResult.Session.NumOpenPublicConnections;
+			AvailableGame.Ping = FString::Printf(TEXT("%i ms"), SearchResult.PingInMs);
+
+			AvailableGames.Add(AvailableGame);
 		}
 
-		MainMenu->PopulateAvailableGamesList(ServerNames);
+		MainMenu->PopulateAvailableGamesList(AvailableGames);
 		MainMenu->HideSessionSearchInProgress();
 
 		UE_LOG(LogTemp, Warning, TEXT("FindSessionsComplete"));
@@ -236,6 +279,12 @@ void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSe
 	if (!ensure(PlayerController != nullptr))
 	{
 		return;
+	}
+
+	if (GEngine)
+	{
+		FString Message = FString::Printf(TEXT("OnJoinSessionComplete, was successful, ClientTravel to %s"), *Address);
+		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);
 	}
 
 	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);

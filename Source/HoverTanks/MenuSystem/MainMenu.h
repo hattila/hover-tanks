@@ -6,7 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
+
 class IMultiplayerGameControls;
+struct FAvailableGame;
+
 class UThrobber;
 class UServerRow;
 class UHoverTanksGameInstance;
@@ -29,7 +32,7 @@ public:
 	void Setup(IMultiplayerGameControls* InMultiplayerGameControls);
 	void Teardown();
 
-	void PopulateAvailableGamesList(const TArray<FString>& ServerNames);
+	void PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames);
 	void JoinServerAtIndex(uint32 ServerIndex);
 
 	void ShowSessionSearchInProgress();
