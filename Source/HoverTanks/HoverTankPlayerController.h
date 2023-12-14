@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HasScoreBoard.h"
 #include "GameFramework/PlayerController.h"
 #include "HoverTankPlayerController.generated.h"
 
@@ -13,12 +14,15 @@ class UInputMappingContext;
  * 
  */
 UCLASS()
-class HOVERTANKS_API AHoverTankPlayerController : public APlayerController
+class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, public IHasScoreBoard
 {
 	GENERATED_BODY()
+
 public:
 	// constructor
 	AHoverTankPlayerController();
+
+	virtual void OnScoresChanged(TArray<FDeathMatchPlayerScore> PlayerScores) override;
 
 protected:
 	virtual void SetupInputComponent() override;

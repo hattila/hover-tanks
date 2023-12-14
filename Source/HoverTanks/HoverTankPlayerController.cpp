@@ -32,6 +32,24 @@ AHoverTankPlayerController::AHoverTankPlayerController(): InGameMenu(nullptr)
 	}
 }
 
+void AHoverTankPlayerController::OnScoresChanged(TArray<FDeathMatchPlayerScore> PlayerScores)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Scores changed, refreshing scoreboard on PlayerController"));
+
+	if (GEngine)
+	{
+		// iterate over player scores and create a multiline string
+		FString PlayerScoresString = "";
+		for (FDeathMatchPlayerScore PlayerScore : PlayerScores)
+		{
+			PlayerScoresString += FString::Printf(TEXT("%s: %d\n"), *PlayerScore.PlayerName, PlayerScore.Score);
+		}
+		
+		FString Message = FString::Printf(TEXT("Scores changed, refreshing scoreboard on PlayerController. Scores\n %s"), *PlayerScoresString);
+		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);	
+	}
+}
+
 void AHoverTankPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

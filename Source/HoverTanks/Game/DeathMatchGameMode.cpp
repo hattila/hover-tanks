@@ -3,6 +3,7 @@
 
 #include "DeathMatchGameMode.h"
 
+#include "DeathMatchGameState.h"
 #include "HoverTanks/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
@@ -38,6 +39,9 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	}
 
 	// Custom GameInstance should be set in DefaultEngine.ini
+
+	// use the UDeathMatchGameState as default GameState
+	GameStateClass = ADeathMatchGameState::StaticClass();
 }
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
@@ -65,6 +69,12 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
 		AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
 
 		DeadPlayerController->Possess(NewHoverTank);
+
+		ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+		if (DeathMatchGameState)
+		{
+			DeathMatchGameState->AddScoreToPlayer(DeadPlayerController, -1);
+		}
 	}
 	
 }
@@ -74,6 +84,18 @@ void ADeathMatchGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
+}
+
+void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	// Add a new entry to PlayerScores array in DeathMatchGameState for the newly logged in player
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchGameState->InitializeNewPlayerScore(NewPlayer);
+	}
 }
 
 APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()

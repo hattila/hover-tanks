@@ -27,6 +27,9 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+	// post login
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 	APlayerStart* FindRandomSpawnPoint();
 	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
 	
