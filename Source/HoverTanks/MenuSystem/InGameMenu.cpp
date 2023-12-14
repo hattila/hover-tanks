@@ -32,12 +32,16 @@ void UInGameMenu::Setup()
 {
 	AddToViewport();
 	SetupInputModeUIOnly();
+
+	bIsOpen = true;
 }
 
 void UInGameMenu::Teardown()
 {
 	RemoveFromParent();
 	SetInputModeGameOnly();
+
+	bIsOpen = false;
 }
 
 bool UInGameMenu::IsEveryElementInitialized()
@@ -71,7 +75,9 @@ void UInGameMenu::SetupInputModeUIOnly()
 		return;
 	}
 
-	FInputModeUIOnly InputModeData;
+	FInputModeGameAndUI InputModeData;
+	// FInputModeUIOnly InputModeData;
+
 	InputModeData.SetWidgetToFocus(TakeWidget());
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	

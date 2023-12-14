@@ -66,5 +66,11 @@ void AHoverTankPlayerController::OpenInGameMenu()
 		return;
 	}
 
+	if (InGameMenu->IsOpen())
+	{
+		InGameMenu->Teardown();
+		return;
+	}
+
 	InGameMenu->Setup();
 }

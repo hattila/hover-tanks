@@ -20,6 +20,8 @@ public:
 	void Setup();
 	void Teardown();
 
+	bool IsOpen() const { return bIsOpen; }
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* ResumeGameButton;
@@ -29,6 +31,8 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* QuitGameButton;
+
+	bool bIsOpen = false;
 
 	bool IsEveryElementInitialized();
 	void SetupInputModeUIOnly();
