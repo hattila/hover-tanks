@@ -12,7 +12,7 @@
 #include "HoverTanks/Game/HoverTanksGameInstance.h"
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
-	: UUserWidget(ObjectInitializer),
+	: UOpenableMenu(ObjectInitializer),
 	  MultiplayerGameControls(nullptr),
 	  HostButton(nullptr),
 	  FindButton(nullptr),
@@ -27,14 +27,14 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 {
 	// Super::Construct();
 
-	ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/HoverTanks/Menu/WBP_ServerRow"));
+	const ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/HoverTanks/Menu/WBP_ServerRow"));
 	if (!ensure(ServerRowBPClass.Class != nullptr))
 	{
 		return;
 	}
 	ServerRowClass = ServerRowBPClass.Class;
 
-	ConstructorHelpers::FClassFinder<UUserWidget> HostGameMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_HostGameMenu"));
+	const ConstructorHelpers::FClassFinder<UUserWidget> HostGameMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_HostGameMenu"));
 	if (!ensure(HostGameMenuBPClass.Class != nullptr))
 	{
 		return;
@@ -44,8 +44,7 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 
 bool UMainMenu::Initialize()
 {
-	bool Success = Super::Initialize();
-
+	const bool Success = Super::Initialize();
 	bIsFocusable = true;
 	
 	if (!Success)
@@ -68,23 +67,17 @@ bool UMainMenu::Initialize()
 	return true;
 }
 
-void UMainMenu::Setup(IMultiplayerGameControls* InMultiplayerGameControls)
+void UMainMenu::Setup()
 {
-	AddToViewport();
-
-	SetupInputModeUIOnly();
-	HideSessionSearchInProgress();
-
-	MultiplayerGameControls = InMultiplayerGameControls;
+	Super::Setup();
 
 	SetupHostGameMenu();
+	HideSessionSearchInProgress();
 }
 
 void UMainMenu::Teardown()
 {
-	RemoveFromParent();
-
-	SetInputModeGameOnly();
+	Super::Teardown();
 }
 
 void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames)
@@ -123,14 +116,14 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& Availab
 	
 }
 
-void UMainMenu::JoinServerAtIndex(uint32 ServerIndex)
+void UMainMenu::JoinServerAtIndex(const uint32 ServerIndex) const
 {
 	if (AvailableGamesList == nullptr)
 	{
 		return;
 	}
 
-	UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
+	const UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
 	if (ServerRow && MultiplayerGameControls)
 	{
 		MultiplayerGameControls->JoinAvailableGame(ServerIndex);
@@ -138,12 +131,12 @@ void UMainMenu::JoinServerAtIndex(uint32 ServerIndex)
 	
 }
 
-void UMainMenu::ShowSessionSearchInProgress()
+void UMainMenu::ShowSessionSearchInProgress() const
 {
 	SessionSearchInProgress->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UMainMenu::HideSessionSearchInProgress()
+void UMainMenu::HideSessionSearchInProgress() const
 {
 	SessionSearchInProgress->SetVisibility(ESlateVisibility::Hidden);
 }
@@ -229,37 +222,7 @@ bool UMainMenu::IsEveryElementInitialized() const
 	return true;
 }
 
-void UMainMenu::SetupInputModeUIOnly()
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->SetShowMouseCursor(true);
-}
-
-void UMainMenu::SetInputModeGameOnly()
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeGameOnly InputModeData;
-	PlayerController->SetInputMode(InputModeData);
-
-	PlayerController->bShowMouseCursor = false;
-}
-
-void UMainMenu::SetupHostGameMenu()
+void UMainMenu::SetupHostGameMenu() const
 {
 	if (HostGameMenuPanel == nullptr || !HostGameMenuClass || MultiplayerGameControls == nullptr)
 	{
@@ -282,8 +245,7 @@ void UMainMenu::SetupHostGameMenu()
 	//
 	// UE_LOG(LogTemp, Warning, TEXT("HostGameMenu created, with size %f, %f"), DesiredSize.X, DesiredSize.Y);
 
-	TArray<UWidget*> HostGameMenuChildren;
-	HostGameMenuChildren = HostGameMenuPanel->GetAllChildren();
+	TArray<UWidget*> HostGameMenuChildren = HostGameMenuPanel->GetAllChildren();
 	for (UWidget* HostGameMenuChild : HostGameMenuChildren)
 	{
 		if (HostGameMenuChild->GetClass() == HostGameMenuClass)

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OpenableMenu.h"
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
@@ -20,23 +21,23 @@ class UButton;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UMainMenu : public UUserWidget
+class HOVERTANKS_API UMainMenu : public UOpenableMenu
 {
 	GENERATED_BODY()
 
 public:
-	UMainMenu(const FObjectInitializer& ObjectInitializer);
+	explicit UMainMenu(const FObjectInitializer& ObjectInitializer);
+	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
 
-	UFUNCTION()
 	virtual bool Initialize() override;
-	void Setup(IMultiplayerGameControls* InMultiplayerGameControls);
-	void Teardown();
+	virtual void Setup() override;
+	virtual void Teardown() override;
 
 	void PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames);
-	void JoinServerAtIndex(uint32 ServerIndex);
+	void JoinServerAtIndex(const uint32 ServerIndex) const;
 
-	void ShowSessionSearchInProgress();
-	void HideSessionSearchInProgress();
+	void ShowSessionSearchInProgress() const;
+	void HideSessionSearchInProgress() const;
 
 private:
 	IMultiplayerGameControls* MultiplayerGameControls;
@@ -72,7 +73,6 @@ private:
 	UPanelWidget* AvailableGamesList;
 
 	TSubclassOf<UUserWidget> ServerRowClass;
-
 	TSubclassOf<UUserWidget> HostGameMenuClass;
 
 	UFUNCTION()
@@ -87,13 +87,6 @@ private:
 	UFUNCTION()
 	void QuitGame();
 
-
 	bool IsEveryElementInitialized() const;
-	
-	/**
-	 * Setup and Teardown
-	 */
-	void SetupInputModeUIOnly();
-	void SetInputModeGameOnly();
-	void SetupHostGameMenu();
+	void SetupHostGameMenu() const;
 };

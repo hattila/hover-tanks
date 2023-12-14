@@ -55,7 +55,8 @@ void UHoverTanksGameInstance::ShowMainMenu()
 		return;
 	}
 
-	MainMenu->Setup(this);
+	MainMenu->SetMultiplayerGameControls(this); // !
+	MainMenu->Setup();
 }
 
 void UHoverTanksGameInstance::Host()
