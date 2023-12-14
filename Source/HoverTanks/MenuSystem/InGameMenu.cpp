@@ -31,15 +31,14 @@ bool UInGameMenu::Initialize()
 void UInGameMenu::Setup()
 {
 	AddToViewport();
-	SetupInputModeUIOnly();
+	SetupInputModeGameAndUi();
 
 	bIsOpen = true;
 }
 
 void UInGameMenu::Teardown()
 {
-	RemoveFromParent();
-	SetInputModeGameOnly();
+	Super::Teardown();
 
 	bIsOpen = false;
 }
@@ -62,44 +61,6 @@ bool UInGameMenu::IsEveryElementInitialized()
 	}
 
 	return true;
-}
-
-/**
- * Duplicates method with same name in main menu
- */
-void UInGameMenu::SetupInputModeUIOnly()
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeGameAndUI InputModeData;
-	// FInputModeUIOnly InputModeData;
-
-	InputModeData.SetWidgetToFocus(TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->SetShowMouseCursor(true);
-}
-
-/**
- * Duplicates method with same name in main menu
- */
-void UInGameMenu::SetInputModeGameOnly()
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeGameOnly InputModeData;
-	PlayerController->SetInputMode(InputModeData);
-
-	PlayerController->bShowMouseCursor = false;
 }
 
 void UInGameMenu::ResumeGame()

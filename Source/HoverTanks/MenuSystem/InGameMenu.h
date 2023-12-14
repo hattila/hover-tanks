@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "OpenableMenu.h"
 #include "InGameMenu.generated.h"
 
 class UButton;
@@ -11,14 +11,13 @@ class UButton;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UInGameMenu : public UUserWidget
+class HOVERTANKS_API UInGameMenu : public UOpenableMenu
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION()
 	virtual bool Initialize() override;
-	void Setup();
-	void Teardown();
+	virtual void Setup() override;
+	virtual void Teardown() override;
 
 	bool IsOpen() const { return bIsOpen; }
 
@@ -34,9 +33,7 @@ private:
 
 	bool bIsOpen = false;
 
-	bool IsEveryElementInitialized();
-	void SetupInputModeUIOnly();
-	void SetInputModeGameOnly();
+	virtual bool IsEveryElementInitialized() override;
 
 	UFUNCTION()
 	void ResumeGame();
