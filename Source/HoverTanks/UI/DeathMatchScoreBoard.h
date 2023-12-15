@@ -20,6 +20,9 @@ class HOVERTANKS_API UDeathMatchScoreBoard : public UUserWidget
 public:
 	UDeathMatchScoreBoard(const FObjectInitializer& ObjectInitializer);
 
+	// Initialize
+	virtual bool Initialize() override;
+	
 	void Setup();
 	void Teardown();
 
@@ -27,8 +30,9 @@ public:
 	void SetGameModeName(const FString& InGameModeName) const { GameModeName->SetText(FText::FromString(InGameModeName)); }
 	void SetTimeLeft(float InTimeLeft) { TimeLeft = InTimeLeft; }
 
-	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore> InPlayerScores);
-	
+	bool IsOpen() const { return bIsOpen; }
+	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores);
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MapName;
@@ -44,6 +48,8 @@ private:
 
 	TSubclassOf<UUserWidget> PlayerScoreClass;
 
+	bool bIsOpen = false;
+	
 	float TimeLeft;
 	TArray<FDeathMatchPlayerScore> PlayerScoresArray;
 

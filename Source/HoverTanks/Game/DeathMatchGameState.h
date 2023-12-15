@@ -16,18 +16,14 @@ class HOVERTANKS_API ADeathMatchGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-	// get replication method
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
 	TArray<FDeathMatchPlayerScore> GetPlayerScores() const { return PlayerScores; }
 	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
 	
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
 	TArray<FDeathMatchPlayerScore> PlayerScores;
 
-	UFUNCTION()
-	void OnRep_PlayerScores();
+	UFUNCTION(Server, Unreliable)
+	void ServerOnScoreChange();
 	
 };

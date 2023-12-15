@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HoverTankPlayerController.generated.h"
 
+class UDeathMatchScoreBoard;
 class UInGameMenu;
 class UInputAction;
 class UInputMappingContext;
@@ -19,10 +20,12 @@ class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, publ
 	GENERATED_BODY()
 
 public:
-	// constructor
 	AHoverTankPlayerController();
 
-	virtual void OnScoresChanged(TArray<FDeathMatchPlayerScore> PlayerScores) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) override;
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -34,8 +37,21 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* OpenInGameMenuAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* OpenScoreBoardAction;
+
 	TSubclassOf<UUserWidget> InGameMenuClass;
 	UInGameMenu* InGameMenu;
+
+	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
+	UDeathMatchScoreBoard* DeathMatchScoreBoard;
+
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerScores)
+	TArray<FDeathMatchPlayerScore> PlayerScores;
 	
 	void OpenInGameMenu();
+	void OpenScoreBoard();
+
+	UFUNCTION()
+	void OnRep_PlayerScores() const;
 };

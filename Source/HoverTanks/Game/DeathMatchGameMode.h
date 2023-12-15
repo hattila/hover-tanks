@@ -27,8 +27,10 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	// post login
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	// todo : on logout
+	// virtual void Logout(AController* Exiting) override;
+	
 	
 	APlayerStart* FindRandomSpawnPoint();
 	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);

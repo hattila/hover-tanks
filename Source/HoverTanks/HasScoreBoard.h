@@ -23,5 +23,6 @@ class HOVERTANKS_API IHasScoreBoard
 
 public:
 
-	virtual void OnScoresChanged(TArray<FDeathMatchPlayerScore> PlayerScores) = 0;
+	UFUNCTION(Server, Unreliable)
+	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) = 0;
 };
