@@ -27,6 +27,9 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) override;
 
+	UFUNCTION(Client, Reliable)
+	void ClientForceOpenScoreBoard();
+
 protected:
 	virtual void SetupInputComponent() override;
 

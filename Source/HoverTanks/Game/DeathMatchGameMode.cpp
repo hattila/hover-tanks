@@ -62,20 +62,32 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 			)
 		);
 
-		DeadPlayerController->UnPossess();
-		DeadHoverTank->Destroy();
-		
-		APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
-		AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
-
-		DeadPlayerController->Possess(NewHoverTank);
-
 		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
 		
 		ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 		if (DeathMatchGameState && KillerPlayerController != nullptr)
 		{
 			DeathMatchGameState->AddScoreToPlayer(KillerPlayerController, 1);
+		}
+
+
+		DeadPlayerController->UnPossess();
+		DeadHoverTank->Destroy();
+		
+		if (DeathMatchGameState)
+		{
+			const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
+			if (TimeRemaining > 0)
+			{
+				APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
+				AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
+
+				DeadPlayerController->Possess(NewHoverTank);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Game is over, cannot spawn new tank"));
+			}
 		}
 	}
 	
@@ -92,8 +104,7 @@ void ADeathMatchGameMode::BeginPlay()
 		DeathMatchGameState->SetTimeRemaining(MatchTimeInSeconds);
 	}
 
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
 }
 
 void ADeathMatchGameMode::OnOneSecondElapsed()
@@ -103,6 +114,33 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 	{
 		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
 		DeathMatchGameState->SetTimeRemaining(TimeRemaining - 1);
+
+		if (TimeRemaining <= 0)
+		{
+			// clear the timer
+			GetWorldTimerManager().ClearTimer(GameTimerHandle);
+
+			// get every connected palyer controller, find their possesed pawns and destroy them
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+			{
+				APlayerController* PlayerController = It->Get();
+				if (PlayerController)
+				{
+					AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
+					PlayerController->UnPossess();
+					if (PossessedHoverTank)
+					{
+						PossessedHoverTank->Destroy();
+					}
+
+					AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);
+					if (HoverTankPlayerController)
+					{
+						HoverTankPlayerController->ClientForceOpenScoreBoard(); // clients!
+					}
+				}
+			}
+		}
 	}
 	
 	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));

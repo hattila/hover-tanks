@@ -73,6 +73,11 @@ void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArr
 	}
 }
 
+void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation()
+{
+	OpenScoreBoard();
+}
+
 void AHoverTankPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

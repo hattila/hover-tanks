@@ -41,8 +41,6 @@ void UDeathMatchScoreBoardWidget::Setup()
 	AddToViewport();
 	bIsOpen = true;
 
-	// create a timer to refresh the time left
-	TimeLeftRefreshTimerHandle;
 	RefreshTimeLeft();
 	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UDeathMatchScoreBoardWidget::RefreshTimeLeft, 1, true);
 }
@@ -64,7 +62,7 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPl
 
 void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
 {
-	UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
+	// UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
 	
 	if (TimeLeftText == nullptr)
 	{
