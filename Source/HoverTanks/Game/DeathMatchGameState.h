@@ -17,6 +17,8 @@ class HOVERTANKS_API ADeathMatchGameState : public AGameStateBase
 
 public:
 	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
+	void RemovePlayersScore(const APlayerController* PlayerToRemove);
+	
 	TArray<FDeathMatchPlayerScore> GetPlayerScores() const { return PlayerScores; }
 	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
 	

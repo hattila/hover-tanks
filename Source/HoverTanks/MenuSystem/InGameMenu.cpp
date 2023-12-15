@@ -78,6 +78,9 @@ void UInGameMenu::QuitToMainMenu()
 	{
 		return;
 	}
+
+	// destroy the session
+	PlayerController->ConsoleCommand("disconnect");
 	
 	PlayerController->ClientTravel("/Game/HoverTanks/Maps/MainMenuMap", ETravelType::TRAVEL_Absolute);
 }

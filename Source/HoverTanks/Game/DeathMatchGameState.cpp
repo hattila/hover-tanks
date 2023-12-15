@@ -18,6 +18,21 @@ void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* New
 	ServerOnScoreChange();
 }
 
+void ADeathMatchGameState::RemovePlayersScore(const APlayerController* PlayerToRemove)
+{
+	// find the Player by name and remove it from the array
+	for (int32 i = 0; i < PlayerScores.Num(); i++)
+	{
+		if (PlayerScores[i].PlayerName == PlayerToRemove->PlayerState->GetPlayerName())
+		{
+			PlayerScores.RemoveAt(i);
+			break;
+		}
+	}
+
+	ServerOnScoreChange();
+}
+
 void ADeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer, %s, %d"), *PlayerController->PlayerState->GetPlayerName(), ScoreToAdd);
@@ -57,7 +72,7 @@ void ADeathMatchGameState::ServerOnScoreChange_Implementation()
 		// if (PlayerController->Implements<UHasScoreBoard>()) // crashes
 		if (IHasScoreBoard* ControllerWithScoreBoard = Cast<IHasScoreBoard>(PlayerController))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%s implements UHasScoreBoard, NetMulticastOnScoresChanged ... scores count %d"), *PlayerName, PlayerScores.Num());
+			// UE_LOG(LogTemp, Warning, TEXT("%s implements UHasScoreBoard, NetMulticastOnScoresChanged ... scores count %d"), *PlayerName, PlayerScores.Num());
 			ControllerWithScoreBoard->ServerOnScoresChanged(PlayerScores);
 		}
 	}

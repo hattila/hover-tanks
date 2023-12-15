@@ -98,6 +98,20 @@ void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
+void ADeathMatchGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+
+	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
+
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	const APlayerController* ExistingPlayerController = Cast<APlayerController>(Exiting);
+	if (DeathMatchGameState && ExistingPlayerController)
+	{
+		DeathMatchGameState->RemovePlayersScore(ExistingPlayerController);
+	}
+}
+
 APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()
 {
 	int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);

@@ -28,8 +28,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-	// todo : on logout
-	// virtual void Logout(AController* Exiting) override;
+	virtual void Logout(AController* Exiting) override;
 	
 	
 	APlayerStart* FindRandomSpawnPoint();
