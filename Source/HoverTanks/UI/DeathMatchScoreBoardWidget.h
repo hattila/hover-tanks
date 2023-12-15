@@ -28,10 +28,11 @@ public:
 
 	void SetMapName(const FString& InMapName) const { MapName->SetText(FText::FromString(InMapName)); }
 	void SetGameModeName(const FString& InGameModeName) const { GameModeName->SetText(FText::FromString(InGameModeName)); }
-	void SetTimeLeft(float InTimeLeft) { TimeLeft = InTimeLeft; }
+	void SetTimeLeft(int32 InTimeLeft) { TimeLeft = InTimeLeft; }
 
 	bool IsOpen() const { return bIsOpen; }
 	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores);
+	void RefreshTimeLeft();
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -50,7 +51,9 @@ private:
 
 	bool bIsOpen = false;
 	
-	float TimeLeft;
+	int32 TimeLeft;
+	FTimerHandle TimeLeftRefreshTimerHandle;
+	
 	TArray<FDeathMatchPlayerScore> PlayerScoresArray;
 
 	void ReDrawPlayerScores();

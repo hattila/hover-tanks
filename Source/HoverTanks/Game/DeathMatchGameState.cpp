@@ -6,6 +6,14 @@
 #include "DeathMatchPlayerScore.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/HasScoreBoard.h"
+#include "Net/UnrealNetwork.h"
+
+void ADeathMatchGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ADeathMatchGameState, TimeRemainingInSeconds);
+}
 
 void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* NewPlayer)
 {

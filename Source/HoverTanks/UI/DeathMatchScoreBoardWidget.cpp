@@ -9,19 +9,20 @@
 #include "Components/Spacer.h"
 
 UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer),
-		MapName(nullptr),
-		GameModeName(nullptr),
-		TimeLeftText(nullptr),
-		PlayerScoresBox(nullptr),
-		TimeLeft(0)
+	MapName(nullptr),
+	GameModeName(nullptr),
+	TimeLeftText(nullptr),
+	PlayerScoresBox(nullptr),
+	TimeLeft(0)
 {
 	// initialize the player score class
-	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(TEXT("/Game/HoverTanks/UI/WBP_DeathMatchPlayerScoreWidget"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
+		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchPlayerScoreWidget"));
 	if (!ensure(PlayerScoreClassFinder.Class != nullptr))
 	{
 		return;
 	}
-	PlayerScoreClass = PlayerScoreClassFinder.Class;	
+	PlayerScoreClass = PlayerScoreClassFinder.Class;
 }
 
 bool UDeathMatchScoreBoardWidget::Initialize()
@@ -39,10 +40,17 @@ void UDeathMatchScoreBoardWidget::Setup()
 {
 	AddToViewport();
 	bIsOpen = true;
+
+	// create a timer to refresh the time left
+	TimeLeftRefreshTimerHandle;
+	RefreshTimeLeft();
+	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UDeathMatchScoreBoardWidget::RefreshTimeLeft, 1, true);
 }
 
 void UDeathMatchScoreBoardWidget::Teardown()
 {
+	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
+	
 	RemoveFromParent();
 	bIsOpen = false;
 }
@@ -52,6 +60,31 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPl
 	PlayerScoresArray = InPlayerScores;
 
 	ReDrawPlayerScores();
+}
+
+void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
+{
+	UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
+	
+	if (TimeLeftText == nullptr)
+	{
+		return;
+	}
+
+	if (TimeLeft <= 0)
+	{
+		TimeLeftText->SetText(FText::FromString(TEXT("00:00")));
+		return;
+	}
+
+	// format the time left
+	int32 Minutes = TimeLeft / 60;
+	int32 Seconds = TimeLeft % 60;
+	FString TimeLeftString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+
+	TimeLeftText->SetText(FText::FromString(TimeLeftString));
+
+	TimeLeft--;
 }
 
 void UDeathMatchScoreBoardWidget::ReDrawPlayerScores()

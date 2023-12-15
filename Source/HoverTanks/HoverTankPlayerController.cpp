@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "Game/DeathMatchGameState.h"
 #include "MenuSystem/InGameMenu.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/DeathMatchScoreBoardWidget.h"
@@ -139,8 +140,13 @@ void AHoverTankPlayerController::OpenScoreBoard()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OpenScoreBoard. Score count: %d"), PlayerScores.Num());
-	
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OpenScoreBoard. Score count: %d"), PlayerScores.Num());
+
+	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
+	}
 	DeathMatchScoreBoardWidget->Setup();
 	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 }

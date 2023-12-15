@@ -84,17 +84,30 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 void ADeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
+
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchGameState->SetTimeRemaining(MatchTimeInSeconds);
+	}
 
 	FTimerHandle TimerHandle;
-	UE_LOG(LogTemp, Warning, TEXT("Timer started on the server"));
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
-	
-	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
 }
 
 void ADeathMatchGameMode::OnOneSecondElapsed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
+		DeathMatchGameState->SetTimeRemaining(TimeRemaining - 1);
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));
+
+	// todo check if the game is over
 }
 
 void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
