@@ -17,7 +17,7 @@ class HOVERTANKS_API ATeamDeathMatchGameMode : public ADeathMatchGameMode
 public:
 	ATeamDeathMatchGameMode();
 
-	virtual void TankDies(AHoverTank* DeadHoverTank);
+	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
 
 protected:
 	virtual void BeginPlay() override;

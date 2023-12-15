@@ -44,7 +44,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	GameStateClass = ADeathMatchGameState::StaticClass();
 }
 
-void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
+void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
 
@@ -70,10 +70,12 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
 
 		DeadPlayerController->Possess(NewHoverTank);
 
+		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
+		
 		ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
-		if (DeathMatchGameState)
+		if (DeathMatchGameState && KillerPlayerController != nullptr)
 		{
-			DeathMatchGameState->AddScoreToPlayer(DeadPlayerController, -1);
+			DeathMatchGameState->AddScoreToPlayer(KillerPlayerController, 1);
 		}
 	}
 	

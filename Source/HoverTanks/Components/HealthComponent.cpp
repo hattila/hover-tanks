@@ -66,7 +66,7 @@ void UHealthComponent::OnAnyDamage(
 		if (Health <= 0 && GameModeRef)
 		{
 			AHoverTank* Tank = Cast<AHoverTank>(GetOwner());
-			GameModeRef->TankDies(Tank);
+			GameModeRef->TankDies(Tank, InstigatedBy);
 		}
 	}
 }

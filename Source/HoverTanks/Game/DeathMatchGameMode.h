@@ -20,7 +20,7 @@ class HOVERTANKS_API ADeathMatchGameMode : public AGameModeBase
 public:
 	ADeathMatchGameMode();
 
-	virtual void TankDies(AHoverTank* DeadHoverTank);
+	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser);
 
 protected:
 	TArray<APlayerStart*> SpawnPoints;

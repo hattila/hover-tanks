@@ -10,7 +10,7 @@
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 {
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/HoverTank/BP_HoverTank"));
-	if (PlayerPawnBPClass.Class != NULL)
+	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
@@ -27,9 +27,9 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 	}
 }
 
-void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank)
+void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
-	Super::TankDies(DeadHoverTank);
+	Super::TankDies(DeadHoverTank, DeathCauser);
 
 	UE_LOG(LogTemp, Warning, TEXT("Tank dies in Team Death Match "));
 }
