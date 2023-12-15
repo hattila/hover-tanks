@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeathMatchScoreBoard.h"
+#include "DeathMatchScoreBoardWidget.h"
 
 #include "DeathMatchPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/ScrollBox.h"
 #include "Components/Spacer.h"
 
-UDeathMatchScoreBoard::UDeathMatchScoreBoard(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer),
+UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer),
 		MapName(nullptr),
 		GameModeName(nullptr),
 		TimeLeftText(nullptr),
@@ -24,7 +24,7 @@ UDeathMatchScoreBoard::UDeathMatchScoreBoard(const FObjectInitializer& ObjectIni
 	PlayerScoreClass = PlayerScoreClassFinder.Class;	
 }
 
-bool UDeathMatchScoreBoard::Initialize()
+bool UDeathMatchScoreBoardWidget::Initialize()
 {
 	bool bIsSuperInitDone = Super::Initialize();
 	if (!bIsSuperInitDone)
@@ -35,26 +35,26 @@ bool UDeathMatchScoreBoard::Initialize()
 	return true;
 }
 
-void UDeathMatchScoreBoard::Setup()
+void UDeathMatchScoreBoardWidget::Setup()
 {
 	AddToViewport();
 	bIsOpen = true;
 }
 
-void UDeathMatchScoreBoard::Teardown()
+void UDeathMatchScoreBoardWidget::Teardown()
 {
 	RemoveFromParent();
 	bIsOpen = false;
 }
 
-void UDeathMatchScoreBoard::RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores)
+void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores)
 {
 	PlayerScoresArray = InPlayerScores;
 
 	ReDrawPlayerScores();
 }
 
-void UDeathMatchScoreBoard::ReDrawPlayerScores()
+void UDeathMatchScoreBoardWidget::ReDrawPlayerScores()
 {
 	if (PlayerScoreClass == nullptr)
 	{

@@ -7,7 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HoverTankPlayerController.generated.h"
 
-class UDeathMatchScoreBoard;
+class UDeathMatchScoreBoardWidget;
 class UInGameMenu;
 class UInputAction;
 class UInputMappingContext;
@@ -44,7 +44,7 @@ private:
 	UInGameMenu* InGameMenu;
 
 	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
-	UDeathMatchScoreBoard* DeathMatchScoreBoard;
+	UDeathMatchScoreBoardWidget* DeathMatchScoreBoardWidget;
 
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerScores)
 	TArray<FDeathMatchPlayerScore> PlayerScores;

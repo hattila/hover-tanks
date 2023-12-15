@@ -85,7 +85,16 @@ void ADeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FTimerHandle TimerHandle;
+	UE_LOG(LogTemp, Warning, TEXT("Timer started on the server"));
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+	
 	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
+}
+
+void ADeathMatchGameMode::OnOneSecondElapsed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));
 }
 
 void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)

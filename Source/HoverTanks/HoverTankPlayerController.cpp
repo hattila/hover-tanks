@@ -10,11 +10,11 @@
 #include "Blueprint/UserWidget.h"
 #include "MenuSystem/InGameMenu.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/DeathMatchScoreBoard.h"
+#include "UI/DeathMatchScoreBoardWidget.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
 	InGameMenu(nullptr),
-	DeathMatchScoreBoard(nullptr)
+	DeathMatchScoreBoardWidget(nullptr)
 {
 	// initialize InGameMenuClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuClassFinder(
@@ -26,7 +26,7 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 
 	// initialize DeathMatchScoreBoardClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchScoreBoardClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchScoreBoard"));
+		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchScoreBoardWidget"));
 	if (DeathMatchScoreBoardClassFinder.Succeeded())
 	{
 		DeathMatchScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;
@@ -66,9 +66,9 @@ void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArr
 	PlayerScores = InPlayerScores;
 		
 	// refresh a might be open scoreboard for the server player
-	if (DeathMatchScoreBoard)
+	if (DeathMatchScoreBoardWidget)
 	{
-		DeathMatchScoreBoard->RefreshPlayerScores(PlayerScores);
+		DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 	}
 }
 
@@ -123,32 +123,32 @@ void AHoverTankPlayerController::OpenScoreBoard()
 		return;
 	}
 
-	if (DeathMatchScoreBoard == nullptr)
+	if (DeathMatchScoreBoardWidget == nullptr)
 	{
-		DeathMatchScoreBoard = CreateWidget<UDeathMatchScoreBoard>(this, DeathMatchScoreBoardClass);
+		DeathMatchScoreBoardWidget = CreateWidget<UDeathMatchScoreBoardWidget>(this, DeathMatchScoreBoardClass);
 	}
 	
-	if (!ensure(DeathMatchScoreBoard != nullptr))
+	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
 	{
 		return;
 	}
 
-	if (DeathMatchScoreBoard->IsOpen())
+	if (DeathMatchScoreBoardWidget->IsOpen())
 	{
-		DeathMatchScoreBoard->Teardown();
+		DeathMatchScoreBoardWidget->Teardown();
 		return;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OpenScoreBoard. Score count: %d"), PlayerScores.Num());
 	
-	DeathMatchScoreBoard->Setup();
-	DeathMatchScoreBoard->RefreshPlayerScores(PlayerScores);
+	DeathMatchScoreBoardWidget->Setup();
+	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 }
 
 void AHoverTankPlayerController::OnRep_PlayerScores() const
 {
-	if (DeathMatchScoreBoard)
+	if (DeathMatchScoreBoardWidget)
 	{
-		DeathMatchScoreBoard->RefreshPlayerScores(PlayerScores);
+		DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 	}
 }

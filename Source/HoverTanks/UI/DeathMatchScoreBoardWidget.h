@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "HoverTanks/Game/DeathMatchPlayerScore.h"
-#include "DeathMatchScoreBoard.generated.h"
+#include "DeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
 class UTextBlock;
@@ -14,11 +14,11 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UDeathMatchScoreBoard : public UUserWidget
+class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UDeathMatchScoreBoard(const FObjectInitializer& ObjectInitializer);
+	UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
 
 	// Initialize
 	virtual bool Initialize() override;

@@ -24,9 +24,10 @@ public:
 
 protected:
 	TArray<APlayerStart*> SpawnPoints;
-	
-	virtual void BeginPlay() override;
 
+	virtual void BeginPlay() override;
+	void OnOneSecondElapsed();
+	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	
