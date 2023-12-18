@@ -33,9 +33,13 @@ private:
 
 	UPROPERTY()
 	UStaticMeshComponent* TankBarrelMesh;
+
+	bool bIsMainCannonOnCooldown = false;
+	FTimerHandle MainCannonCooldownTimerHandle;
 	
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerAttemptToShoot();	
-	
+	void ServerAttemptToShoot();
+
+	void ClearMainCannonCooldown();
 	void SpawnProjectile();
 };

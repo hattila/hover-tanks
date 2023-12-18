@@ -50,12 +50,24 @@ void UWeaponsComponent::AttemptToShoot()
 
 void UWeaponsComponent::ServerAttemptToShoot_Implementation()
 {
+	if (bIsMainCannonOnCooldown)
+	{
+		return;
+	}
+
 	SpawnProjectile();
+	bIsMainCannonOnCooldown = true;
+	GetWorld()->GetTimerManager().SetTimer(MainCannonCooldownTimerHandle, this, &UWeaponsComponent::ClearMainCannonCooldown, 1.f, false, 1.f);
 }
 
 bool UWeaponsComponent::ServerAttemptToShoot_Validate()
 {
 	return true;
+}
+
+void UWeaponsComponent::ClearMainCannonCooldown()
+{
+	bIsMainCannonOnCooldown = false;
 }
 
 void UWeaponsComponent::SpawnProjectile()
