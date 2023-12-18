@@ -44,6 +44,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
+	UFUNCTION(Client, Unreliable)
+	void ClientAddHUDWidget();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRemoveHUDWidget();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UHoverTankMovementComponent* HoverTankMovementComponent;
@@ -111,13 +120,16 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
+
+	/**
+	 * HUD
+	 */
+	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
+	UUserWidget* HoverTankHUDWidget;
 	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
 	void MoveCompleted();
-
-	// float LookUp;
-	// float LookRight;
 
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);

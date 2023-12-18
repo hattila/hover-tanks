@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/HoverTankPlayerController.h"
+#include "HoverTanks/UI/HUD/DeathMatchHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -42,6 +43,9 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	// use the UDeathMatchGameState as default GameState
 	GameStateClass = ADeathMatchGameState::StaticClass();
+
+	// use the DeathMatchHUD as default HUD
+	HUDClass = ADeathMatchHUD::StaticClass();
 }
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)

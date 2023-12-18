@@ -78,6 +78,13 @@ void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation()
 	OpenScoreBoard();
 }
 
+void AHoverTankPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// this->OnPossess.AddDynamic(this, &AHoverTankPlayerController::OnPossess);
+}
+
 void AHoverTankPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

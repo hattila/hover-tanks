@@ -9,11 +9,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
-#include "Components/BoxComponent.h"
-#include "Components/SphereComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 AHoverTank::AHoverTank()
@@ -92,28 +91,33 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	/**
+	 * HUD
+	 */
+	static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(TEXT("/Game/HoverTanks/UI/HUD/WBP_HoverTankHUDWidget"));
+	if (HoverTankHUDWidgetClassFinder.Succeeded())
+	{
+		HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
+	}
+
+	if (HoverTankHUDWidgetClass)
+	{
+		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
+	}
 }
 
-// Called when the game starts or when spawned
-void AHoverTank::BeginPlay()
+// Called every frame
+void AHoverTank::Tick(float DeltaTime)
 {
-	Super::BeginPlay();
+	Super::Tick(DeltaTime);
 
-	SetReplicateMovement(false);
-	
-	if (HasAuthority())
+	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
+
+	DebugDrawPlayerTitle();
+	if (IsLocallyControlled())
 	{
-		NetUpdateFrequency = 1;
-	}
-	
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
-			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
+		DebugDrawSphereAsCrosshair();	
 	}
 }
 
@@ -151,17 +155,73 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 }
 
-// Called every frame
-void AHoverTank::Tick(float DeltaTime)
+// Called when the game starts or when spawned
+void AHoverTank::BeginPlay()
 {
-	Super::Tick(DeltaTime);
+	Super::BeginPlay();
 
-	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
-
-	DebugDrawPlayerTitle();
-	if (IsLocallyControlled())
+	SetReplicateMovement(false);
+	
+	if (HasAuthority())
 	{
-		DebugDrawSphereAsCrosshair();	
+		NetUpdateFrequency = 1;
+	}
+	
+	//Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
+void AHoverTank::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::PossessedBy"), *RoleString);
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ClientAddHUDWidget();
+	}
+}
+
+void AHoverTank::UnPossessed()
+{
+	Super::UnPossessed();
+
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::UnPossessed"), *RoleString);
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ClientRemoveHUDWidget();
+	}
+}
+
+void AHoverTank::ClientAddHUDWidget_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientAddHUDWidget_Implementation"));
+	
+	if (HoverTankHUDWidget != nullptr && !HoverTankHUDWidget->IsInViewport())
+	{
+		HoverTankHUDWidget->AddToViewport();
+	}
+}
+
+void AHoverTank::ClientRemoveHUDWidget_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientRemoveHUDWidget_Implementation"));
+	
+	if (HoverTankHUDWidget != nullptr && HoverTankHUDWidget->IsInViewport())
+	{
+		HoverTankHUDWidget->RemoveFromParent();
 	}
 }
 
