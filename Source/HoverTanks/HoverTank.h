@@ -28,6 +28,8 @@ public:
 	// Sets default values for this actor's properties
 	AHoverTank();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// create definition of the standard input binding method
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -39,7 +41,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
-	
+
+	void OnDeath();
+	bool IsDead() const;
+
+	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -121,6 +128,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
 
+	UPROPERTY(Replicated)
+	bool bIsInputEnabled = true;
+	
 	/**
 	 * HUD
 	 */

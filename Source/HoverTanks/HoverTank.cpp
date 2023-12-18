@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AHoverTank::AHoverTank()
@@ -100,11 +101,13 @@ AHoverTank::AHoverTank()
 	{
 		HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
 	}
+}
 
-	if (HoverTankHUDWidgetClass)
-	{
-		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
-	}
+void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AHoverTank, bIsInputEnabled);
 }
 
 // Called every frame
@@ -155,6 +158,30 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 }
 
+void AHoverTank::OnDeath()
+{
+	// get current player controller
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+
+	if (PlayerController == nullptr)
+	{
+		return;
+	}
+	
+	// disable player input
+	SetInputEnabled(false);
+}
+
+bool AHoverTank::IsDead() const
+{
+	if (HealthComponent != nullptr)
+	{
+		return HealthComponent->IsDead();	
+	}
+
+	return false;
+}
+
 // Called when the game starts or when spawned
 void AHoverTank::BeginPlay()
 {
@@ -175,15 +202,20 @@ void AHoverTank::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	if (HoverTankHUDWidgetClass)
+	{
+		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
+	}
 }
 
 void AHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::PossessedBy"), *RoleString);
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::PossessedBy"), *RoleString);
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -195,9 +227,9 @@ void AHoverTank::UnPossessed()
 {
 	Super::UnPossessed();
 
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::UnPossessed"), *RoleString);
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::UnPossessed"), *RoleString);
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -207,7 +239,7 @@ void AHoverTank::UnPossessed()
 
 void AHoverTank::ClientAddHUDWidget_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientAddHUDWidget_Implementation"));
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientAddHUDWidget_Implementation"));
 	
 	if (HoverTankHUDWidget != nullptr && !HoverTankHUDWidget->IsInViewport())
 	{
@@ -217,7 +249,7 @@ void AHoverTank::ClientAddHUDWidget_Implementation()
 
 void AHoverTank::ClientRemoveHUDWidget_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientRemoveHUDWidget_Implementation"));
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientRemoveHUDWidget_Implementation"));
 	
 	if (HoverTankHUDWidget != nullptr && HoverTankHUDWidget->IsInViewport())
 	{
@@ -227,6 +259,11 @@ void AHoverTank::ClientRemoveHUDWidget_Implementation()
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	
 	if (HoverTankMovementComponent)
@@ -238,6 +275,11 @@ void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 
 void AHoverTank::MoveCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetThrottle(0);
@@ -249,6 +291,11 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
 
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
@@ -260,6 +307,11 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 
 void AHoverTank::LookCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetLookUp(0);
@@ -269,6 +321,11 @@ void AHoverTank::LookCompleted()
 
 void AHoverTank::EBrakeStarted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetIsEBraking(true);
@@ -277,6 +334,11 @@ void AHoverTank::EBrakeStarted()
 
 void AHoverTank::EBrakeCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetIsEBraking(false);
@@ -285,6 +347,11 @@ void AHoverTank::EBrakeCompleted()
 
 void AHoverTank::JumpTriggered()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	// UE_LOG(LogTemp, Warning, TEXT("Jump started"));
 	if (HoverTankMovementComponent)
 	{
@@ -294,6 +361,11 @@ void AHoverTank::JumpTriggered()
 
 void AHoverTank::JumpCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->JumpCompleted();
@@ -302,6 +374,11 @@ void AHoverTank::JumpCompleted()
 
 void AHoverTank::BoostTriggered()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->BoostTriggered();
@@ -310,6 +387,11 @@ void AHoverTank::BoostTriggered()
 
 void AHoverTank::BoostCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->BoostCompleted();
@@ -318,6 +400,11 @@ void AHoverTank::BoostCompleted()
 
 void AHoverTank::ShootStarted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
 	if (WeaponsComponent)
 	{
 		WeaponsComponent->AttemptToShoot();

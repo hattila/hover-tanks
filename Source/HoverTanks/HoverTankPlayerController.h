@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HoverTankPlayerController.generated.h"
 
+class ADeathMatchGameMode;
 class UDeathMatchScoreBoardWidget;
 class UInGameMenu;
 class UInputAction;
@@ -44,6 +45,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* OpenScoreBoardAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RequestRespawnAction;
+	
 	TSubclassOf<UUserWidget> InGameMenuClass;
 	UInGameMenu* InGameMenu;
 
@@ -52,9 +56,15 @@ private:
 
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerScores)
 	TArray<FDeathMatchPlayerScore> PlayerScores;
+
+	ADeathMatchGameMode* GameModeRef; // todo: respawn able game mode interface?
 	
 	void OpenInGameMenu();
 	void OpenScoreBoard();
+	void RequestRespawn();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestRespawn();
 
 	UFUNCTION()
 	void OnRep_PlayerScores() const;

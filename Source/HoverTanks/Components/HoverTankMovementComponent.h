@@ -133,7 +133,7 @@ private:
 	/** Higher value means more loss of momentum on collision */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="1.0", ClampMax="3.0"))
 	float BounceDampening = 2.0f;
-
+	
 	float Throttle;
 	float Steering;
 	bool bIsEBraking = false;
@@ -175,6 +175,7 @@ private:
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
 	
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
+	bool IsOwningHoverTankDead();
 
 	/**
 	 * Debug

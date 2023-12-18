@@ -74,27 +74,37 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 			DeathMatchGameState->AddScoreToPlayer(KillerPlayerController, 1);
 		}
 
+		DeadHoverTank->OnDeath();
+	}
+	
+}
 
-		DeadPlayerController->UnPossess();
-		DeadHoverTank->Destroy();
-		
-		if (DeathMatchGameState)
+void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
+{
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+
+	if (DeathMatchGameState)
+	{
+		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
+		if (TimeRemaining > 0)
 		{
-			const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
-			if (TimeRemaining > 0)
+			APawn* CurrentPawn = InPlayerController->GetPawn();
+			InPlayerController->UnPossess();
+			if (CurrentPawn)
 			{
-				APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
-				AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
-
-				DeadPlayerController->Possess(NewHoverTank);
+				CurrentPawn->Destroy();
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Game is over, cannot spawn new tank"));
+				UE_LOG(LogTemp, Error, TEXT("CurrentPawn is null"));
 			}
+
+			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
+			AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
+
+			InPlayerController->Possess(NewHoverTank);
 		}
 	}
-	
 }
 
 void ADeathMatchGameMode::BeginPlay()
@@ -131,10 +141,16 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 				if (PlayerController)
 				{
 					AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
-					PlayerController->UnPossess();
+					// PlayerController->UnPossess();
 					if (PossessedHoverTank)
 					{
-						PossessedHoverTank->Destroy();
+						UGameplayStatics::ApplyDamage(
+							PossessedHoverTank,
+							5000.f,
+							nullptr,
+							this,
+							UDamageType::StaticClass()
+						);
 					}
 
 					AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);

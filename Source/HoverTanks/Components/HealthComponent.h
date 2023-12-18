@@ -30,6 +30,8 @@ public:
 	
 	// void TakeDamage(float Damage);
 	// void Heal(float HealAmount);
+
+	bool IsDead() const { return Health <= 0.f; }
 	
 protected:
 	// Called when the game starts
@@ -46,6 +48,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_Health();
-	
-		
+
+	bool IsOwningHoverTankDead();
 };

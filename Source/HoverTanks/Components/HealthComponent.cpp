@@ -60,6 +60,11 @@ void UHealthComponent::OnAnyDamage(
 {
 	if (GetOwner()->HasAuthority())
 	{
+		if (Health <= 0)
+		{
+			return;
+		}
+		
 		Health -= Damage;
 		UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
 
@@ -75,4 +80,15 @@ void UHealthComponent::OnRep_Health()
 {
 	// update hud
 	// UE_LOG(LogTemp, Warning, TEXT("Health changed! Health: %f"), Health);
+}
+
+bool UHealthComponent::IsOwningHoverTankDead()
+{
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		return HoverTank->IsDead();
+	}
+
+	return false;
 }

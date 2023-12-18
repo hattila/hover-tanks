@@ -3,15 +3,18 @@
 
 #include "HoverTankPlayerController.h"
 
+#include "HoverTank.h"
+#include "Game/DeathMatchGameState.h"
+#include "MenuSystem/InGameMenu.h"
+#include "UI/DeathMatchScoreBoardWidget.h"
+
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
-#include "Game/DeathMatchGameState.h"
-#include "MenuSystem/InGameMenu.h"
+#include "Game/DeathMatchGameMode.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/DeathMatchScoreBoardWidget.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
 	InGameMenu(nullptr),
@@ -53,6 +56,12 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 	{
 		OpenScoreBoardAction = FindInputActionOpenScoreBoardAction.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> FindInputActionShoot(TEXT("/Game/HoverTanks/Input/Actions/IA_Jump"));
+	if (FindInputActionShoot.Succeeded())
+	{
+		RequestRespawnAction = FindInputActionShoot.Object;
+	}
 }
 
 void AHoverTankPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -83,6 +92,9 @@ void AHoverTankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// this->OnPossess.AddDynamic(this, &AHoverTankPlayerController::OnPossess);
+	
+	// todo: respawn able game mode interface?
+	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AHoverTankPlayerController::SetupInputComponent()
@@ -100,6 +112,7 @@ void AHoverTankPlayerController::SetupInputComponent()
 	{
 		EnhancedInputComponent->BindAction(OpenInGameMenuAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::OpenInGameMenu);
 		EnhancedInputComponent->BindAction(OpenScoreBoardAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::OpenScoreBoard);
+		EnhancedInputComponent->BindAction(RequestRespawnAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::RequestRespawn);
 	}
 }
 
@@ -161,6 +174,25 @@ void AHoverTankPlayerController::OpenScoreBoard()
 	}
 	DeathMatchScoreBoardWidget->Setup();
 	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
+}
+
+void AHoverTankPlayerController::RequestRespawn()
+{
+	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+	if (PossessedHoverTank && PossessedHoverTank->IsDead())
+	{
+		ServerRequestRespawn();
+	}
+}
+
+void AHoverTankPlayerController::ServerRequestRespawn_Implementation()
+{
+	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+	if (PossessedHoverTank && PossessedHoverTank->IsDead() && GameModeRef != nullptr)
+	{
+		// request respawn
+		GameModeRef->RequestRespawn(this);
+	}	
 }
 
 void AHoverTankPlayerController::OnRep_PlayerScores() const

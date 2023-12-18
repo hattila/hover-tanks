@@ -21,11 +21,12 @@ public:
 	ADeathMatchGameMode();
 
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser);
+	void RequestRespawn(APlayerController* InPlayerController);
 
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 300;
+	int32 MatchTimeInSeconds = 10;
 
 	virtual void BeginPlay() override;
 	void OnOneSecondElapsed();

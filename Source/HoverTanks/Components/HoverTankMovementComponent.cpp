@@ -7,10 +7,13 @@
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
-UHoverTankMovementComponent::UHoverTankMovementComponent()
+UHoverTankMovementComponent::UHoverTankMovementComponent(): Throttle(0), Steering(0), LookUp(0), LookRight(0),
+                                                            LastMove(),
+                                                            TankCannonMesh(nullptr),
+                                                            TankBarrelMesh(nullptr),
+                                                            LastCannonRotate()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 
@@ -94,21 +97,36 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	 * Initial Forces
 	 */
 
-	float ThrottleValue = Move.bIsBoosting ? BoostThrottle : MaxThrottle;
-	FVector ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * ThrottleValue;
-	
-	FVector AirResistance = CalculateAirResistance();
-	FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
-
-	ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
+	FVector ForceOnObject;
+	FVector Acceleration;
+	FVector VerticalForce;
 
 	FVector GroundSurfaceNormal;
 	float DistanceFromGround;
 
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
-	FVector VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
 	
-	FVector Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
+	if (IsOwningHoverTankDead())
+	{
+		Acceleration = FVector::ZeroVector;
+
+		FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
+		VerticalForce = Gravity * Move.DeltaTime;
+	}
+	else
+	{
+		float ThrottleValue = Move.bIsBoosting ? BoostThrottle : MaxThrottle;
+		ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * ThrottleValue;
+	
+		FVector AirResistance = CalculateAirResistance();
+		FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
+
+		ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
+		
+		VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
+		Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
+	}
+
 	Velocity = Velocity + Acceleration + VerticalForce;
 	// clamp max speed
 	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
@@ -339,6 +357,17 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 			// DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location + GroundSurfaceNormal * 500 , FColor::Red, false, 1, 0, 2);
 			return true;
 		}
+	}
+
+	return false;
+}
+
+bool UHoverTankMovementComponent::IsOwningHoverTankDead()
+{
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		return HoverTank->IsDead();
 	}
 
 	return false;
