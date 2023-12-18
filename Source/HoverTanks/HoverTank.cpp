@@ -290,11 +290,6 @@ void AHoverTank::MoveCompleted()
 void AHoverTank::LookTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
-
-	if (bIsInputEnabled == false)
-	{
-		return;
-	}
 	
 	if (HoverTankMovementComponent)
 	{
@@ -307,11 +302,6 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 
 void AHoverTank::LookCompleted()
 {
-	if (bIsInputEnabled == false)
-	{
-		return;
-	}
-	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->SetLookUp(0);

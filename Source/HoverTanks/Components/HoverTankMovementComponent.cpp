@@ -130,19 +130,22 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	Velocity = Velocity + Acceleration + VerticalForce;
 	// clamp max speed
 	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
-	
-	/**
-	 * Turning and Rotation
-	 */
-	FRotator HorizontalRotation;
-	FQuat RotationDelta;
-	CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
-	FRotator NewActorRotation = FMath::RInterpTo(HorizontalRotation, AlignedRotation, Move.DeltaTime, 2);
+	if (!IsOwningHoverTankDead())
+	{
+		/**
+		 * Turning and Rotation
+		 */
+		FRotator HorizontalRotation;
+		FQuat RotationDelta;
+		CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-	GetOwner()->SetActorRotation(NewActorRotation);
-	Velocity = RotationDelta.RotateVector(Velocity);
+		FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
+		FRotator NewActorRotation = FMath::RInterpTo(HorizontalRotation, AlignedRotation, Move.DeltaTime, 2);
+
+		GetOwner()->SetActorRotation(NewActorRotation);
+		Velocity = RotationDelta.RotateVector(Velocity);
+	}
 
 	/**
 	 * Move the Actor in 3d space
@@ -168,6 +171,11 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
+	if (IsOwningHoverTankDead())
+	{
+		return;
+	}
+	
 	FRotator CannonRotation;
 	CannonRotation.Pitch = 0;
 	CannonRotation.Yaw = CannonRotate.ControlRotation.Yaw;
