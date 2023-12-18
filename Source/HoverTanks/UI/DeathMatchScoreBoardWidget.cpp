@@ -87,7 +87,7 @@ void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
 
 void UDeathMatchScoreBoardWidget::ReDrawPlayerScores()
 {
-	if (PlayerScoreClass == nullptr)
+	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
 	{
 		return;
 	}

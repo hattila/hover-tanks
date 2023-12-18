@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class UDeathMatchPlayerHUDWidget;
 /**
  * 
  */
@@ -26,6 +27,6 @@ private:
 	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass;
 	// TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
 	
-	UUserWidget* DeathMatchPlayerHUDWidget;
+	UDeathMatchPlayerHUDWidget* DeathMatchPlayerHUDWidget;
 	// UUserWidget* HoverTankHUDWidget;
 };

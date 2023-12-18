@@ -2,7 +2,9 @@
 
 #include "DeathMatchHUD.h"
 
+#include "DeathMatchPlayerHUDWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/Game/DeathMatchGameState.h"
 
 ADeathMatchHUD::ADeathMatchHUD():
 	DeathMatchPlayerHUDWidget(nullptr)
@@ -25,10 +27,16 @@ void ADeathMatchHUD::BeginPlay()
 		return;
 	}
 
-	DeathMatchPlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), DeathMatchPlayerHUDWidgetClass);
+	DeathMatchPlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetWorld(), DeathMatchPlayerHUDWidgetClass);
 	if (APlayerController* PlayerController = GetOwningPlayerController())
 	{
-		DeathMatchPlayerHUDWidget->AddToViewport();
+		DeathMatchPlayerHUDWidget->Setup();
+	}
+
+	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState && DeathMatchPlayerHUDWidget)
+	{
+		DeathMatchPlayerHUDWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
 	}
 }
 
