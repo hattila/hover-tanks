@@ -240,7 +240,12 @@ void AHoverTank::UnPossessed()
 void AHoverTank::ClientAddHUDWidget_Implementation()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientAddHUDWidget_Implementation"));
-	
+
+	if (HoverTankHUDWidgetClass && HoverTankHUDWidget == nullptr)
+	{
+		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
+	}
+
 	if (HoverTankHUDWidget != nullptr && !HoverTankHUDWidget->IsInViewport())
 	{
 		HoverTankHUDWidget->AddToViewport();
