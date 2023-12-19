@@ -44,7 +44,7 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	
 	if (GetOwnerRole() == ROLE_AutonomousProxy || Owner->IsLocallyControlled())
 	{
-		LastMove = CreateMove(DeltaTime);
+		LastMove = CreateMove(DeltaTime); // !!
 		SimulateMove(LastMove);
 
 
@@ -106,7 +106,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
 	
-	if (IsOwningHoverTankDead())
+	if (!IsInputEnabled())
 	{
 		Acceleration = FVector::ZeroVector;
 
@@ -131,7 +131,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	// clamp max speed
 	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
 
-	if (!IsOwningHoverTankDead())
+	if (IsInputEnabled())
 	{
 		/**
 		 * Turning and Rotation
@@ -171,7 +171,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
  */
 void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
-	if (IsOwningHoverTankDead())
+	if (!IsInputEnabled())
 	{
 		return;
 	}
@@ -370,12 +370,12 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	return false;
 }
 
-bool UHoverTankMovementComponent::IsOwningHoverTankDead()
+bool UHoverTankMovementComponent::IsInputEnabled()
 {
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
-		return HoverTank->IsDead();
+		return HoverTank->IsInputEnabled();
 	}
 
 	return false;

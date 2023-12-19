@@ -175,7 +175,7 @@ private:
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
 	
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
-	bool IsOwningHoverTankDead();
+	bool IsInputEnabled();
 
 	/**
 	 * Debug

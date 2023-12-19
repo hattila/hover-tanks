@@ -264,6 +264,8 @@ void AHoverTank::ClientRemoveHUDWidget_Implementation()
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
+	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
+	
 	if (bIsInputEnabled == false)
 	{
 		return;

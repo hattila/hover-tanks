@@ -44,6 +44,7 @@ public:
 
 	void OnDeath();
 	bool IsDead() const;
+	bool IsInputEnabled() const { return bIsInputEnabled; }
 
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
 
