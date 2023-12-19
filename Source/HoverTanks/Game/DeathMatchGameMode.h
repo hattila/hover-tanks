@@ -26,7 +26,7 @@ public:
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 10;
+	int32 MatchTimeInSeconds = 60;
 
 	virtual void BeginPlay() override;
 	void OnOneSecondElapsed();

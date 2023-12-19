@@ -76,7 +76,7 @@ void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArr
 	PlayerScores = InPlayerScores;
 		
 	// refresh a might be open scoreboard for the server player
-	if (DeathMatchScoreBoardWidget)
+	if (DeathMatchScoreBoardWidget != nullptr && DeathMatchScoreBoardWidget->IsOpen())
 	{
 		DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 	}
@@ -84,7 +84,33 @@ void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArr
 
 void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation()
 {
-	OpenScoreBoard();
+	if (!ensure(DeathMatchScoreBoardClass != nullptr))
+	{
+		return;
+	}
+
+	if (DeathMatchScoreBoardWidget == nullptr)
+	{
+		DeathMatchScoreBoardWidget = CreateWidget<UDeathMatchScoreBoardWidget>(this, DeathMatchScoreBoardClass);
+	}
+	
+	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
+	{
+		return;
+	}
+
+	if (DeathMatchScoreBoardWidget->IsOpen())
+	{
+		return;
+	}
+
+	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
+	}
+	DeathMatchScoreBoardWidget->Setup();
+	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
 }
 
 void AHoverTankPlayerController::BeginPlay()
@@ -95,6 +121,22 @@ void AHoverTankPlayerController::BeginPlay()
 	
 	// todo: respawn able game mode interface?
 	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
+}
+
+void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	// remove all widgets
+	if (InGameMenu)
+	{
+		InGameMenu->Teardown();
+	}
+
+	if (DeathMatchScoreBoardWidget)
+	{
+		DeathMatchScoreBoardWidget->Teardown();
+	}
 }
 
 void AHoverTankPlayerController::SetupInputComponent()

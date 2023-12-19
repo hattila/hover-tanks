@@ -207,6 +207,8 @@ void ADeathMatchGameMode::Logout(AController* Exiting)
 
 	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
 
+	// are we traveling?
+	
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	const APlayerController* ExistingPlayerController = Cast<APlayerController>(Exiting);
 	if (DeathMatchGameState && ExistingPlayerController)

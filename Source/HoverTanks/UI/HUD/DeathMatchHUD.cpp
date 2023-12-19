@@ -40,4 +40,14 @@ void ADeathMatchHUD::BeginPlay()
 	}
 }
 
+void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (DeathMatchPlayerHUDWidget)
+	{
+		DeathMatchPlayerHUDWidget->Teardown();
+	}
+}
+
 
