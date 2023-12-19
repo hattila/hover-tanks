@@ -154,7 +154,7 @@ void UHoverTanksGameInstance::StartCreateSession()
 		SessionSettings.NumPublicConnections = 10;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
-		// SessionSettings.bAllowJoinInProgress = true; // it might be required!
+		SessionSettings.bAllowJoinInProgress = true;
 		// SessionSettings.bAllowJoinViaPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
 
