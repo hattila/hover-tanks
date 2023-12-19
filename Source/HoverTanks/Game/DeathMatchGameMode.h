@@ -9,6 +9,15 @@
 class AHoverTank;
 class APlayerStart;
 
+UENUM()
+enum EMatchState
+{
+	// add states like WaitingToStart, InProgress, GameOver
+	WaitingToStart,
+	InProgress,
+	GameOver
+};
+
 /**
  * 
  */
@@ -26,8 +35,10 @@ public:
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 60;
+	int32 MatchTimeInSeconds = 30;
 
+	EMatchState MatchState = EMatchState::InProgress; // todo change to WaitingToStart
+	
 	virtual void BeginPlay() override;
 	void OnOneSecondElapsed();
 

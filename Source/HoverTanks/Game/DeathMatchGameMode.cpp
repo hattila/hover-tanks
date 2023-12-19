@@ -131,13 +131,13 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
 		DeathMatchGameState->SetTimeRemaining(TimeRemaining - 1);
 
-		if (TimeRemaining <= 0)
+		if (TimeRemaining <= 0 && MatchState == EMatchState::InProgress)
 		{
 			GameOver();
 		}
 	}
 	
-	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));
+	UE_LOG(LogTemp, Warning, TEXT("One second elapsed in %s state"), *UEnum::GetValueAsString(MatchState));
 
 	// todo check if the game is over
 }
@@ -146,6 +146,19 @@ void ADeathMatchGameMode::GameOver()
 {
 	// clear the timer
 	GetWorldTimerManager().ClearTimer(GameTimerHandle);
+	MatchState = EMatchState::GameOver;
+
+	UE_LOG(LogTemp, Warning, TEXT("GameOver!"));
+
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchGameState->SetTimeRemaining(10);
+	}
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+	
+	FTimerHandle GameRestartTimerHandle;
+	GetWorldTimerManager().SetTimer(GameRestartTimerHandle, this, &ADeathMatchGameMode::ResetLevel, 10.f, true);
 
 	// get every connected palyer controller, find their possesed pawns and destroy them
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -158,25 +171,16 @@ void ADeathMatchGameMode::GameOver()
 			// kill all tanks and open the scoreboard
 			if (PossessedHoverTank)
 			{
-				// UGameplayStatics::ApplyDamage(
-				// 	PossessedHoverTank,
-				// 	5000.f,
-				// 	nullptr,
-				// 	this,
-				// 	UDamageType::StaticClass()
-				// );
 				PossessedHoverTank->SetInputEnabled(false);
 			}
 
 			AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);
 			if (HoverTankPlayerController)
 			{
-				HoverTankPlayerController->ClientForceOpenScoreBoard(); // clients!
+				HoverTankPlayerController->ClientForceOpenScoreBoard(10); // clients!
 			}
 		}
 	}
-
-	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::ResetLevel, 2.f, true);
 }
 
 void ADeathMatchGameMode::ResetLevel()

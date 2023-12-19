@@ -170,6 +170,7 @@ void AHoverTank::OnDeath()
 	
 	// disable player input
 	SetInputEnabled(false);
+	ClientRemoveHUDWidget();
 }
 
 bool AHoverTank::IsDead() const

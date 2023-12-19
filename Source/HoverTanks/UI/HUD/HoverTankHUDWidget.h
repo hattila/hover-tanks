@@ -13,4 +13,7 @@ UCLASS()
 class HOVERTANKS_API UHoverTankHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
+	
+public:
+	virtual bool Initialize() override;
 };

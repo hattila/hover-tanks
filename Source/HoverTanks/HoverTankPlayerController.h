@@ -29,7 +29,7 @@ public:
 	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) override;
 
 	UFUNCTION(Client, Reliable)
-	void ClientForceOpenScoreBoard();
+	void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds);
 
 protected:
 	virtual void BeginPlay() override;

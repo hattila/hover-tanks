@@ -82,7 +82,7 @@ void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArr
 	}
 }
 
-void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation()
+void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
 	if (!ensure(DeathMatchScoreBoardClass != nullptr))
 	{
@@ -107,7 +107,9 @@ void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation()
 	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
 	{
-		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
+		// int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
+		UE_LOG(LogTemp, Warning, TEXT("ClientForceOpenScoreBoard_Implementation. TimeRemaining: %d"), TimeUntilRestartInSeconds);
+		DeathMatchScoreBoardWidget->SetTimeLeft(TimeUntilRestartInSeconds);
 	}
 	DeathMatchScoreBoardWidget->Setup();
 	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
@@ -128,12 +130,12 @@ void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReaso
 	Super::EndPlay(EndPlayReason);
 
 	// remove all widgets
-	if (InGameMenu)
+	if (InGameMenu != nullptr)
 	{
-		InGameMenu->Teardown();
+		InGameMenu->Teardown(); // still can crash
 	}
 
-	if (DeathMatchScoreBoardWidget)
+	if (DeathMatchScoreBoardWidget != nullptr)
 	{
 		DeathMatchScoreBoardWidget->Teardown();
 	}

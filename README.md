@@ -58,3 +58,4 @@ PS H:\UnrealProjects\BUILD\HoverTanks\Windows\HoverTanks\Saved\Logs> Get-Content
 ### Known Issues
 - Custom collision mesh as complex collision does not work on the HoverTank.
 - &Game parameter cannot be used during ServerTravel, because Steam Session is not joinable that way.
+- Start a session find by clicking on join, host a server before it finishes: crash.

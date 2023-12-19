@@ -2,3 +2,8 @@
 
 
 #include "HoverTankHUDWidget.h"
+
+bool UHoverTankHUDWidget::Initialize()
+{
+	return Super::Initialize();
+}
