@@ -23,10 +23,8 @@ class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, publ
 public:
 	AHoverTankPlayerController();
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	UFUNCTION(NetMulticast, Unreliable)
-	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) override;
+	UFUNCTION(Client, Unreliable)
+	virtual void ClientOnScoresChanged() override;
 
 	UFUNCTION(Client, Reliable)
 	void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds);
@@ -52,12 +50,6 @@ private:
 	TSubclassOf<UUserWidget> InGameMenuClass;
 	UInGameMenu* InGameMenu;
 
-	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
-	UDeathMatchScoreBoardWidget* DeathMatchScoreBoardWidget;
-
-	UPROPERTY(ReplicatedUsing=OnRep_PlayerScores)
-	TArray<FDeathMatchPlayerScore> PlayerScores;
-
 	ADeathMatchGameMode* GameModeRef; // todo: respawn able game mode interface?
 	
 	void OpenInGameMenu();
@@ -66,7 +58,4 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRequestRespawn();
-
-	UFUNCTION()
-	void OnRep_PlayerScores() const;
 };

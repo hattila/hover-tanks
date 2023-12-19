@@ -30,7 +30,6 @@ public:
 	void SetGameModeName(const FString& InGameModeName) const { GameModeName->SetText(FText::FromString(InGameModeName)); }
 	void SetTimeLeft(int32 InTimeLeft) { TimeLeft = InTimeLeft; }
 
-	bool IsOpen() const { return bIsOpen; }
 	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores);
 	void RefreshTimeLeft();
 
@@ -48,13 +47,7 @@ private:
 	UScrollBox* PlayerScoresBox;
 
 	TSubclassOf<UUserWidget> PlayerScoreClass;
-
-	bool bIsOpen = false;
 	
 	int32 TimeLeft;
 	FTimerHandle TimeLeftRefreshTimerHandle;
-	
-	TArray<FDeathMatchPlayerScore> PlayerScoresArray;
-
-	void ReDrawPlayerScores();
 };

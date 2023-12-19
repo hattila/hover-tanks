@@ -137,9 +137,7 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 		}
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("One second elapsed in %s state"), *UEnum::GetValueAsString(MatchState));
-
-	// todo check if the game is over
+	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed in %s state"), *UEnum::GetValueAsString(MatchState));
 }
 
 void ADeathMatchGameMode::GameOver()

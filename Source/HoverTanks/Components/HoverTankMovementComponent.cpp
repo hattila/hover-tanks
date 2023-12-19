@@ -44,7 +44,7 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	
 	if (GetOwnerRole() == ROLE_AutonomousProxy || Owner->IsLocallyControlled())
 	{
-		LastMove = CreateMove(DeltaTime); // !!
+		LastMove = CreateMove(DeltaTime); // !! can crash on lever restart
 		SimulateMove(LastMove);
 
 

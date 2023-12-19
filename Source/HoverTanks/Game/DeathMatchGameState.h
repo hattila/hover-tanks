@@ -28,12 +28,13 @@ public:
 	void SetTimeRemaining(const int32 NewTimeRemaining) { TimeRemainingInSeconds = NewTimeRemaining; }
 	
 private:
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
 	TArray<FDeathMatchPlayerScore> PlayerScores;
 
 	UPROPERTY(Replicated)
 	int32 TimeRemainingInSeconds;
 
-	UFUNCTION(Server, Unreliable)
-	void ServerOnScoreChange();
+	UFUNCTION()
+	void OnRep_PlayerScores();
 	
 };

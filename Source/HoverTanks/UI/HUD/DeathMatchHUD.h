@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class UDeathMatchScoreBoardWidget;
 class UDeathMatchPlayerHUDWidget;
 /**
  * 
@@ -19,15 +20,22 @@ public:
 	// create a constructor
 	ADeathMatchHUD();
 
+	void ToggleScoreBoard();
+	void ForceOpenScoreBoard();
+	void RefreshPlayerScores();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
+
 private:
 
-	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass;
+	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass; // timer, score, etc
 	// TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
 	
 	UDeathMatchPlayerHUDWidget* DeathMatchPlayerHUDWidget;
 	// UUserWidget* HoverTankHUDWidget;
+
+	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
+	UDeathMatchScoreBoardWidget* DeathMatchScoreBoardWidget;
 };

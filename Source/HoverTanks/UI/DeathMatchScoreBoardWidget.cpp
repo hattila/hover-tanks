@@ -39,7 +39,6 @@ bool UDeathMatchScoreBoardWidget::Initialize()
 void UDeathMatchScoreBoardWidget::Setup()
 {
 	AddToViewport();
-	bIsOpen = true;
 
 	RefreshTimeLeft();
 	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UDeathMatchScoreBoardWidget::RefreshTimeLeft, 1, true);
@@ -50,14 +49,38 @@ void UDeathMatchScoreBoardWidget::Teardown()
 	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
 	
 	RemoveFromParent();
-	bIsOpen = false;
 }
 
 void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores)
 {
-	PlayerScoresArray = InPlayerScores;
+	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
+	{
+		return;
+	}
 
-	ReDrawPlayerScores();
+	PlayerScoresBox->ClearChildren();
+
+	int32 i = 1;
+	for (FDeathMatchPlayerScore PlayerScore : InPlayerScores)
+	{
+		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		if (!PlayerScoreWidget)
+		{
+			return;
+		}
+		PlayerScoreWidget->Setup(i, PlayerScore.PlayerName, PlayerScore.Score);
+		PlayerScoresBox->AddChild(PlayerScoreWidget);
+
+		// create a Spacer element and Add it to the PlayerScoresBox unless it is the last element
+		if (i < InPlayerScores.Num())
+		{
+			USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
+			Spacer->SetSize(FVector2d(1, 10));
+			PlayerScoresBox->AddChild(Spacer);
+		}
+		
+		++i;
+	}
 }
 
 void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
@@ -84,36 +107,3 @@ void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
 
 	TimeLeft--;
 }
-
-void UDeathMatchScoreBoardWidget::ReDrawPlayerScores()
-{
-	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
-	{
-		return;
-	}
-
-	PlayerScoresBox->ClearChildren();
-
-	int32 i = 1;
-	for (FDeathMatchPlayerScore PlayerScore : PlayerScoresArray)
-	{
-		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
-		if (!PlayerScoreWidget)
-		{
-			return;
-		}
-		PlayerScoreWidget->Setup(i, PlayerScore.PlayerName, PlayerScore.Score);
-		PlayerScoresBox->AddChild(PlayerScoreWidget);
-
-		// create a Spacer element and Add it to the PlayerScoresBox unless it is the last element
-		if (i < PlayerScoresArray.Num())
-		{
-			USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
-			Spacer->SetSize(FVector2d(1, 10));
-			PlayerScoresBox->AddChild(Spacer);
-		}
-		
-		++i;
-	}
-}
-

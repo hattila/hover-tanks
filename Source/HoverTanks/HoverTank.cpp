@@ -257,7 +257,7 @@ void AHoverTank::ClientRemoveHUDWidget_Implementation()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientRemoveHUDWidget_Implementation"));
 	
-	if (HoverTankHUDWidget != nullptr && HoverTankHUDWidget->IsInViewport())
+	if (HoverTankHUDWidget != nullptr && HoverTankHUDWidget->IsInViewport()) // still can crash when game quits.
 	{
 		HoverTankHUDWidget->RemoveFromParent();
 	}

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Game/DeathMatchPlayerScore.h"
 #include "UObject/Interface.h"
 #include "HasScoreBoard.generated.h"
 
@@ -22,7 +21,6 @@ class HOVERTANKS_API IHasScoreBoard
 	GENERATED_BODY()
 
 public:
-
-	UFUNCTION(Server, Unreliable)
-	virtual void ServerOnScoresChanged(const TArray<FDeathMatchPlayerScore>& InPlayerScores) = 0;
+	UFUNCTION(Client, Unreliable)
+	virtual void ClientOnScoresChanged() = 0;
 };

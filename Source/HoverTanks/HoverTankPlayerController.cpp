@@ -4,9 +4,7 @@
 #include "HoverTankPlayerController.h"
 
 #include "HoverTank.h"
-#include "Game/DeathMatchGameState.h"
 #include "MenuSystem/InGameMenu.h"
-#include "UI/DeathMatchScoreBoardWidget.h"
 
 #include "InputAction.h"
 #include "InputMappingContext.h"
@@ -14,11 +12,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "Game/DeathMatchGameMode.h"
-#include "Net/UnrealNetwork.h"
+#include "UI/HUD/DeathMatchHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
-	InGameMenu(nullptr),
-	DeathMatchScoreBoardWidget(nullptr)
+	InGameMenu(nullptr)
 {
 	// initialize InGameMenuClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuClassFinder(
@@ -26,14 +23,6 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 	if (InGameMenuClassFinder.Succeeded())
 	{
 		InGameMenuClass = InGameMenuClassFinder.Class;
-	}
-
-	// initialize DeathMatchScoreBoardClass
-	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchScoreBoardClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchScoreBoardWidget"));
-	if (DeathMatchScoreBoardClassFinder.Succeeded())
-	{
-		DeathMatchScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> FindInputMappingContext(
@@ -64,62 +53,21 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 	}
 }
 
-void AHoverTankPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AHoverTankPlayerController::ClientOnScoresChanged_Implementation()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AHoverTankPlayerController, PlayerScores);
-}
-
-void AHoverTankPlayerController::ServerOnScoresChanged_Implementation(const TArray<FDeathMatchPlayerScore>& InPlayerScores)
-{
-	PlayerScores = InPlayerScores;
-		
-	// refresh a might be open scoreboard for the server player
-	if (DeathMatchScoreBoardWidget != nullptr && DeathMatchScoreBoardWidget->IsOpen())
-	{
-		DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
-	}
+	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	HUD->RefreshPlayerScores();
 }
 
 void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
-	if (!ensure(DeathMatchScoreBoardClass != nullptr))
-	{
-		return;
-	}
-
-	if (DeathMatchScoreBoardWidget == nullptr)
-	{
-		DeathMatchScoreBoardWidget = CreateWidget<UDeathMatchScoreBoardWidget>(this, DeathMatchScoreBoardClass);
-	}
-	
-	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
-	{
-		return;
-	}
-
-	if (DeathMatchScoreBoardWidget->IsOpen())
-	{
-		return;
-	}
-
-	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
-	if (DeathMatchGameState)
-	{
-		// int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
-		UE_LOG(LogTemp, Warning, TEXT("ClientForceOpenScoreBoard_Implementation. TimeRemaining: %d"), TimeUntilRestartInSeconds);
-		DeathMatchScoreBoardWidget->SetTimeLeft(TimeUntilRestartInSeconds);
-	}
-	DeathMatchScoreBoardWidget->Setup();
-	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
+	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	HUD->ForceOpenScoreBoard();
 }
 
 void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// this->OnPossess.AddDynamic(this, &AHoverTankPlayerController::OnPossess);
 	
 	// todo: respawn able game mode interface?
 	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
@@ -133,11 +81,6 @@ void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReaso
 	if (InGameMenu != nullptr)
 	{
 		InGameMenu->Teardown(); // still can crash
-	}
-
-	if (DeathMatchScoreBoardWidget != nullptr)
-	{
-		DeathMatchScoreBoardWidget->Teardown();
 	}
 }
 
@@ -188,36 +131,8 @@ void AHoverTankPlayerController::OpenInGameMenu()
 
 void AHoverTankPlayerController::OpenScoreBoard()
 {
-	if (!ensure(DeathMatchScoreBoardClass != nullptr))
-	{
-		return;
-	}
-
-	if (DeathMatchScoreBoardWidget == nullptr)
-	{
-		DeathMatchScoreBoardWidget = CreateWidget<UDeathMatchScoreBoardWidget>(this, DeathMatchScoreBoardClass);
-	}
-	
-	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
-	{
-		return;
-	}
-
-	if (DeathMatchScoreBoardWidget->IsOpen())
-	{
-		DeathMatchScoreBoardWidget->Teardown();
-		return;
-	}
-
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OpenScoreBoard. Score count: %d"), PlayerScores.Num());
-
-	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
-	if (DeathMatchGameState)
-	{
-		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
-	}
-	DeathMatchScoreBoardWidget->Setup();
-	DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
+	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	HUD->ToggleScoreBoard();
 }
 
 void AHoverTankPlayerController::RequestRespawn()
@@ -234,15 +149,6 @@ void AHoverTankPlayerController::ServerRequestRespawn_Implementation()
 	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 	if (PossessedHoverTank && PossessedHoverTank->IsDead() && GameModeRef != nullptr)
 	{
-		// request respawn
 		GameModeRef->RequestRespawn(this);
 	}	
-}
-
-void AHoverTankPlayerController::OnRep_PlayerScores() const
-{
-	if (DeathMatchScoreBoardWidget)
-	{
-		DeathMatchScoreBoardWidget->RefreshPlayerScores(PlayerScores);
-	}
 }
