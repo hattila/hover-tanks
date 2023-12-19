@@ -14,6 +14,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Net/UnrealNetwork.h"
+#include "UI/HUD/HoverTankHUDWidget.h"
 
 // Sets default values
 AHoverTank::AHoverTank()
@@ -203,22 +204,14 @@ void AHoverTank::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
-	if (HoverTankHUDWidgetClass)
-	{
-		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
-	}
 }
 
 void AHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// FString RoleString;
-	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	// UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::PossessedBy"), *RoleString);
-
-	if (GetLocalRole() == ROLE_Authority)
+	APlayerState* CurrentPlayerState = GetPlayerState();
+	if (GetLocalRole() == ROLE_Authority && CurrentPlayerState)
 	{
 		ClientAddHUDWidget();
 	}
@@ -227,10 +220,6 @@ void AHoverTank::PossessedBy(AController* NewController)
 void AHoverTank::UnPossessed()
 {
 	Super::UnPossessed();
-
-	// FString RoleString;
-	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	// UE_LOG(LogTemp, Warning, TEXT("ROLE %s, AHoverTank::UnPossessed"), *RoleString);
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -244,7 +233,7 @@ void AHoverTank::ClientAddHUDWidget_Implementation()
 
 	if (HoverTankHUDWidgetClass && HoverTankHUDWidget == nullptr)
 	{
-		HoverTankHUDWidget = CreateWidget<UUserWidget>(GetWorld(), HoverTankHUDWidgetClass);
+		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetWorld(), HoverTankHUDWidgetClass);
 	}
 
 	if (HoverTankHUDWidget != nullptr && !HoverTankHUDWidget->IsInViewport())

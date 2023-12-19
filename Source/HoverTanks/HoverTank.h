@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+class UHoverTankHUDWidget;
 class USphereComponent;
 class UWeaponsComponent;
 class UHealthComponent;
@@ -136,7 +137,7 @@ private:
 	 * HUD
 	 */
 	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
-	UUserWidget* HoverTankHUDWidget;
+	UHoverTankHUDWidget* HoverTankHUDWidget;
 	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
