@@ -46,6 +46,8 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	// use the DeathMatchHUD as default HUD
 	HUDClass = ADeathMatchHUD::StaticClass();
+
+	bUseSeamlessTravel = true;
 }
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
@@ -110,7 +112,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 void ADeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay"));
+	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay %d"), MatchTimeInSeconds);
 
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
@@ -131,41 +133,60 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 
 		if (TimeRemaining <= 0)
 		{
-			// clear the timer
-			GetWorldTimerManager().ClearTimer(GameTimerHandle);
-
-			// get every connected palyer controller, find their possesed pawns and destroy them
-			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-			{
-				APlayerController* PlayerController = It->Get();
-				if (PlayerController)
-				{
-					AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
-					// PlayerController->UnPossess();
-					if (PossessedHoverTank)
-					{
-						UGameplayStatics::ApplyDamage(
-							PossessedHoverTank,
-							5000.f,
-							nullptr,
-							this,
-							UDamageType::StaticClass()
-						);
-					}
-
-					AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);
-					if (HoverTankPlayerController)
-					{
-						HoverTankPlayerController->ClientForceOpenScoreBoard(); // clients!
-					}
-				}
-			}
+			GameOver();
 		}
 	}
 	
 	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed!"));
 
 	// todo check if the game is over
+}
+
+void ADeathMatchGameMode::GameOver()
+{
+	// clear the timer
+	GetWorldTimerManager().ClearTimer(GameTimerHandle);
+
+	// get every connected palyer controller, find their possesed pawns and destroy them
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController)
+		{
+			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
+
+			// kill all tanks and open the scoreboard
+			if (PossessedHoverTank)
+			{
+				// UGameplayStatics::ApplyDamage(
+				// 	PossessedHoverTank,
+				// 	5000.f,
+				// 	nullptr,
+				// 	this,
+				// 	UDamageType::StaticClass()
+				// );
+				PossessedHoverTank->SetInputEnabled(false);
+			}
+
+			AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);
+			if (HoverTankPlayerController)
+			{
+				HoverTankPlayerController->ClientForceOpenScoreBoard(); // clients!
+			}
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::ResetLevel, 2.f, true);
+}
+
+void ADeathMatchGameMode::ResetLevel()
+{
+	GetWorldTimerManager().ClearTimer(GameTimerHandle);
+
+	UE_LOG(LogTemp, Warning, TEXT("ResetLevel with ?Restart"));
+	// Super::ResetLevel();
+
+	GetWorld()->ServerTravel("?Restart",false);
 }
 
 void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)

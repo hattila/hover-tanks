@@ -26,10 +26,13 @@ public:
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 120;
+	int32 MatchTimeInSeconds = 10;
 
 	virtual void BeginPlay() override;
 	void OnOneSecondElapsed();
+
+	void GameOver();
+	virtual void ResetLevel() override;
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;

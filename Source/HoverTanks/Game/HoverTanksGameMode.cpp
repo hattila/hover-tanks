@@ -5,5 +5,5 @@
 
 AHoverTanksGameMode::AHoverTanksGameMode()
 {
-
+	bUseSeamlessTravel = false;
 }
