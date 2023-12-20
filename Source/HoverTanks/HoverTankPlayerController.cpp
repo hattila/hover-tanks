@@ -113,8 +113,6 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SERVER before client call, Pawn is %s"), InPawn != nullptr ? *InPawn->GetClass()->GetName() : TEXT("null"));
-		
 		FString InPawnClassName = InPawn->GetClass()->GetName();
 		ClientAddPawnsHUDWidget(InPawnClassName);
 
@@ -194,18 +192,34 @@ void AHoverTankPlayerController::OpenScoreBoard()
 
 void AHoverTankPlayerController::RequestRespawn()
 {
+	// UE_LOG(LogTemp, Warning, TEXT("Owning a Pawn: %s"), GetPawn() ? *GetPawn()->GetName() : TEXT("null"));
+
+	// if Controller does not possess a Pawn, then RequestRespawn
+	if (GetPawn() == nullptr)
+	{
+		ServerRequestRespawn();
+		return;
+	}
+	
 	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 	if (PossessedHoverTank && PossessedHoverTank->IsDead())
 	{
 		ServerRequestRespawn();
 	}
+	
 }
 
 void AHoverTankPlayerController::ServerRequestRespawn_Implementation()
 {
+	if (GetPawn() == nullptr)
+	{
+		GameModeRef->RequestRespawn(this);
+		return;
+	}
+	
 	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 	if (PossessedHoverTank && PossessedHoverTank->IsDead() && GameModeRef != nullptr)
 	{
 		GameModeRef->RequestRespawn(this);
-	}	
+	}
 }

@@ -12,9 +12,7 @@
 #include "Components/WeaponsComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Blueprint/UserWidget.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/HUD/HoverTankHUDWidget.h"
 
 // Sets default values
 AHoverTank::AHoverTank()
@@ -93,15 +91,6 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	// /**
-	//  * HUD
-	//  */
-	// static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(TEXT("/Game/HoverTanks/UI/HUD/WBP_HoverTankHUDWidget"));
-	// if (HoverTankHUDWidgetClassFinder.Succeeded())
-	// {
-	// 	HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
-	// }
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -199,7 +188,7 @@ void AHoverTank::BeginPlay()
 	
 	if (HasAuthority())
 	{
-		NetUpdateFrequency = 1;
+		// NetUpdateFrequency = 1;
 	}
 	
 	//Add Input Mapping Context
@@ -304,6 +293,8 @@ void AHoverTank::EBrakeCompleted()
 
 void AHoverTank::JumpTriggered()
 {
+	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
+	
 	if (bIsInputEnabled == false)
 	{
 		return;

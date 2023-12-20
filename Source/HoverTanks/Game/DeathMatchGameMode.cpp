@@ -88,7 +88,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 	if (DeathMatchGameState)
 	{
 		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
-		if (TimeRemaining > 0)
+		if (TimeRemaining > 0 && MatchState == EMatchState::InProgress)
 		{
 			APawn* CurrentPawn = InPlayerController->GetPawn();
 			InPlayerController->UnPossess();
@@ -98,7 +98,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("CurrentPawn is null"));
+				UE_LOG(LogTemp, Warning, TEXT("ADeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
 			}
 
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
