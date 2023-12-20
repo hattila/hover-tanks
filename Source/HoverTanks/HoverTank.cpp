@@ -83,8 +83,6 @@ AHoverTank::AHoverTank()
 
 	// CollisionProfile.Name = "HoverTank" - this is set in the editor
 	ColliderMesh->SetCollisionProfileName(CollisionProfile.Name, true);
-
-	// Set the Visibility to flase on ColliderMesh
 	ColliderMesh->SetVisibility(false);
 
 	// mashes shall not collide

@@ -44,6 +44,14 @@ ATankProjectile::ATankProjectile()
 
 	// Set the mesh transform scale to .5
 	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
+
+	/**
+	 * Material
+	 */
+	// find and initialize the material instance: MI_EmissiveCannonProjectile
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveCannonProjectileMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveCannonProjectile"));
+	UMaterialInstance* EmissiveCannonProjectileMaterialObject = EmissiveCannonProjectileMaterialAsset.Object;
+	ProjectileMesh->SetMaterial(0, EmissiveCannonProjectileMaterialObject);
 }
 
 // Called when the game starts or when spawned
