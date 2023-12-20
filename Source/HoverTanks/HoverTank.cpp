@@ -159,6 +159,11 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AHoverTank::OnDeath()
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	// get current player controller
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 
@@ -170,6 +175,9 @@ void AHoverTank::OnDeath()
 	// disable player input
 	SetInputEnabled(false);
 	OnTankDeath.Broadcast();
+
+	// spawn explosion
+	// changed the mesh to a wreckage
 }
 
 bool AHoverTank::IsDead() const

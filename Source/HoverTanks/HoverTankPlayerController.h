@@ -50,10 +50,10 @@ protected:
 	void OnTankDeathHandler();
 
 	UFUNCTION(Client, Unreliable)
-	void ClientAddHUDWidget(const FString& InPawnClassName);
+	void ClientAddPawnsHUDWidget(const FString& InPawnClassName);
 
 	UFUNCTION(Client, Unreliable)
-	void ClientRemoveHUDWidget();
+	void ClientRemovePawnsHUDWidget();
 	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

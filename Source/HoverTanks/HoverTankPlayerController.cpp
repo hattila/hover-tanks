@@ -116,7 +116,7 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 		UE_LOG(LogTemp, Warning, TEXT("SERVER before client call, Pawn is %s"), InPawn != nullptr ? *InPawn->GetClass()->GetName() : TEXT("null"));
 		
 		FString InPawnClassName = InPawn->GetClass()->GetName();
-		ClientAddHUDWidget(InPawnClassName);
+		ClientAddPawnsHUDWidget(InPawnClassName);
 
 		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(InPawn);
 		if (PossessedHoverTank)
@@ -132,7 +132,7 @@ void AHoverTankPlayerController::OnUnPossess()
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		ClientRemoveHUDWidget();
+		ClientRemovePawnsHUDWidget();
 
 		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 		if (PossessedHoverTank)
@@ -146,15 +146,15 @@ void AHoverTankPlayerController::OnUnPossess()
 
 void AHoverTankPlayerController::OnTankDeathHandler()
 {
-	ClientRemoveHUDWidget();
+	ClientRemovePawnsHUDWidget();
 }
 
-void AHoverTankPlayerController::ClientAddHUDWidget_Implementation(const FString& InPawnClassName)
+void AHoverTankPlayerController::ClientAddPawnsHUDWidget_Implementation(const FString& InPawnClassName)
 {
 	OnPawnPossessed.Broadcast(InPawnClassName);
 }
 
-void AHoverTankPlayerController::ClientRemoveHUDWidget_Implementation()
+void AHoverTankPlayerController::ClientRemovePawnsHUDWidget_Implementation()
 {
 	const FString InPawnClassName = GetPawn()->GetClass()->GetName();
 	OnPawnUnPossessed.Broadcast(InPawnClassName);

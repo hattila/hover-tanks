@@ -28,7 +28,7 @@ public:
 	UFUNCTION()
 	void OnAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 	
-	// void TakeDamage(float Damage);
+	// void TakeDamage(const float Damage, AController* InstigatorController, AActor* DamageCauser);
 	// void Heal(float HealAmount);
 
 	bool IsDead() const { return Health <= 0.f; }
