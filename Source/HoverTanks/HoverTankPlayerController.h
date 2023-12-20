@@ -12,6 +12,9 @@ class UDeathMatchScoreBoardWidget;
 class UInGameMenu;
 class UInputAction;
 class UInputMappingContext;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnPossessedEvent, const FString&, InPawnClassName);
+
 /**
  * 
  */
@@ -21,6 +24,12 @@ class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, publ
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
+	FPawnPossessedEvent OnPawnPossessed;
+
+	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
+	FPawnPossessedEvent OnPawnUnPossessed;
+	
 	AHoverTankPlayerController();
 
 	UFUNCTION(Client, Unreliable)
@@ -34,6 +43,15 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
 
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
+
+	UFUNCTION(Client, Unreliable)
+	void ClientAddHUDWidget(const FString& InPawnClassName);
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRemoveHUDWidget();
+	
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* HoverTankPlayerControllerInputContext;

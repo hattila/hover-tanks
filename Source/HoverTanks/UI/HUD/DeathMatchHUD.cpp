@@ -2,15 +2,19 @@
 
 #include "DeathMatchHUD.h"
 
+#include "HoverTankHUDWidget.h"
 #include "HoverTanks/Game/DeathMatchGameState.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/DeathMatchScoreBoardWidget.h"
 
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/HoverTankPlayerController.h"
 
 
 ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
                                   DeathMatchPlayerHUDWidget(nullptr),
+                                  HoverTankHUDWidget(nullptr),
                                   DeathMatchScoreBoardWidget(nullptr)
 {
 	// get hold of the blueprint versions of the widgets
@@ -26,6 +30,26 @@ ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
 	if (DeathMatchScoreBoardClassFinder.Succeeded())
 	{
 		DeathMatchScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(
+		TEXT("/Game/HoverTanks/UI/HUD/WBP_HoverTankHUDWidget"));
+	if (HoverTankHUDWidgetClassFinder.Succeeded())
+	{
+		HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
+	}
+}
+
+void ADeathMatchHUD::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// HasExposedPossessionEventsInterface?
+	AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(GetOwningPlayerController());
+	if (HoverTankPlayerController)
+	{
+		HoverTankPlayerController->OnPawnPossessed.AddDynamic(this, &ADeathMatchHUD::OnPawnPossessedHandler);
+		HoverTankPlayerController->OnPawnUnPossessed.AddDynamic(this, &ADeathMatchHUD::OnPawnUnPossessedHandler);
 	}
 }
 
@@ -75,8 +99,6 @@ void ADeathMatchHUD::ForceOpenScoreBoard()
 
 void ADeathMatchHUD::RefreshPlayerScores()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::RefreshPlayerScores"));
-	
 	if (DeathMatchGameStateRef != nullptr)
 	{
 		DeathMatchScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
@@ -94,11 +116,8 @@ void ADeathMatchHUD::BeginPlay()
 		return;
 	}
 
-	DeathMatchPlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetWorld(), DeathMatchPlayerHUDWidgetClass);
-	if (APlayerController* PlayerController = GetOwningPlayerController())
-	{
-		DeathMatchPlayerHUDWidget->Setup();
-	}
+	DeathMatchPlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), DeathMatchPlayerHUDWidgetClass);
+	DeathMatchPlayerHUDWidget->Setup();
 
 	if (DeathMatchGameStateRef && DeathMatchPlayerHUDWidget)
 	{
@@ -116,6 +135,11 @@ void ADeathMatchHUD::BeginPlay()
 		DeathMatchScoreBoardWidget->Setup();
 		DeathMatchScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	if (HoverTankHUDWidgetClass == nullptr)
+	{
+		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
+	}
 }
 
 void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -130,5 +154,48 @@ void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (DeathMatchScoreBoardWidget)
 	{
 		DeathMatchScoreBoardWidget->Teardown();
+	}
+
+	if (HoverTankHUDWidget)
+	{
+		HoverTankHUDWidget->RemoveFromParent();
+	}
+}
+
+void ADeathMatchHUD::OnPawnPossessedHandler(const FString& InPawnClassName)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerPossessed"));
+
+	/**
+	 * Does the PossessedPawn have a HUDWidget? Which HUDWidget?
+	 * Create and add it if so.
+	 *
+	 * HasOwnHUDWidgetInterface?
+	 */
+
+	if (InPawnClassName != TEXT("BP_HoverTank_C"))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Possessed pawn is not a HoverTank. it is %s"), *InPawnClassName);
+		return;
+	}
+	
+	if (HoverTankHUDWidgetClass != nullptr)
+	{
+		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
+	}
+	
+	if (HoverTankHUDWidget && !HoverTankHUDWidget->IsInViewport())
+	{
+		HoverTankHUDWidget->AddToViewport();
+	}
+}
+
+void ADeathMatchHUD::OnPawnUnPossessedHandler(const FString& InPawnClassName)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerUnPossessed"));
+
+	if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
+	{
+		HoverTankHUDWidget->RemoveFromParent();
 	}
 }

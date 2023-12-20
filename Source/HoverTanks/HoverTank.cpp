@@ -94,14 +94,14 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	/**
-	 * HUD
-	 */
-	static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(TEXT("/Game/HoverTanks/UI/HUD/WBP_HoverTankHUDWidget"));
-	if (HoverTankHUDWidgetClassFinder.Succeeded())
-	{
-		HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
-	}
+	// /**
+	//  * HUD
+	//  */
+	// static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(TEXT("/Game/HoverTanks/UI/HUD/WBP_HoverTankHUDWidget"));
+	// if (HoverTankHUDWidgetClassFinder.Succeeded())
+	// {
+	// 	HoverTankHUDWidgetClass = HoverTankHUDWidgetClassFinder.Class;
+	// }
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -154,8 +154,6 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 		//Shoot
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
-		
-		// todo: on shift pressed, strafe
 	}
 }
 
@@ -171,7 +169,7 @@ void AHoverTank::OnDeath()
 	
 	// disable player input
 	SetInputEnabled(false);
-	ClientRemoveHUDWidget();
+	// todo: notify the player controller or the HUD directly, to remove the Tanks HUD widget
 }
 
 bool AHoverTank::IsDead() const
@@ -209,47 +207,11 @@ void AHoverTank::BeginPlay()
 void AHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	APlayerState* CurrentPlayerState = GetPlayerState();
-	if (GetLocalRole() == ROLE_Authority && CurrentPlayerState)
-	{
-		ClientAddHUDWidget();
-	}
 }
 
 void AHoverTank::UnPossessed()
 {
 	Super::UnPossessed();
-
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		ClientRemoveHUDWidget();
-	}
-}
-
-void AHoverTank::ClientAddHUDWidget_Implementation()
-{
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientAddHUDWidget_Implementation"));
-
-	if (HoverTankHUDWidgetClass && HoverTankHUDWidget == nullptr)
-	{
-		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetWorld(), HoverTankHUDWidgetClass);
-	}
-
-	if (HoverTankHUDWidget != nullptr && !HoverTankHUDWidget->IsInViewport())
-	{
-		HoverTankHUDWidget->AddToViewport();
-	}
-}
-
-void AHoverTank::ClientRemoveHUDWidget_Implementation()
-{
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTank::ClientRemoveHUDWidget_Implementation"));
-	
-	if (HoverTankHUDWidget != nullptr && HoverTankHUDWidget->IsInViewport()) // still can crash when game quits.
-	{
-		HoverTankHUDWidget->RemoveFromParent();
-	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)

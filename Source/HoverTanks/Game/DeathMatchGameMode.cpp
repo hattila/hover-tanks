@@ -217,7 +217,7 @@ void ADeathMatchGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 
-	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
 
 	// is World tearing down?
 	if (GetWorld()->bIsTearingDown || !GEngine || !GEngine->IsInitialized())

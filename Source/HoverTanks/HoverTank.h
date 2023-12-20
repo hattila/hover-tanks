@@ -56,12 +56,6 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 
-	UFUNCTION(Client, Unreliable)
-	void ClientAddHUDWidget();
-
-	UFUNCTION(Client, Unreliable)
-	void ClientRemoveHUDWidget();
-
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UHoverTankMovementComponent* HoverTankMovementComponent;
@@ -132,12 +126,6 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
-	
-	/**
-	 * HUD
-	 */
-	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
-	UHoverTankHUDWidget* HoverTankHUDWidget;
 	
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);

@@ -105,6 +105,44 @@ void AHoverTankPlayerController::SetupInputComponent()
 	}
 }
 
+void AHoverTankPlayerController::OnPossess(APawn* InPawn)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnPossess"));
+	
+	Super::OnPossess(InPawn);
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SERVER before client call, Pawn is %s"), InPawn != nullptr ? *InPawn->GetClass()->GetName() : TEXT("null"));
+		
+		FString InPawnClassName = InPawn->GetClass()->GetName();
+		ClientAddHUDWidget(InPawnClassName);
+	}
+}
+
+void AHoverTankPlayerController::OnUnPossess()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnUnPossess"));
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ClientRemoveHUDWidget();
+	}
+	
+	Super::OnUnPossess();
+}
+
+void AHoverTankPlayerController::ClientAddHUDWidget_Implementation(const FString& InPawnClassName)
+{
+	OnPawnPossessed.Broadcast(InPawnClassName);
+}
+
+void AHoverTankPlayerController::ClientRemoveHUDWidget_Implementation()
+{
+	const FString InPawnClassName = GetPawn()->GetClass()->GetName();
+	OnPawnUnPossessed.Broadcast(InPawnClassName);
+}
+
 void AHoverTankPlayerController::OpenInGameMenu()
 {
 	if (!ensure(InGameMenuClass != nullptr))
