@@ -20,6 +20,8 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
+
 UCLASS()
 class HOVERTANKS_API AHoverTank : public APawn
 {
@@ -28,6 +30,9 @@ class HOVERTANKS_API AHoverTank : public APawn
 public:	
 	// Sets default values for this actor's properties
 	AHoverTank();
+	
+	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
+	FOnTankDeath OnTankDeath;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

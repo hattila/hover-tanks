@@ -117,6 +117,12 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 		
 		FString InPawnClassName = InPawn->GetClass()->GetName();
 		ClientAddHUDWidget(InPawnClassName);
+
+		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(InPawn);
+		if (PossessedHoverTank)
+		{
+			PossessedHoverTank->OnTankDeath.AddDynamic(this, &AHoverTankPlayerController::OnTankDeathHandler);
+		}
 	}
 }
 
@@ -127,9 +133,20 @@ void AHoverTankPlayerController::OnUnPossess()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		ClientRemoveHUDWidget();
+
+		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+		if (PossessedHoverTank)
+		{
+			PossessedHoverTank->OnTankDeath.RemoveDynamic(this, &AHoverTankPlayerController::OnTankDeathHandler);
+		}
 	}
 	
 	Super::OnUnPossess();
+}
+
+void AHoverTankPlayerController::OnTankDeathHandler()
+{
+	ClientRemoveHUDWidget();
 }
 
 void AHoverTankPlayerController::ClientAddHUDWidget_Implementation(const FString& InPawnClassName)

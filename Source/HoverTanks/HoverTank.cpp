@@ -169,7 +169,7 @@ void AHoverTank::OnDeath()
 	
 	// disable player input
 	SetInputEnabled(false);
-	// todo: notify the player controller or the HUD directly, to remove the Tanks HUD widget
+	OnTankDeath.Broadcast();
 }
 
 bool AHoverTank::IsDead() const
