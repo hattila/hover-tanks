@@ -19,7 +19,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
-	void RemovePlayersScore(const APlayerController* PlayerToRemove);
+	void RemovePlayersScore(const FString& PlayerName);
 	
 	TArray<FDeathMatchPlayerScore> GetPlayerScores() const { return PlayerScores; }
 	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);

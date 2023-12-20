@@ -54,5 +54,8 @@ protected:
 	
 private:
 	FTimerHandle GameTimerHandle;
+
+	FTimerHandle OnLogoutScoreRefreshTimerHandle;
+	void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
 	
 };

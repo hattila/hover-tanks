@@ -121,6 +121,16 @@ void ADeathMatchGameMode::BeginPlay()
 	}
 
 	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+
+	// recreate player scores
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController)
+		{
+			DeathMatchGameState->InitializeNewPlayerScore(PlayerController);
+		}
+	}
 }
 
 void ADeathMatchGameMode::OnOneSecondElapsed()
@@ -207,20 +217,27 @@ void ADeathMatchGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 
-	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode Logout happened for %s"), *Exiting->GetName());
 
 	// is World tearing down?
-	if (GetWorld()->bIsTearingDown)
+	if (GetWorld()->bIsTearingDown || !GEngine || !GEngine->IsInitialized())
 	{
 		return;
 	}
 
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
-	const APlayerController* ExistingPlayerController = Cast<APlayerController>(Exiting);
-	if (DeathMatchGameState && ExistingPlayerController)
-	{
-		DeathMatchGameState->RemovePlayersScore(ExistingPlayerController);
-	}
+	/**
+	 * Major workaround, handle scoreboard refresh on logout after a timer.
+	 *
+	 * Logout happens even on editor shutdown. The GameState can still handle the removal, but by the time it replicates
+	 * the PlayerScores and the PlayerControllers want to refresh, the World and the GameState references are already
+	 * destroyed and they crash.
+	 *
+	 * The timer get's destroyed as well on editor shutdown, so the totatlly irrelevant scoreboard refresh won't happen.
+	 */
+	
+	const FString ExitingPlayerName = Exiting->PlayerState->GetPlayerName();
+	const FTimerDelegate ScoreBoardRefreshDelegate = FTimerDelegate::CreateUObject(this, &ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout, ExitingPlayerName);
+	GetWorldTimerManager().SetTimer(OnLogoutScoreRefreshTimerHandle, ScoreBoardRefreshDelegate, 1.f, false);
 }
 
 APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()
@@ -243,4 +260,13 @@ AHoverTank* ADeathMatchGameMode::SpawnTankAtPlayerStart(APlayerStart* RandomSpaw
 	);
 
 	return NewHoverTank;
+}
+
+void ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout(const FString PlayerName)
+{
+	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	if (DeathMatchGameState)
+	{
+		DeathMatchGameState->RemovePlayersScore(PlayerName);
+	}
 }

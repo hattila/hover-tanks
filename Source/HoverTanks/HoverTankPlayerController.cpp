@@ -15,7 +15,8 @@
 #include "UI/HUD/DeathMatchHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
-	InGameMenu(nullptr)
+	InGameMenu(nullptr),
+	GameModeRef(nullptr)
 {
 	// initialize InGameMenuClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuClassFinder(
@@ -46,7 +47,8 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 		OpenScoreBoardAction = FindInputActionOpenScoreBoardAction.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> FindInputActionShoot(TEXT("/Game/HoverTanks/Input/Actions/IA_Jump"));
+	static ConstructorHelpers::FObjectFinder<UInputAction> FindInputActionShoot(
+		TEXT("/Game/HoverTanks/Input/Actions/IA_Jump"));
 	if (FindInputActionShoot.Succeeded())
 	{
 		RequestRespawnAction = FindInputActionShoot.Object;

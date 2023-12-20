@@ -18,6 +18,15 @@ void ADeathMatchGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* NewPlayer)
 {
+	// return if the player is already in the array
+	for (int32 i = 0; i < PlayerScores.Num(); i++)
+	{
+		if (PlayerScores[i].PlayerName == NewPlayer->PlayerState->GetPlayerName())
+		{
+			return;
+		}
+	}
+	
 	FDeathMatchPlayerScore PlayerScore;
 	PlayerScore.PlayerName = NewPlayer->PlayerState->GetPlayerName();
 	PlayerScore.Score = 0;
@@ -27,12 +36,12 @@ void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* New
 	OnRep_PlayerScores();
 }
 
-void ADeathMatchGameState::RemovePlayersScore(const APlayerController* PlayerToRemove)
+void ADeathMatchGameState::RemovePlayersScore(const FString& PlayerName)
 {
 	// find the Player by name and remove it from the array
 	for (int32 i = 0; i < PlayerScores.Num(); i++)
 	{
-		if (PlayerScores[i].PlayerName == PlayerToRemove->PlayerState->GetPlayerName())
+		if (PlayerScores[i].PlayerName == PlayerName)
 		{
 			PlayerScores.RemoveAt(i);
 			break;

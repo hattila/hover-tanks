@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class ADeathMatchGameState;
 class UDeathMatchScoreBoardWidget;
 class UDeathMatchPlayerHUDWidget;
 /**
@@ -29,6 +30,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+	ADeathMatchGameState* DeathMatchGameStateRef;
 
 	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass; // timer, score, etc
 	// TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
