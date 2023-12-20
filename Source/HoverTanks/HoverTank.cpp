@@ -84,6 +84,9 @@ AHoverTank::AHoverTank()
 	// CollisionProfile.Name = "HoverTank" - this is set in the editor
 	ColliderMesh->SetCollisionProfileName(CollisionProfile.Name, true);
 
+	// Set the Visibility to flase on ColliderMesh
+	ColliderMesh->SetVisibility(false);
+
 	// mashes shall not collide
 	TankBaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -91,6 +94,16 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	/**
+	 * Materials
+	 */
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
+	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
+	TankBaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
+	TankCannonMesh->SetMaterial(0, TankBaseMaterialAssetObject);
+	TankBarrelMesh->SetMaterial(0, TankBaseMaterialAssetObject);
+
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
