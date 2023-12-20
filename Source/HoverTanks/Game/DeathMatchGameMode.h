@@ -35,7 +35,7 @@ public:
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 30;
+	int32 MatchTimeInSeconds = 180;
 
 	EMatchState MatchState = EMatchState::InProgress; // todo change to WaitingToStart
 	

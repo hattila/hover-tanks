@@ -21,7 +21,9 @@ AHoverTank::AHoverTank()
 	  * Actor setup
 	  */
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
+
+	SetReplicates(true);
+	bAlwaysRelevant = true;
 
 	bUseControllerRotationYaw = false;
 
