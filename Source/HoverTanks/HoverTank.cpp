@@ -177,7 +177,9 @@ void AHoverTank::OnDeath()
 	// disable player input
 	SetInputEnabled(false);
 	OnTankDeath.Broadcast();
-
+	
+	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	
 	// spawn explosion
 	// changed the mesh to a wreckage
 }
