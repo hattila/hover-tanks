@@ -152,6 +152,18 @@ private:
 	FHoverTankMove LastMove;
 	FHoverTankMove CreateMove(float DeltaTime);
 
+	UPROPERTY()
+	USceneComponent* GroundTraceLocation;
+
+	/**
+	 * The amount of offset from the center off mass toward the ground, where the ground trace should start.
+	 * Is set in the HoverTank, and gets copied here. todo: should be here only.
+	 */
+	FVector GroundTraceLocationOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float GroundTraceLocationOffsetMaxMagnitude = 500;
+	
 	/**
 	 * Tank Cannon and Barrel Rotations
 	 */
@@ -173,6 +185,7 @@ private:
 	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
+	FVector CalculateGroundTraceStartLocation();
 	
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
 	bool IsInputEnabled();

@@ -43,6 +43,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintPure)
+	USceneComponent* GetGroundTraceLocation() const { return GroundTraceLocation; }
+
+	FVector GetGroundTraceLocationOffset() const { return GroundTraceLocationOffset; }
+	
+	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
 
 	UFUNCTION(BlueprintPure)
@@ -78,6 +83,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* GroundTraceLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	FVector GroundTraceLocationOffset = FVector(0.f, 0.f, -75.f);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FCollisionProfileName CollisionProfile;
 	

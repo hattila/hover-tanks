@@ -43,8 +43,12 @@ AHoverTank::AHoverTank()
 	/**
 	 * Create Visible Components
 	 */
-	ColliderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Box Collider"));
+	ColliderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Collider"));
 	RootComponent = ColliderMesh;
+
+	GroundTraceLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Ground Trace Start"));
+	GroundTraceLocation->SetupAttachment(ColliderMesh);
+	GroundTraceLocation->SetRelativeLocation(GroundTraceLocationOffset);
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
 	TankBaseMesh->SetupAttachment(ColliderMesh);

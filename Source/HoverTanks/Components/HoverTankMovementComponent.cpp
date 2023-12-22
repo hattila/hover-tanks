@@ -9,6 +9,7 @@
 
 UHoverTankMovementComponent::UHoverTankMovementComponent(): Throttle(0), Steering(0), LookUp(0), LookRight(0),
                                                             LastMove(),
+															GroundTraceLocation(nullptr),
                                                             TankCannonMesh(nullptr),
                                                             TankBarrelMesh(nullptr),
                                                             LastCannonRotate()
@@ -25,6 +26,9 @@ void UHoverTankMovementComponent::BeginPlay()
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
+		GroundTraceLocation = HoverTank->GetGroundTraceLocation();
+		GroundTraceLocationOffset = HoverTank->GetGroundTraceLocationOffset();
+
 		TankCannonMesh = HoverTank->GetTankCannonMesh();
 		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
 	}
@@ -104,6 +108,8 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FVector GroundSurfaceNormal;
 	float DistanceFromGround;
 
+	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
+	
 	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
 	
 	if (!IsInputEnabled())
@@ -250,7 +256,7 @@ FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVect
 	UKismetMathLibrary::GetSlopeDegreeAngles(RightVector.GetSafeNormal(), GroundSurfaceNormal.GetSafeNormal(), UpVector, OutSlopePitchDegreeAngle, OutSlopeRollDegreeAngle);
 
 	OutSlopeRollDegreeAngle = -OutSlopeRollDegreeAngle;
-	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -10.0f, 20.0f);
+	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -20.0f, 20.0f);
 	
 	FRotator AlignedRotation = FRotator(OutSlopePitchDegreeAngle, ActorYawRotation, OutSlopeRollDegreeAngle);
 	
@@ -296,11 +302,7 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround)
 {
 	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
-	/**
-	 * TODO: create a scene component at the bottom, and trace from there
-	 */
-	DistanceFromGround = DistanceFromGround - 75;
-	
+
 	FVector VerticalForce;
 	if (DistanceFromGround < DesiredFloatHeight * 2)
 	{
@@ -331,6 +333,30 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 	return VerticalForce * Move.DeltaTime;
 }
 
+/**
+ * Move the GroundTraceStart component along the Velocity. As Velocity magnitude increases, the GroundTraceStart
+ * component should move further ahead, maximized at MaxSpeed. As Velocity magnitude decreases, the GroundTraceStart
+ * component should closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
+ */
+FVector UHoverTankMovementComponent::CalculateGroundTraceStartLocation()
+{
+	FVector GroundTraceOriginLocation = GetOwner()->GetActorLocation() + GroundTraceLocationOffset;
+	FVector NormalizedVelocity = Velocity.GetSafeNormal();
+	FVector NormalizedVelocityXZ = FVector(NormalizedVelocity.X, NormalizedVelocity.Y, 0);
+	FVector GroundTraceTargetLocation;
+	
+	float OffsetMaxMagnitude = 500;
+
+	// Set the OffsetMagnitude to be a function of the Velocity magnitude. When we are at a standstill it should be 0. When we reached MaxSpeed it should be MaxOffsetMagnitude
+	float OffsetMagnitude = OffsetMaxMagnitude * (Velocity.Size() / MaxSpeed);
+
+	// UE_LOG(LogTemp, Warning, TEXT("OffsetMagnitude: %f"), OffsetMagnitude);
+	
+	GroundTraceTargetLocation = GroundTraceOriginLocation + NormalizedVelocityXZ * OffsetMagnitude;
+
+	return GroundTraceTargetLocation;
+}
+
 bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround)
 {
 	if (GetOwner() == nullptr)
@@ -342,7 +368,13 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	float GroundNormalThreshold = 0.7f;
 	
 	// Set up the parameters for the line trace
-	FVector StartLocation = GetOwner()->GetActorLocation();
+	// FVector StartLocation = GetOwner()->GetActorLocation();
+	FVector StartLocation = GroundTraceLocation->GetComponentLocation();
+
+	// draw a debug cube at the Startlocation
+	DrawDebugBox(GetWorld(), StartLocation, FVector(100, 100, 100), FColor::Green, false, 0, 0, 2);
+	
+	// StartLocation.Z -= 75;
 	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance);
 
 	// Perform a line trace to check for the ground
