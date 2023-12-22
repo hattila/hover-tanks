@@ -59,6 +59,8 @@ public:
 
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
 
+	bool GetShowDebug() const { return bShowDebug; }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -140,6 +142,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ShowDebugAction;
+	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
 	
@@ -161,6 +166,9 @@ private:
 	void BoostCompleted();
 	
 	void ShootStarted();
+
+	bool bShowDebug = false;
+	void ShowDebugActionStarted();
 
 	/**
 	 * Debug 

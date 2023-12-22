@@ -160,7 +160,10 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FHitResult HitResult;
 	GetOwner()->AddActorWorldOffset(Translation, true, &HitResult);
 
-	DebugDrawForwardAndVelocity();
+	if (ShowDebug())
+	{
+		DebugDrawForwardAndVelocity();	
+	}
 	
 	if (HitResult.IsValidBlockingHit() || HitResult.bStartPenetrating)
 	{
@@ -259,8 +262,12 @@ FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVect
 	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -20.0f, 20.0f);
 	
 	FRotator AlignedRotation = FRotator(OutSlopePitchDegreeAngle, ActorYawRotation, OutSlopeRollDegreeAngle);
+
+	if (ShowDebug())
+	{
+		DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 500), FVector(100, 100, 100), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);	
+	}
 	
-	// DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 500), FVector(100, 100, 100), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);
 	// UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s AlignedRotation: %s"), *GetOwner()->GetActorRotation().ToString(), *AlignedRotation.ToString());
 
 	return AlignedRotation;
@@ -371,8 +378,11 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	// FVector StartLocation = GetOwner()->GetActorLocation();
 	FVector StartLocation = GroundTraceLocation->GetComponentLocation();
 
-	// draw a debug cube at the Startlocation
-	DrawDebugBox(GetWorld(), StartLocation, FVector(100, 100, 100), FColor::Green, false, 0, 0, 2);
+	if (ShowDebug())
+	{
+		// draw a debug cube at the Startlocation
+		DrawDebugBox(GetWorld(), StartLocation, FVector(100, 100, 100), FColor::Green, false, 0, 0, 2);
+	}
 	
 	// StartLocation.Z -= 75;
 	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance);
@@ -382,7 +392,10 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+	if (ShowDebug())
+	{
+		DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+	}
 
 	GroundSurfaceNormal = FVector(0, 0, 1);
 	
@@ -408,6 +421,16 @@ bool UHoverTankMovementComponent::IsInputEnabled()
 	if (HoverTank)
 	{
 		return HoverTank->IsInputEnabled();
+	}
+
+	return false;
+}
+
+bool UHoverTankMovementComponent::ShowDebug() const
+{
+	if (const AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner()))
+	{
+		return HoverTank->GetShowDebug();
 	}
 
 	return false;

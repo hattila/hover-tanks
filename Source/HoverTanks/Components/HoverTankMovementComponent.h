@@ -193,5 +193,6 @@ private:
 	/**
 	 * Debug
 	 */
+	bool ShowDebug() const;
 	void DebugDrawForwardAndVelocity() const;
 };

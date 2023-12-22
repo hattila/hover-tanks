@@ -124,11 +124,15 @@ void AHoverTank::Tick(float DeltaTime)
 
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	DebugDrawPlayerTitle();
-	if (IsLocallyControlled())
+	if (bShowDebug)
 	{
-		DebugDrawSphereAsCrosshair();	
+		DebugDrawPlayerTitle();	
 	}
+	
+	// if (IsLocallyControlled() && bShowDebug)
+	// {
+	// 	DebugDrawSphereAsCrosshair();	
+	// }
 }
 
 void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -160,6 +164,12 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 		//Shoot
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
+
+		//Show debug lines and info
+		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
+
+
+		
 	}
 }
 
@@ -376,6 +386,11 @@ void AHoverTank::ShootStarted()
 	{
 		WeaponsComponent->AttemptToShoot();
 	}
+}
+
+void AHoverTank::ShowDebugActionStarted()
+{
+	bShowDebug = !bShowDebug;
 }
 
 void AHoverTank::DebugDrawPlayerTitle()
