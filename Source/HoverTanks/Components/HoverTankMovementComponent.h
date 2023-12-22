@@ -103,14 +103,14 @@ protected:
 private:
 	/** In Newtons. The max driving force */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxThrottle = 40000;
+	float MaxThrottle = 30000;
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BoostThrottle = 80000;
+	float BoostThrottle = 40000;
 
 	/** In Metres per second. The max speed */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxSpeed = 25;
+	float MaxSpeed = 20;
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -182,9 +182,9 @@ private:
 	FVector CalculateAirResistance();
 	FVector CalculateRollingResistance(bool InIsEBraking);
 	void CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta);
-	FRotator CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
+	FRotator CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
-	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround);
+	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
 	FVector CalculateGroundTraceStartLocation();
 	
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);

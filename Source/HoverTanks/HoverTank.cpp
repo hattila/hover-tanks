@@ -391,6 +391,15 @@ void AHoverTank::ShootStarted()
 void AHoverTank::ShowDebugActionStarted()
 {
 	bShowDebug = !bShowDebug;
+
+	if (bShowDebug)
+	{
+		ColliderMesh->SetVisibility(true);
+	}
+	else
+	{
+		ColliderMesh->SetVisibility(false);
+	}
 }
 
 void AHoverTank::DebugDrawPlayerTitle()

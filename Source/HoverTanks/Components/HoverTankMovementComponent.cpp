@@ -129,7 +129,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 
 		ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 		
-		VerticalForce = CalculateVerticalForce(Move, DistanceFromGround);
+		VerticalForce = CalculateVerticalForce(Move, DistanceFromGround, bIsGrounded);
 		Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
 	}
 
@@ -146,7 +146,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		FQuat RotationDelta;
 		CalculateTurning(Move, HorizontalRotation, RotationDelta);
 
-		FRotator AlignedRotation = CalculateSurfaceNormalRotation(GroundSurfaceNormal, GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
+		FRotator AlignedRotation = CalculateSurfaceNormalRotation(bIsGrounded, GroundSurfaceNormal, GetOwner()->GetActorRightVector(), HorizontalRotation.Yaw);
 		FRotator NewActorRotation = FMath::RInterpTo(HorizontalRotation, AlignedRotation, Move.DeltaTime, 2);
 
 		GetOwner()->SetActorRotation(NewActorRotation);
@@ -250,8 +250,13 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	RotationDelta = FQuat(GetOwner()->GetActorUpVector(), RotationAngle);
 }
 
-FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
+FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
 {
+	if (!bIsGrounded)
+	{
+		return FRotator(0, ActorYawRotation, 0);
+	}
+	
 	float OutSlopePitchDegreeAngle;
 	float OutSlopeRollDegreeAngle;
 	FVector UpVector = FVector(0, 0, 1);
@@ -265,7 +270,7 @@ FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const FVect
 
 	if (ShowDebug())
 	{
-		DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 500), FVector(100, 100, 100), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);	
+		DrawDebugBox(GetWorld(), GetOwner()->GetActorLocation() + FVector(0, 0, 300), FVector(100, 100, 20), AlignedRotation.Quaternion(), FColor::Purple, false, 0, 0, 2);	
 	}
 	
 	// UE_LOG(LogTemp, Warning, TEXT("Actor Rotation: %s AlignedRotation: %s"), *GetOwner()->GetActorRotation().ToString(), *AlignedRotation.ToString());
@@ -306,35 +311,49 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 	return BounceVector;
 }
 
-FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround)
+FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
 {
 	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
 
 	FVector VerticalForce;
-	if (DistanceFromGround < DesiredFloatHeight * 2)
+	if (bIsGrounded)
 	{
 		float UpDraftMultiplier = 1 - DistanceFromGround / DesiredFloatHeight;
+
+		if (UpDraftMultiplier > 0)
+		{
+			UpDraftMultiplier = FMath::Sqrt(UpDraftMultiplier);
+			// UpDraftMultiplier = UpDraftMultiplier / 2;
+		}
+		
 		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z; // * HoverBounceMultiplier
-	
+
+		if (DistanceFromGround < 50)
+		{
+			// when we are below 50 units generate enough force to push us up
+			
+		}
+		
 		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
-		// FVector DownForce = VerticalForce - Gravity;
-		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, GRV: %f UpDraft: %f, VForce %f, m: %f"), DistanceFromGround, Gravity.Z, DownForce.Size(), VerticalForce.Z, UpDraftMultiplier);
+		FVector DownForce = VerticalForce - Gravity;
+		UE_LOG(LogTemp, Warning, TEXT("DST: %f, VForce %f \n Multiplier: %f UpDraft: %f, \n GRV: %f \n\n\n"), DistanceFromGround, VerticalForce.Z, UpDraftMultiplier, DownForce.Size(), Gravity.Z);
+
+		if (Move.bIsJumping)
+		{
+			VerticalForce += FVector(0, 0, 1) * 5;
+			// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(10, 0, 150), GetOwner()->GetActorLocation() + FVector(10, 0, 250), 10, FColor::Red, false, 0, 0, 8);
+		}
+
+		if (Move.bIsEBraking)
+		{
+			VerticalForce -= FVector(0, 0, 1) * 5;
+			// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(-10, 0, 250), GetOwner()->GetActorLocation() + FVector(-10, 0, 150), 10, FColor::Blue, false, 0, 0, 8);
+		}
 	}
 	else
 	{
 		VerticalForce = Gravity;
-	}
-
-	if (Move.bIsJumping)
-	{
-		VerticalForce += FVector(0, 0, 1) * 5;
-		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(10, 0, 150), GetOwner()->GetActorLocation() + FVector(10, 0, 250), 10, FColor::Red, false, 0, 0, 8);
-	}
-
-	if (Move.bIsEBraking)
-	{
-		VerticalForce -= FVector(0, 0, 1) * 5;
-		// DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation() + FVector(-10, 0, 250), GetOwner()->GetActorLocation() + FVector(-10, 0, 150), 10, FColor::Blue, false, 0, 0, 8);
+		UE_LOG(LogTemp, Warning, TEXT("Not Grounded, Falling. VForce %f, GRV: %f"), VerticalForce.Z, Gravity.Z);
 	}
 
 	return VerticalForce * Move.DeltaTime;
@@ -405,7 +424,7 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 		DistanceFromGround = HitResult.Distance;
 
 		// Check if the hit surface is walkable and is close enough
-		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold && HitResult.Distance <= 200)
+		if (HitResult.ImpactNormal.Z >= GroundNormalThreshold && HitResult.Distance <= 400)
 		{
 			// DrawDebugLine(GetWorld(), HitResult.Location, HitResult.Location + GroundSurfaceNormal * 500 , FColor::Red, false, 1, 0, 2);
 			return true;
