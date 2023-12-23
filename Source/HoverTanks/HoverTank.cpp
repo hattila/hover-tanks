@@ -121,6 +121,8 @@ void AHoverTank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HandleCameraZoom(DeltaTime);
+	
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
 	if (bShowDebug)
@@ -163,6 +165,10 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 		//Shoot
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
+
+		//ZoomIn
+		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Started, this, &AHoverTank::ZoomInActionStarted);
+		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Completed, this, &AHoverTank::ZoomInActionCompleted);
 
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
@@ -394,6 +400,16 @@ void AHoverTank::ShootStarted()
 	}
 }
 
+void AHoverTank::ZoomInActionStarted()
+{
+	bIsZoomedIn = true;
+}
+
+void AHoverTank::ZoomInActionCompleted()
+{
+	bIsZoomedIn = false;
+}
+
 void AHoverTank::ShowDebugActionStarted()
 {
 	bShowDebug = !bShowDebug;
@@ -405,6 +421,18 @@ void AHoverTank::ShowDebugActionStarted()
 	else
 	{
 		ColliderMesh->SetVisibility(false);
+	}
+}
+
+void AHoverTank::HandleCameraZoom(float DeltaTime)
+{
+	if (bIsZoomedIn)
+	{
+		Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, ZoomedInCameraZoomFOV, DeltaTime, 5.f));
+	}
+	else
+	{
+		Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, DefaultCameraZoomFOV, DeltaTime, 5.f));
 	}
 }
 
