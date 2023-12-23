@@ -3,11 +3,15 @@
 
 #include "HealthPickup.h"
 
+#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Components/HealthComponent.h"
+
 
 AHealthPickup::AHealthPickup()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	// initialize the box collider
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
@@ -54,6 +58,26 @@ void AHealthPickup::BeginPlay()
 	Super::BeginPlay();
 
 	InitialZ = PickupMesh->GetComponentLocation().Z;
+
+	if (HasAuthority())
+	{
+		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHealthPickup::OnOverlapBegin);
+	}
+}
+
+void AHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (HasAuthority())
+	{
+		// todo: canUsePickup interface
+		AHoverTank* HoverTank = Cast<AHoverTank>(OtherActor);
+		if (HoverTank)
+		{
+			HoverTank->GetHealthComponent()->Heal(60);
+			Destroy();
+		}
+	}
 }
 
 

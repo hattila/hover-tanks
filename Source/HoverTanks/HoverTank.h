@@ -47,6 +47,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintPure)
+	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+
+	UFUNCTION(BlueprintPure)
 	USceneComponent* GetGroundTraceLocation() const { return GroundTraceLocation; }
 
 	FVector GetGroundTraceLocationOffset() const { return GroundTraceLocationOffset; }

@@ -83,6 +83,12 @@ void UHealthComponent::OnAnyDamage(
 	}
 }
 
+void UHealthComponent::Heal(float HealAmount)
+{
+	Health = FMath::Clamp(Health + HealAmount, 0.f, MaxHealth);
+	OnRep_Health();
+}
+
 void UHealthComponent::OnRep_Health()
 {
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
