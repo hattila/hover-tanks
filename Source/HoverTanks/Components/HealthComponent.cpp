@@ -68,18 +68,30 @@ void UHealthComponent::OnAnyDamage(
 		Health -= Damage;
 		UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
 
+		AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+		if (HoverTank == nullptr)
+		{
+			return;
+		}
+		
 		if (Health <= 0 && GameModeRef)
 		{
-			AHoverTank* Tank = Cast<AHoverTank>(GetOwner());
-			GameModeRef->TankDies(Tank, InstigatedBy);
+			GameModeRef->TankDies(HoverTank, InstigatedBy);
 		}
+
+		OnRep_Health();
 	}
 }
 
 void UHealthComponent::OnRep_Health()
 {
-	// update hud
-	// UE_LOG(LogTemp, Warning, TEXT("Health changed! Health: %f"), Health);
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	HoverTank->OnTankHealthChange.Broadcast(Health, MaxHealth);
 }
 
 bool UHealthComponent::IsOwningHoverTankDead()

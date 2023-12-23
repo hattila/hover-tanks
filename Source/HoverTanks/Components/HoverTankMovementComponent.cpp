@@ -333,7 +333,7 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 		
 		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
 		FVector DownForce = VerticalForce - Gravity;
-		UE_LOG(LogTemp, Warning, TEXT("DST: %f, VForce %f \n Multiplier: %f UpDraft: %f, \n GRV: %f \n\n\n"), DistanceFromGround, VerticalForce.Z, UpDraftMultiplier, DownForce.Size(), Gravity.Z);
+		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, VForce %f \n Multiplier: %f UpDraft: %f, \n GRV: %f \n\n\n"), DistanceFromGround, VerticalForce.Z, UpDraftMultiplier, DownForce.Size(), Gravity.Z);
 
 		if (Move.bIsJumping)
 		{
@@ -350,7 +350,7 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 	else
 	{
 		VerticalForce = Gravity;
-		UE_LOG(LogTemp, Warning, TEXT("Not Grounded, Falling. VForce %f, GRV: %f"), VerticalForce.Z, Gravity.Z);
+		// UE_LOG(LogTemp, Warning, TEXT("Not Grounded, Falling. VForce %f, GRV: %f"), VerticalForce.Z, Gravity.Z);
 	}
 
 	return VerticalForce * Move.DeltaTime;

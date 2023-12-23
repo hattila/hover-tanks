@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class AHoverTankPlayerController;
 class UHoverTankHUDWidget;
 class ADeathMatchGameState;
 class UDeathMatchScoreBoardWidget;
@@ -29,10 +30,10 @@ public:
 	void RefreshPlayerScores();
 
 	UFUNCTION()
-	void OnPawnPossessedHandler(const FString& InPawnClassName);
+	void OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn);
 	
 	UFUNCTION()
-	void OnPawnUnPossessedHandler(const FString& InPawnClassName);
+	void OnTankDeathHandler();
 	
 protected:
 	virtual void BeginPlay() override;

@@ -21,6 +21,7 @@ class UInputMappingContext;
 class UInputAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health, float, MaxHealth);
 
 UCLASS()
 class HOVERTANKS_API AHoverTank : public APawn
@@ -33,6 +34,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnTankDeath OnTankDeath;
+
+	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
+	FOnTankHealthChange OnTankHealthChange;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -60,6 +64,9 @@ public:
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
 
 	bool GetShowDebug() const { return bShowDebug; }
+
+	UFUNCTION(Client, Unreliable)
+	void ClientBroadcastOnTankDeath();
 	
 protected:
 	// Called when the game starts or when spawned

@@ -189,7 +189,9 @@ void AHoverTank::OnDeath()
 	
 	// disable player input
 	SetInputEnabled(false);
+
 	OnTankDeath.Broadcast();
+	ClientBroadcastOnTankDeath(); // eg: notify the HUD
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	
@@ -205,6 +207,11 @@ bool AHoverTank::IsDead() const
 	}
 
 	return false;
+}
+
+void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
+{
+	OnTankDeath.Broadcast();
 }
 
 // Called when the game starts or when spawned

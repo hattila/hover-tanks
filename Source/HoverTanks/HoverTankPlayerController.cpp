@@ -67,6 +67,11 @@ void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 
 	HUD->ForceOpenScoreBoard();
 }
 
+void AHoverTankPlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+}
+
 void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -113,14 +118,7 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		FString InPawnClassName = InPawn->GetClass()->GetName();
-		ClientAddPawnsHUDWidget(InPawnClassName);
 
-		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(InPawn);
-		if (PossessedHoverTank)
-		{
-			PossessedHoverTank->OnTankDeath.AddDynamic(this, &AHoverTankPlayerController::OnTankDeathHandler);
-		}
 	}
 }
 
@@ -130,32 +128,10 @@ void AHoverTankPlayerController::OnUnPossess()
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		ClientRemovePawnsHUDWidget();
 
-		AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
-		if (PossessedHoverTank)
-		{
-			PossessedHoverTank->OnTankDeath.RemoveDynamic(this, &AHoverTankPlayerController::OnTankDeathHandler);
-		}
 	}
 	
 	Super::OnUnPossess();
-}
-
-void AHoverTankPlayerController::OnTankDeathHandler()
-{
-	ClientRemovePawnsHUDWidget();
-}
-
-void AHoverTankPlayerController::ClientAddPawnsHUDWidget_Implementation(const FString& InPawnClassName)
-{
-	OnPawnPossessed.Broadcast(InPawnClassName);
-}
-
-void AHoverTankPlayerController::ClientRemovePawnsHUDWidget_Implementation()
-{
-	const FString InPawnClassName = GetPawn()->GetClass()->GetName();
-	OnPawnUnPossessed.Broadcast(InPawnClassName);
 }
 
 void AHoverTankPlayerController::OpenInGameMenu()

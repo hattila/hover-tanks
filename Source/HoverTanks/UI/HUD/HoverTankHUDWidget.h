@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HoverTankHUDWidget.generated.h"
 
+class UTextBlock;
 /**
  * 
  */
@@ -16,4 +17,19 @@ class HOVERTANKS_API UHoverTankHUDWidget : public UUserWidget
 	
 public:
 	virtual bool Initialize() override;
+	
+	UFUNCTION()
+	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
+
+private:
+	float Health;
+	float MaxHealth;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* HealthText;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* MaxHealthText;
+
+	void RefreshHealth() const;
 };

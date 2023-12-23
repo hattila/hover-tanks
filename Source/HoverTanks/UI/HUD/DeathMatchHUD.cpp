@@ -9,8 +9,6 @@
 
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/HoverTank.h"
-#include "HoverTanks/HoverTankPlayerController.h"
-
 
 ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
                                   DeathMatchPlayerHUDWidget(nullptr),
@@ -44,12 +42,11 @@ void ADeathMatchHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// HasExposedPossessionEventsInterface?
-	AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(GetOwningPlayerController());
-	if (HoverTankPlayerController)
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
+	if (PlayerController)
 	{
-		HoverTankPlayerController->OnPawnPossessed.AddDynamic(this, &ADeathMatchHUD::OnPawnPossessedHandler);
-		HoverTankPlayerController->OnPawnUnPossessed.AddDynamic(this, &ADeathMatchHUD::OnPawnUnPossessedHandler);
+		// Broadcast in Controller.cpp OnRep_Pawn
+		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
 	}
 }
 
@@ -162,20 +159,23 @@ void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void ADeathMatchHUD::OnPawnPossessedHandler(const FString& InPawnClassName)
+void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerPossessed"));
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler, OldPawn: %s, NewPawn: %s"), OldPawn ? *OldPawn->GetName() : TEXT("null"), NewPawn ? *NewPawn->GetName() : TEXT("null"));
+	//
+	// const APawn* PossessedPawn = GetOwningPlayerController()->GetPawn();
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerPossessed \n Current pawn is %s"), PossessedPawn ? *PossessedPawn->GetName() : TEXT("null"));
+	
+	// teardown the old pawn's HUDWidget
+	// setup the new pawn's HUDWidget
 
-	/**
-	 * Does the PossessedPawn have a HUDWidget? Which HUDWidget?
-	 * Create and add it if so.
-	 *
-	 * HasOwnHUDWidgetInterface?
-	 */
-
-	if (InPawnClassName != TEXT("BP_HoverTank_C"))
+	if (NewPawn == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Possessed pawn is not a HoverTank. it is %s"), *InPawnClassName);
+		if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
+		{
+			HoverTankHUDWidget->RemoveFromParent();
+		}
+
 		return;
 	}
 	
@@ -184,16 +184,25 @@ void ADeathMatchHUD::OnPawnPossessedHandler(const FString& InPawnClassName)
 		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
 	}
 	
+	AHoverTank* HoverTank = Cast<AHoverTank>(NewPawn);
+	if (HoverTank && HoverTankHUDWidget)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding OnTankHealthChange handler"));
+				
+		HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
+		HoverTank->OnTankDeath.AddDynamic(this, &ADeathMatchHUD::OnTankDeathHandler);
+	}
+
 	if (HoverTankHUDWidget && !HoverTankHUDWidget->IsInViewport())
 	{
 		HoverTankHUDWidget->AddToViewport();
 	}
 }
 
-void ADeathMatchHUD::OnPawnUnPossessedHandler(const FString& InPawnClassName)
+void ADeathMatchHUD::OnTankDeathHandler()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerUnPossessed"));
-
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnTankDeathHandler"));
+	
 	if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
 	{
 		HoverTankHUDWidget->RemoveFromParent();
