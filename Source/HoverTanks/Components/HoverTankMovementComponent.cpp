@@ -264,7 +264,7 @@ FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const bool 
 	UKismetMathLibrary::GetSlopeDegreeAngles(RightVector.GetSafeNormal(), GroundSurfaceNormal.GetSafeNormal(), UpVector, OutSlopePitchDegreeAngle, OutSlopeRollDegreeAngle);
 
 	OutSlopeRollDegreeAngle = -OutSlopeRollDegreeAngle;
-	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -20.0f, 20.0f);
+	OutSlopePitchDegreeAngle = FMath::Clamp(OutSlopePitchDegreeAngle, -30.0f, 30.0f);
 	
 	FRotator AlignedRotation = FRotator(OutSlopePitchDegreeAngle, ActorYawRotation, OutSlopeRollDegreeAngle);
 
@@ -313,26 +313,23 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 
 FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
 {
+	// return CalculateVerticalForceFromThrust(Move, DistanceFromGround, bIsGrounded);
+	
 	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
 
 	FVector VerticalForce;
 	if (bIsGrounded)
 	{
-		float UpDraftMultiplier = 1 - DistanceFromGround / DesiredFloatHeight;
+		DistanceFromGround -= 50; // skew the distance, so the UpDraftMultiplier is 1 when we are 50 units above the ground
+		float UpDraftMultiplier = 1 - DistanceFromGround / (DesiredFloatHeight);
 
 		if (UpDraftMultiplier > 0)
 		{
-			UpDraftMultiplier = FMath::Sqrt(UpDraftMultiplier);
-			// UpDraftMultiplier = UpDraftMultiplier / 2;
+			// the closer to the ground we get, the higher the UpDraftMultiplier, square it for greater effect
+			UpDraftMultiplier = FMath::Square(UpDraftMultiplier);
 		}
-		
-		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z; // * HoverBounceMultiplier
 
-		if (DistanceFromGround < 50)
-		{
-			// when we are below 50 units generate enough force to push us up
-			
-		}
+		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z;
 		
 		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
 		FVector DownForce = VerticalForce - Gravity;
@@ -357,6 +354,70 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 	}
 
 	return VerticalForce * Move.DeltaTime;
+}
+
+FVector UHoverTankMovementComponent::CalculateVerticalForceFromThrust(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
+{
+	const FVector GravitationalForce = (GetWorld()->GetGravityZ() / 100) * Mass * FVector(0, 0, 1); // m/s^2 49000 N with 5000 kg mass
+	float MaximumUpwardForceMagnitude = 196000; // 5000 * 9.8 = 49000 N * 2 = 98000 N * 2 = 196000 N
+	DistanceFromGround = DistanceFromGround / 100; // meters
+
+	float HeightFalloffMultiplier;
+	
+	FVector CalculatedVerticalForce;
+	
+	if (!bIsGrounded)
+	{
+		CalculatedVerticalForce = GravitationalForce / 1000;
+	}
+	else
+	{
+		float PowerUsageMultiplier = HoveringPowerUsageMultiplier;
+		
+		if (Move.bIsJumping)
+		{
+			PowerUsageMultiplier = 2;
+		}
+
+		// calculate HeightFalloffMultiplier. with 0 Distance to the ground it should be 1. With 2 meter it should be 0.
+		// HeightFalloffMultiplier = -DistanceFromGround + 2; // 
+		// HeightFalloffMultiplier = -DistanceFromGround * 2 + 2; // 
+		
+		// https://www.desmos.com/calculator
+
+		// implement this equation x^2 = -4y + 4
+		// where x should be the DistanceFromGround and y should be the HeightFalloffMultiplier
+		// HeightFalloffMultiplier = FMath::Sqrt(-4 * DistanceFromGround + 4);
+
+
+		// DistanceFromGround = FMath::Sqrt(-4 * HeightFalloffMultiplier + 4);
+		// invert the above to solve for HeightFalloffMultiplier
+		// HeightFalloffMultiplier = (DistanceFromGround * DistanceFromGround - 4) / -4; // Copilot solution
+		
+		//
+		// FMath::Square(DistanceFromGround) = -4 * HeightFalloffMultiplier + 4;
+		// FMath::Square(DistanceFromGround) - 4 = -4 * HeightFalloffMultiplier;
+		// (FMath::Square(DistanceFromGround) - 4) / -4 = HeightFalloffMultiplier;
+
+		HeightFalloffMultiplier = (FMath::Square(DistanceFromGround) - 4) / -4;
+		// solve the above for  DistanceFromGround = 0 and DistanceFromGround = 2
+		// DistanceFromGround = 0, HeightFalloffMultiplier = 1
+		// DistanceFromGround = 2, HeightFalloffMultiplier = 0
+		
+		float AppliedUpwardForceMagnitude = MaximumUpwardForceMagnitude * PowerUsageMultiplier * HeightFalloffMultiplier;
+		
+		UE_LOG(LogTemp, Warning, TEXT("DST: %f, HFM: %f, PUM: %f \n Applied force magnitude: %f"), DistanceFromGround, HeightFalloffMultiplier, PowerUsageMultiplier, AppliedUpwardForceMagnitude);
+
+		FVector AppliedUpwardForce = FVector(0, 0, 1) * AppliedUpwardForceMagnitude;
+		
+		// float
+		// CalculatedVerticalForce = FVector(0, 0, 1) * (MaximumUpwardForceMagnitude * PowerUsageMultiplier / 1000) + (GravitationalForce / 1000);	
+		CalculatedVerticalForce = AppliedUpwardForce / 1000 + GravitationalForce / 1000;	
+	}
+
+	
+	
+	return CalculatedVerticalForce * Move.DeltaTime;
 }
 
 /**

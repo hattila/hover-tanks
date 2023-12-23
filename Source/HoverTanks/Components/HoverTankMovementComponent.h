@@ -106,11 +106,11 @@ private:
 	float MaxThrottle = 30000;
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BoostThrottle = 40000;
+	float BoostThrottle = 60000;
 
 	/** In Metres per second. The max speed */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float MaxSpeed = 20;
+	float MaxSpeed = 25;
 
 	/** Tank turn rate in degrees per second */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -130,6 +130,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float MaxDriftRatio = 0.5f;
 
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
+	float HoveringPowerUsageMultiplier = 1;
+	
 	/** Higher value means more loss of momentum on collision */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="1.0", ClampMax="3.0"))
 	float BounceDampening = 2.0f;
@@ -185,6 +188,7 @@ private:
 	FRotator CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
+	FVector CalculateVerticalForceFromThrust(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
 	FVector CalculateGroundTraceStartLocation();
 	
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
