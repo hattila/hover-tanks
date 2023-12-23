@@ -87,8 +87,7 @@ AHoverTank::AHoverTank()
 	SpringArm->TargetArmLength = SpringArmLength;
 	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 
-	// CollisionProfile.Name = "HoverTank" - this is set in the editor
-	ColliderMesh->SetCollisionProfileName(CollisionProfile.Name, true);
+	ColliderMesh->SetCollisionProfileName(TEXT("HoverTank"), true);
 	ColliderMesh->SetVisibility(false);
 
 	// mashes shall not collide

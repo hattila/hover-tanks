@@ -90,9 +90,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	FVector GroundTraceLocationOffset = FVector(0.f, 0.f, -75.f);
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FCollisionProfileName CollisionProfile;
-	
 	// create a static mesh component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* TankBaseMesh;
