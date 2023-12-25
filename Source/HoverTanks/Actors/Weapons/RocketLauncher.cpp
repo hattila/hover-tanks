@@ -131,6 +131,5 @@ void ARocketLauncher::SpawnProjectile(USceneComponent* InRocketTargetLocationCom
 	if (InRocketTargetLocationComponent)
 	{
 		Projectile->SetHomingTarget(InRocketTargetLocationComponent);
-		Projectile->SetIsHoming(true);
 	}
 }

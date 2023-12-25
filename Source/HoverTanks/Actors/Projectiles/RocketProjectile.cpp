@@ -6,14 +6,13 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-
 // Sets default values
 ARocketProjectile::ARocketProjectile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	// SetReplicates(true);
+	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
 
 	// set actor lifetime to 3 seconds
@@ -29,13 +28,13 @@ ARocketProjectile::ARocketProjectile()
 
 	// initialize the projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
+	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->InitialSpeed = 500.f;
 	ProjectileMovementComponent->MaxSpeed = 40000.f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	ProjectileMovementComponent->bIsHomingProjectile = false;
 	ProjectileMovementComponent->HomingAccelerationMagnitude = 20000.f;
-	ProjectileMovementComponent->SetIsReplicated(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
 	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
@@ -63,21 +62,6 @@ ARocketProjectile::ARocketProjectile()
 void ARocketProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		// make the ProjectileComponent homing
-		// ProjectileMovementComponent->HomingTargetComponent = GetWorld()->GetFirstPlayerController()->GetPawn()->GetRootComponent();	
-	}
-
-	// get local role string
-	FString LocalRoleString = HasAuthority() ? TEXT("Server") : TEXT("Client");
-
-	
-	UE_LOG(LogTemp, Warning,
-		TEXT("%s Am I a homing projectile? %s"),
-		*LocalRoleString,
-		ProjectileMovementComponent->bIsHomingProjectile ? TEXT("true") : TEXT("false"));
 }
 
 // Called every frame
