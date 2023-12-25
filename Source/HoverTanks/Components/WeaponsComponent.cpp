@@ -4,7 +4,7 @@
 #include "WeaponsComponent.h"
 
 #include "HoverTanks/HoverTank.h"
-#include "..\Actors\Projectiles\CannonProjectile.h"
+#include "HoverTanks/Actors/Projectiles/CannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
 
 // Sets default values for this component's properties
@@ -17,6 +17,29 @@ UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(
 	ProjectileClass = ACannonProjectile::StaticClass();
 }
 
+void UWeaponsComponent::SwitchToNextWeapon()
+{
+	if (CurrentWeapon == EAvailableWeapons::Cannon)
+	{
+		CurrentWeapon = EAvailableWeapons::RocketLauncher;
+	}
+	else
+	{
+		CurrentWeapon = EAvailableWeapons::Cannon;
+	}
+}
+
+void UWeaponsComponent::SwitchToPrevWeapon()
+{
+	if (CurrentWeapon == EAvailableWeapons::Cannon)
+	{
+		CurrentWeapon = EAvailableWeapons::RocketLauncher;
+	}
+	else
+	{
+		CurrentWeapon = EAvailableWeapons::Cannon;
+	}
+}
 
 // Called when the game starts
 void UWeaponsComponent::BeginPlay()
@@ -47,8 +70,20 @@ void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
 	{
+		switch (CurrentWeapon)
+		{
+			case EAvailableWeapons::Cannon:
+				ServerAttemptToShoot();
+				break;
+			case EAvailableWeapons::RocketLauncher:
+				ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
+				break;
+			default:
+			return;
+		}
+		
 		// ServerAttemptToShoot();
-		ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
+		// ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
 	}
 }
 

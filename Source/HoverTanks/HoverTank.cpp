@@ -170,6 +170,10 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Started, this, &AHoverTank::ZoomInActionStarted);
 		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Completed, this, &AHoverTank::ZoomInActionCompleted);
 
+		//Switch weapons
+		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHoverTank::NextWeaponActionStarted);
+		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHoverTank::PrevWeaponActionStarted);
+		
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
 
@@ -415,11 +419,21 @@ void AHoverTank::ShootStarted()
 
 void AHoverTank::ZoomInActionStarted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
 	bIsZoomedIn = true;
 }
 
 void AHoverTank::ZoomInActionCompleted()
 {
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
 	bIsZoomedIn = false;
 }
 
@@ -446,6 +460,36 @@ void AHoverTank::HandleCameraZoom(float DeltaTime)
 	else
 	{
 		Camera->SetFieldOfView(FMath::FInterpTo(Camera->FieldOfView, DefaultCameraZoomFOV, DeltaTime, 5.f));
+	}
+}
+
+void AHoverTank::NextWeaponActionStarted(const FInputActionValue& Value)
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	// UE_LOG(LogTemp, Warning, TEXT("NextWeaponActionStarted %s"), *Value.ToString());
+	
+	if (WeaponsComponent)
+	{
+		WeaponsComponent->SwitchToNextWeapon();
+	}
+}
+
+void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("NextWeaponActionStarted %s"), *Value.ToString());
+
+	if (WeaponsComponent)
+	{
+		WeaponsComponent->SwitchToPrevWeapon();
 	}
 }
 

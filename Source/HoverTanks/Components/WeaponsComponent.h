@@ -9,6 +9,13 @@
 class ARocketLauncher;
 class ACannonProjectile;
 
+UENUM()
+enum EAvailableWeapons
+{
+	Cannon,
+	RocketLauncher
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UWeaponsComponent : public UActorComponent
 {
@@ -24,6 +31,9 @@ public:
 	UFUNCTION()
 	void AttemptToShoot(const FVector& LocationUnderTheCrosshair);
 	
+	void SwitchToNextWeapon();
+	void SwitchToPrevWeapon();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -38,19 +48,29 @@ private:
 	UPROPERTY()
 	UStaticMeshComponent* TankBarrelMesh;
 
-	bool bIsMainCannonOnCooldown = false;
-	FTimerHandle MainCannonCooldownTimerHandle;
-	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAttemptToShoot();
+
+	/**
+	 * Main Cannon
+	 */
+	bool bIsMainCannonOnCooldown = false;
+	FTimerHandle MainCannonCooldownTimerHandle;
 
 	void ClearMainCannonCooldown();
 	void SpawnProjectile();
 
-
+	/**
+	 * Rocket Launcher
+	 */
 	void CreateAndAttachRocketLauncher();
 	ARocketLauncher* RocketLauncher = nullptr;
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAttemptToShootRocketLauncher(const FVector& LocationUnderTheCrosshair);
+
+	/**
+	 * Weapon switching
+	 */
+	EAvailableWeapons CurrentWeapon = EAvailableWeapons::Cannon;
 };

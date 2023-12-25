@@ -152,6 +152,12 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ZoomInAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* NextWeaponAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* PrevWeaponAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
@@ -185,6 +191,9 @@ private:
 	float DefaultCameraZoomFOV = 90;
 	float ZoomedInCameraZoomFOV = 60;
 	void HandleCameraZoom(float DeltaTime);
+
+	void NextWeaponActionStarted(const FInputActionValue& Value);
+	void PrevWeaponActionStarted(const FInputActionValue& Value);
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();
