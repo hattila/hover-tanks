@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WeaponsComponent.generated.h"
 
+class ARocketLauncher;
 class ATankProjectile;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,6 +33,9 @@ private:
 	TSubclassOf<ATankProjectile> ProjectileClass;
 
 	UPROPERTY()
+	UStaticMeshComponent* TankCannonMesh;
+	
+	UPROPERTY()
 	UStaticMeshComponent* TankBarrelMesh;
 
 	bool bIsMainCannonOnCooldown = false;
@@ -42,4 +46,11 @@ private:
 
 	void ClearMainCannonCooldown();
 	void SpawnProjectile();
+
+
+	void CreateAndAttachRocketLauncher();
+	ARocketLauncher* RocketLauncher = nullptr;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerAttemptToShootRocketLauncher();
 };

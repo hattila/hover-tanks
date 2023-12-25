@@ -5,9 +5,10 @@
 
 #include "HoverTanks/HoverTank.h"
 #include "HoverTanks/TankProjectile.h"
+#include "HoverTanks/Actors/Weapons/RocketLauncher.h"
 
 // Sets default values for this component's properties
-UWeaponsComponent::UWeaponsComponent(): TankBarrelMesh(nullptr)
+UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -25,7 +26,10 @@ void UWeaponsComponent::BeginPlay()
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
+		TankCannonMesh = HoverTank->GetTankCannonMesh();
 		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
+
+		CreateAndAttachRocketLauncher();
 	}
 	
 }
@@ -44,6 +48,7 @@ void UWeaponsComponent::AttemptToShoot()
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
 	{
 		ServerAttemptToShoot();
+		ServerAttemptToShootRocketLauncher();
 	}
 }
 
@@ -83,4 +88,36 @@ void UWeaponsComponent::SpawnProjectile()
 
 		ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
 	}	
+}
+
+void UWeaponsComponent::CreateAndAttachRocketLauncher()
+{
+	// get the socket location and rotation of LeftMount socket on TankCannonMesh
+	FVector LeftMountLocation = TankCannonMesh->GetSocketLocation(FName("LeftMount"));
+	FRotator LeftMountRotation = TankCannonMesh->GetSocketRotation(FName("LeftMount"));
+
+	// spawn the RocketLauncher
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = GetOwner();
+	SpawnParameters.Instigator = GetOwner()->GetInstigator();
+
+	// create a RocketLauncher Actor, and attach it to teh TankCannonMesh, LeftMount socket
+	RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
+	RocketLauncher->AttachToComponent(TankCannonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LeftMount"));
+	
+}
+
+void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation()
+{
+	if (RocketLauncher == nullptr)
+	{
+		return;
+	}
+
+	RocketLauncher->Fire();
+}
+
+bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate()
+{
+	return true;
 }
