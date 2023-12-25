@@ -96,7 +96,7 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	FVector LeftMountLocation = TankCannonMesh->GetSocketLocation(FName("LeftMount"));
 	FRotator LeftMountRotation = TankCannonMesh->GetSocketRotation(FName("LeftMount"));
 
-	LeftMountRotation = LeftMountRotation + FRotator(30.f, 0.f, 0.f);
+	LeftMountRotation = LeftMountRotation + FRotator(45.f, 0.f, 0.f);
 	UE_LOG(LogTemp, Warning, TEXT("LeftMountRotation: %s"), *LeftMountRotation.ToString());
 
 	// spawn the RocketLauncher

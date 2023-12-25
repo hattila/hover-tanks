@@ -111,7 +111,7 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 		// apply damage to the OtherActor
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
-			50.f,
+			Damage,
 			GetInstigatorController(),
 			this,
 			UDamageType::StaticClass()

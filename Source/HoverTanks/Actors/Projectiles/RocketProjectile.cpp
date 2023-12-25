@@ -5,6 +5,7 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ARocketProjectile::ARocketProjectile()
@@ -29,7 +30,7 @@ ARocketProjectile::ARocketProjectile()
 	// initialize the projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->SetIsReplicated(true);
-	ProjectileMovementComponent->InitialSpeed = 500.f;
+	ProjectileMovementComponent->InitialSpeed = 1500.f;
 	ProjectileMovementComponent->MaxSpeed = 40000.f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
@@ -62,6 +63,44 @@ ARocketProjectile::ARocketProjectile()
 void ARocketProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		SphereCollider->OnComponentHit.AddDynamic(this, &ARocketProjectile::OnHit);
+		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ARocketProjectile::OnOverlap);
+	}
+}
+
+void ARocketProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	Destroy();	
+}
+
+void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+{
+	AActor* MyOwner = GetOwner();
+	if (MyOwner == nullptr)
+	{
+		Destroy();
+		return;
+	}
+
+	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
+	{
+		// apply damage to the OtherActor
+		UGameplayStatics::ApplyDamage(
+			OtherActor,
+			Damage,
+			GetInstigatorController(),
+			this,
+			UDamageType::StaticClass()
+		);
+
+		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
+		Destroy();
+	}
 }
 
 // Called every frame
