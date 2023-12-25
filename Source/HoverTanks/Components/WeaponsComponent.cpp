@@ -57,6 +57,14 @@ void UWeaponsComponent::SwitchToPrevWeapon()
 	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
+void UWeaponsComponent::DestroyAttachedWeapons()
+{
+	if (RocketLauncher)
+	{
+		RocketLauncher->Destroy();
+	}
+}
+
 // Called when the game starts
 void UWeaponsComponent::BeginPlay()
 {

@@ -265,6 +265,11 @@ void AHoverTank::PossessedBy(AController* NewController)
 
 void AHoverTank::UnPossessed()
 {
+	if (WeaponsComponent)
+	{
+		WeaponsComponent->DestroyAttachedWeapons();
+	}
+	
 	Super::UnPossessed();
 }
 

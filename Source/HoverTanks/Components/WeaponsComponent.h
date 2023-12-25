@@ -34,6 +34,8 @@ public:
 	void SwitchToNextWeapon();
 	void SwitchToPrevWeapon();
 
+	void DestroyAttachedWeapons();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
