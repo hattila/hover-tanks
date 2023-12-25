@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "NiagaraComponent.h"
 #include "RocketProjectile.generated.h"
 
 class UProjectileMovementComponent;
@@ -48,5 +49,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UNiagaraComponent* SmokeTrailFX = nullptr; 
 	
 };

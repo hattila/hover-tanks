@@ -57,6 +57,19 @@ ARocketProjectile::ARocketProjectile()
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveCannonProjectileMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveCannonProjectile"));
 	UMaterialInstance* EmissiveCannonProjectileMaterialObject = EmissiveCannonProjectileMaterialAsset.Object;
 	ProjectileMesh->SetMaterial(0, EmissiveCannonProjectileMaterialObject);
+
+	/**
+	 * FX
+	 */
+	SmokeTrailFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Smoke Trail FX"));
+	SmokeTrailFX->SetupAttachment(RootComponent);
+	SmokeTrailFX->SetAutoActivate(true);
+
+	// find and initialize the smoke trail emitter: P_SmokeTrail
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeTrailEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_SmokeTrail"));
+	UNiagaraSystem* SmokeTrailEmitterObject = SmokeTrailEmitterAsset.Object;
+	SmokeTrailFX->SetAsset(SmokeTrailEmitterObject);
+	
 }
 
 // Called when the game starts or when spawned
