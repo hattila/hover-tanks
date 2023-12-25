@@ -103,6 +103,11 @@ void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent
 	CurrentFireCount++;
 }
 
+/**
+ * Issue: Rotation follow velocity does not work on Clients. The internal Velocity of the ProjectileMovementComponent is
+ * not replicated to Clients. The only way I found around this is to spawn the projectile on the clients as well, and do
+ * not replicate the movement component. This is not viable however because of the changed properties on the server.
+ */
 void ARocketLauncher::SpawnProjectile(USceneComponent* InRocketTargetLocationComponent)
 {
 	if (!HasAuthority())

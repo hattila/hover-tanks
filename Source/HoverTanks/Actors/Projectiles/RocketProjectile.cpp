@@ -16,8 +16,8 @@ ARocketProjectile::ARocketProjectile()
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
 
-	// set actor lifetime to 3 seconds
-	InitialLifeSpan = 3.f;
+	// set actor lifetime to 5 seconds
+	InitialLifeSpan = 5.f;
 
 	// initialize the Sphere Collider, make it the root component
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
@@ -87,7 +87,7 @@ void ARocketProjectile::BeginPlay()
 void ARocketProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	Destroy();	
+	DelayedDestroy();	
 }
 
 void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -96,7 +96,7 @@ void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	AActor* MyOwner = GetOwner();
 	if (MyOwner == nullptr)
 	{
-		Destroy();
+		DelayedDestroy();
 		return;
 	}
 
@@ -112,8 +112,33 @@ void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		);
 
 		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
-		Destroy();
+		DelayedDestroy();
 	}
+}
+
+void ARocketProjectile::DelayedDestroy()
+{
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this, &ARocketProjectile::DoDestroy,3,false, 3.f);
+	MulticastDeactivateRocket();	
+}
+
+void ARocketProjectile::DoDestroy()
+{
+	GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+	Destroy();
+}
+
+void ARocketProjectile::MulticastDeactivateRocket_Implementation()
+{
+	// turn off collision
+	SphereCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SphereCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	// hide the mesh
+	ProjectileMesh->SetVisibility(false, true);
+
+	// turn off the emitter
+	SmokeTrailFX->Deactivate();
 }
 
 // Called every frame

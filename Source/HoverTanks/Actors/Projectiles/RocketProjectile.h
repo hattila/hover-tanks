@@ -50,6 +50,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
-	UNiagaraComponent* SmokeTrailFX = nullptr; 
-	
+	UNiagaraComponent* SmokeTrailFX = nullptr;
+
+	FTimerHandle DestroyTimerHandle;
+	bool bIsDestroyed = false;
+	void DelayedDestroy();
+	void DoDestroy();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastDeactivateRocket();
 };
