@@ -37,7 +37,7 @@ ARocketProjectile::ARocketProjectile()
 	ProjectileMovementComponent->bIsHomingProjectile = false;
 	ProjectileMovementComponent->HomingAccelerationMagnitude = 20000.f;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Game/HoverTanks/Actors/Projectiles/Rocket"));
 	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
 	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
 
@@ -48,7 +48,7 @@ ARocketProjectile::ARocketProjectile()
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Set the mesh transform scale to .5
-	ProjectileMesh->SetWorldScale3D(FVector(.3f, .3f, .3f));
+	ProjectileMesh->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 
 	/**
 	 * Material
