@@ -2,13 +2,15 @@
 
 #pragma once
 
+#include "Components/WeaponsComponent.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "HoverTank.generated.h"
 
+
 class UHoverTankHUDWidget;
 class USphereComponent;
-class UWeaponsComponent;
 class UHealthComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
@@ -22,6 +24,7 @@ class UInputAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health, float, MaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
 class HOVERTANKS_API AHoverTank : public APawn
@@ -37,6 +40,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnTankHealthChange OnTankHealthChange;
+
+	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
+	FOnWeaponSwitched OnWeaponSwitched;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

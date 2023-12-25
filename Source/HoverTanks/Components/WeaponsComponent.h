@@ -21,7 +21,7 @@ class HOVERTANKS_API UWeaponsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UWeaponsComponent();
 

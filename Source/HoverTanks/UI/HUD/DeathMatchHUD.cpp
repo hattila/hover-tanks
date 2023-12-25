@@ -6,6 +6,7 @@
 #include "HoverTanks/Game/DeathMatchGameState.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/DeathMatchScoreBoardWidget.h"
+#include "HoverTanks/Components/WeaponsComponent.h"
 
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/HoverTank.h"
@@ -191,6 +192,7 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 				
 		HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
 		HoverTank->OnTankDeath.AddDynamic(this, &ADeathMatchHUD::OnTankDeathHandler);
+		HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
 	}
 
 	if (HoverTankHUDWidget && !HoverTankHUDWidget->IsInViewport())

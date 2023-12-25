@@ -27,6 +27,14 @@ void UWeaponsComponent::SwitchToNextWeapon()
 	{
 		CurrentWeapon = EAvailableWeapons::Cannon;
 	}
+
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
 void UWeaponsComponent::SwitchToPrevWeapon()
@@ -39,6 +47,14 @@ void UWeaponsComponent::SwitchToPrevWeapon()
 	{
 		CurrentWeapon = EAvailableWeapons::Cannon;
 	}
+
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
 // Called when the game starts

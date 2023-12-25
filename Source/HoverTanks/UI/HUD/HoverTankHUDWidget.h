@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DeathMatchHUD.h"
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/Components/WeaponsComponent.h"
 #include "HoverTankHUDWidget.generated.h"
 
+class UBorder;
+class UWidgetSwitcher;
 class UTextBlock;
 /**
  * 
@@ -20,6 +24,9 @@ public:
 	
 	UFUNCTION()
 	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
+	
+	UFUNCTION()
+	void OnWeaponSwitchedHandler(int32 NewWeapon);
 
 private:
 	float Health;
@@ -30,6 +37,15 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* MaxHealthText;
+
+	UPROPERTY(meta=(BindWidget))
+	UWidgetSwitcher* WeaponIndicatorSwitch;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* CannonIndicator;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* RocketsIndicator;
 
 	void RefreshHealth() const;
 };

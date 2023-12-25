@@ -3,7 +3,10 @@
 
 #include "HoverTankHUDWidget.h"
 
+#include "Components/Border.h"
 #include "Components/TextBlock.h"
+#include "Components/WidgetSwitcher.h"
+#include "HoverTanks/Components/WeaponsComponent.h"
 
 bool UHoverTankHUDWidget::Initialize()
 {
@@ -22,4 +25,23 @@ void UHoverTankHUDWidget::OnHealthChangeHandler(const float InHealth, const floa
 	MaxHealth = InMaxHealth;
 
 	RefreshHealth();
+}
+
+void UHoverTankHUDWidget::OnWeaponSwitchedHandler(int32 NewWeapon)
+{
+	UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnWeaponSwitchedHandler, NewWeapon is %d"), NewWeapon);
+	
+	switch (NewWeapon)
+	{
+		// case EAvailableWeapons::Cannon:
+		case 0:
+			WeaponIndicatorSwitch->SetActiveWidget(CannonIndicator);
+		break;
+		// case EAvailableWeapons::RocketLauncher:
+		case 1:
+			WeaponIndicatorSwitch->SetActiveWidget(RocketsIndicator);
+		break;
+	default:
+		return;
+	}
 }
