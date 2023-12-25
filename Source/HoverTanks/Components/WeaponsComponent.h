@@ -22,7 +22,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void AttemptToShoot();
+	void AttemptToShoot(const FVector& LocationUnderTheCrosshair);
 	
 protected:
 	// Called when the game starts
@@ -52,5 +52,5 @@ private:
 	ARocketLauncher* RocketLauncher = nullptr;
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerAttemptToShootRocketLauncher();
+	void ServerAttemptToShootRocketLauncher(const FVector& LocationUnderTheCrosshair);
 };

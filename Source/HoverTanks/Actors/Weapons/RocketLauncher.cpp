@@ -3,8 +3,8 @@
 
 #include "RocketLauncher.h"
 
-#include "HoverTanks/Components/WeaponsComponent.h"
-#include "..\Projectiles\CannonProjectile.h"
+#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Actors/Projectiles/RocketProjectile.h"
 
 
 // Sets default values
@@ -42,9 +42,43 @@ void ARocketLauncher::Fire()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire()"));
+	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), RocketTargetLocation is %s"), *RocketTargetLocation.ToString());
 
-	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ARocketLauncher::BurstFire, TimeBetweenShots, true, 0);
+	// if RocketTargetLocation is not a null vector
+	if (RocketTargetLocation == FVector::ZeroVector)
+	{
+		RocketTargetLocationComponent = nullptr;
+	}
+	else
+	{
+		RocketTargetLocationComponent = NewObject<USceneComponent>(this, TEXT("RocketTargetLocationComponent"));
+		RocketTargetLocationComponent->SetWorldLocation(RocketTargetLocation);
+
+		// draw a debug sphere at RocketTargetLocation
+		DrawDebugSphere(
+			GetWorld(),
+			RocketTargetLocation,
+			200,
+			12,
+			FColor::Blue,
+			false,
+			2
+		);
+	}
+	
+
+	// create TimerHandle params
+	FTimerDelegate FireTimerDelegate = FTimerDelegate::CreateUObject(
+		this,
+		&ARocketLauncher::BurstFire,
+		RocketTargetLocationComponent
+	);
+	
+	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), my Owner is %s"), *GetOwner()->GetName());
+
+	// GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ARocketLauncher::BurstFire, TimeBetweenShots, true, 0);
+	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, FireTimerDelegate, TimeBetweenShots, true, 0);
+	
 	// SpawnProjectile();
 	bIsOnCooldown = true;
 	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
@@ -56,7 +90,7 @@ void ARocketLauncher::ClearFireCooldownTimer()
 	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
 }
 
-void ARocketLauncher::BurstFire()
+void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent)
 {
 	if (CurrentFireCount >= MaxBurstFireCount)
 	{
@@ -65,18 +99,38 @@ void ARocketLauncher::BurstFire()
 		return;
 	}
 
-	SpawnProjectile();
+	SpawnProjectile(InRocketTargetLocationComponent);
 	CurrentFireCount++;
 }
 
-void ARocketLauncher::SpawnProjectile()
+void ARocketLauncher::SpawnProjectile(USceneComponent* InRocketTargetLocationComponent)
 {
-	FVector SpawnLocation = GetActorLocation();
-	FRotator SpawnRotation = GetActorRotation();
+	if (!HasAuthority())
+	{
+		return;
+	}
 
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.Owner = GetOwner();
-	SpawnParameters.Instigator = GetOwner()->GetInstigator();
+	// create a transform form SpawnLocation and SpawnRotation
+	FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
 
-	ACannonProjectile* Projectile = GetWorld()->SpawnActor<ACannonProjectile>(ACannonProjectile::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
+	ARocketProjectile* Projectile = GetWorld()->SpawnActorDeferred<ARocketProjectile>(ARocketProjectile::StaticClass(), SpawnTransform, GetOwner(), GetOwner()->GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	if (InRocketTargetLocationComponent)
+	{
+		Projectile->SetIsHoming(true);	
+	}
+	else
+	{
+		Projectile->SetHomingTarget(nullptr);
+		Projectile->SetIsHoming(false);
+		Projectile->SetProjectileSpeed(10000);
+	}
+	
+	Projectile->FinishSpawning(SpawnTransform);
+
+	if (InRocketTargetLocationComponent)
+	{
+		Projectile->SetHomingTarget(InRocketTargetLocationComponent);
+		Projectile->SetIsHoming(true);
+	}
 }

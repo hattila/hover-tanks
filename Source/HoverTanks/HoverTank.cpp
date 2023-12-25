@@ -220,6 +220,18 @@ void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
 	OnTankDeath.Broadcast();
 }
 
+FVector AHoverTank::GetLocationUnderTheCrosshair() const
+{
+	FHitResult Hit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector End = Start + Camera->GetForwardVector() * 20000;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	return Hit.Location;
+}
+
 // Called when the game starts or when spawned
 void AHoverTank::BeginPlay()
 {
@@ -396,7 +408,8 @@ void AHoverTank::ShootStarted()
 	
 	if (WeaponsComponent)
 	{
-		WeaponsComponent->AttemptToShoot();
+		FVector LocationUnderTheCrosshair = GetLocationUnderTheCrosshair();
+		WeaponsComponent->AttemptToShoot(LocationUnderTheCrosshair);
 	}
 }
 
@@ -449,14 +462,16 @@ void AHoverTank::DebugDrawPlayerTitle()
 
 void AHoverTank::DebugDrawSphereAsCrosshair() const
 {
-	FHitResult Hit;
-	FVector Start = Camera->GetComponentLocation();
-	FVector End = Start + Camera->GetForwardVector() * 20000;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+	// FHitResult Hit;
+	// FVector Start = Camera->GetComponentLocation();
+	// FVector End = Start + Camera->GetForwardVector() * 20000;
+	// FCollisionQueryParams Params;
+	// Params.AddIgnoredActor(this);
+	// GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	FVector HitLocation = GetLocationUnderTheCrosshair();
 
 	// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
-	float SphereRadius = FMath::Clamp((Hit.Location - Start).Size() / 100, 25.f, 100.f);
-	DrawDebugSphere(GetWorld(), Hit.Location, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
+	float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
+	DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
 }

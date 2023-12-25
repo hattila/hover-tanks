@@ -16,6 +16,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	
+	void SetRocketTargetLocation(const FVector& InLocation) { RocketTargetLocation = InLocation; }
 	void Fire();
 
 protected:
@@ -37,7 +38,10 @@ private:
 
 	int MaxBurstFireCount = 3;
 	int CurrentFireCount = 0;
-	void BurstFire();
+	void BurstFire(USceneComponent* InRocketTargetLocationComponent);
 	
-	void SpawnProjectile();
+	void SpawnProjectile(USceneComponent* InRocketTargetLocationComponent);
+
+	FVector RocketTargetLocation = FVector::ZeroVector;
+	USceneComponent* RocketTargetLocationComponent = nullptr;
 };

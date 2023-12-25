@@ -70,6 +70,8 @@ public:
 
 	UFUNCTION(Client, Unreliable)
 	void ClientBroadcastOnTankDeath();
+
+	FVector GetLocationUnderTheCrosshair() const;
 	
 protected:
 	// Called when the game starts or when spawned

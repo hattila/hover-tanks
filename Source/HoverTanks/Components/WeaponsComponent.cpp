@@ -42,13 +42,13 @@ void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
-void UWeaponsComponent::AttemptToShoot()
+void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
 {
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
 	{
-		ServerAttemptToShoot();
-		ServerAttemptToShootRocketLauncher();
+		// ServerAttemptToShoot();
+		ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
 	}
 }
 
@@ -96,6 +96,9 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	FVector LeftMountLocation = TankCannonMesh->GetSocketLocation(FName("LeftMount"));
 	FRotator LeftMountRotation = TankCannonMesh->GetSocketRotation(FName("LeftMount"));
 
+	LeftMountRotation = LeftMountRotation + FRotator(30.f, 0.f, 0.f);
+	UE_LOG(LogTemp, Warning, TEXT("LeftMountRotation: %s"), *LeftMountRotation.ToString());
+
 	// spawn the RocketLauncher
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = GetOwner();
@@ -104,20 +107,22 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	// create a RocketLauncher Actor, and attach it to teh TankCannonMesh, LeftMount socket
 	RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
 	RocketLauncher->AttachToComponent(TankCannonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LeftMount"));
+	RocketLauncher->SetActorRotation(LeftMountRotation);
 	
 }
 
-void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation()
+void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const FVector& LocationUnderTheCrosshair)
 {
 	if (RocketLauncher == nullptr)
 	{
 		return;
 	}
 
+	RocketLauncher->SetRocketTargetLocation(LocationUnderTheCrosshair);
 	RocketLauncher->Fire();
 }
 
-bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate()
+bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FVector& LocationUnderTheCrosshair)
 {
 	return true;
 }
