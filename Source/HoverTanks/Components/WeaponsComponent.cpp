@@ -47,7 +47,7 @@ void UWeaponsComponent::AttemptToShoot()
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
 	{
-		ServerAttemptToShoot();
+		// ServerAttemptToShoot();
 		ServerAttemptToShootRocketLauncher();
 	}
 }

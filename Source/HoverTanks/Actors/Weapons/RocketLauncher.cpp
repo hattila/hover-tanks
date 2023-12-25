@@ -42,14 +42,31 @@ void ARocketLauncher::Fire()
 		return;
 	}
 
-	SpawnProjectile();
+	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire()"));
+
+	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ARocketLauncher::BurstFire, TimeBetweenShots, true, 0);
+	// SpawnProjectile();
 	bIsOnCooldown = true;
-	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, 1.f, false, 1.f);
+	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
 }
 
 void ARocketLauncher::ClearFireCooldownTimer()
 {
 	bIsOnCooldown = false;
+	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
+}
+
+void ARocketLauncher::BurstFire()
+{
+	if (CurrentFireCount >= MaxBurstFireCount)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+		CurrentFireCount = 0;
+		return;
+	}
+
+	SpawnProjectile();
+	CurrentFireCount++;
 }
 
 void ARocketLauncher::SpawnProjectile()

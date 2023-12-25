@@ -28,12 +28,16 @@ private:
 	bool bIsOnCooldown = false;
 	
 	float FireCooldownTime = 3.0f;
-	float TimeBetweenShots = 0.5f;
+	float TimeBetweenShots = 0.15f;
 
 	FTimerHandle FireCooldownTimerHandle;
 	FTimerHandle FireTimerHandle;
 
 	void ClearFireCooldownTimer();
 
+	int MaxBurstFireCount = 3;
+	int CurrentFireCount = 0;
+	void BurstFire();
+	
 	void SpawnProjectile();
 };
