@@ -4,7 +4,7 @@
 #include "WeaponsComponent.h"
 
 #include "HoverTanks/HoverTank.h"
-#include "HoverTanks/TankProjectile.h"
+#include "..\Actors\Projectiles\CannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
 
 // Sets default values for this component's properties
@@ -14,7 +14,7 @@ UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	ProjectileClass = ATankProjectile::StaticClass();
+	ProjectileClass = ACannonProjectile::StaticClass();
 }
 
 
@@ -47,7 +47,7 @@ void UWeaponsComponent::AttemptToShoot()
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
 	{
-		// ServerAttemptToShoot();
+		ServerAttemptToShoot();
 		ServerAttemptToShootRocketLauncher();
 	}
 }
@@ -86,7 +86,7 @@ void UWeaponsComponent::SpawnProjectile()
 		SpawnParameters.Owner = GetOwner();
 		SpawnParameters.Instigator = GetOwner()->GetInstigator();
 
-		ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
+		ACannonProjectile* Projectile = GetWorld()->SpawnActor<ACannonProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
 	}	
 }
 

@@ -4,7 +4,7 @@
 #include "RocketLauncher.h"
 
 #include "HoverTanks/Components/WeaponsComponent.h"
-#include "HoverTanks/TankProjectile.h"
+#include "..\Projectiles\CannonProjectile.h"
 
 
 // Sets default values
@@ -78,5 +78,5 @@ void ARocketLauncher::SpawnProjectile()
 	SpawnParameters.Owner = GetOwner();
 	SpawnParameters.Instigator = GetOwner()->GetInstigator();
 
-	ATankProjectile* Projectile = GetWorld()->SpawnActor<ATankProjectile>(ATankProjectile::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
+	ACannonProjectile* Projectile = GetWorld()->SpawnActor<ACannonProjectile>(ACannonProjectile::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
 }

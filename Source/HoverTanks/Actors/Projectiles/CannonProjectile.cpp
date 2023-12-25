@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TankProjectile.h"
+#include "CannonProjectile.h"
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
-ATankProjectile::ATankProjectile()
+ACannonProjectile::ACannonProjectile()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -55,25 +55,25 @@ ATankProjectile::ATankProjectile()
 }
 
 // Called when the game starts or when spawned
-void ATankProjectile::BeginPlay()
+void ACannonProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// bind the OnHit event to the OnHit function
 	if (HasAuthority())
 	{
-		SphereCollider->OnComponentHit.AddDynamic(this, &ATankProjectile::OnHit);
-		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ATankProjectile::OnOverlap);
+		SphereCollider->OnComponentHit.AddDynamic(this, &ACannonProjectile::OnHit);
+		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ACannonProjectile::OnOverlap);
 	}
 }
 
 // Called every frame
-void ATankProjectile::Tick(float DeltaTime)
+void ACannonProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void ATankProjectile::OnHit(
+void ACannonProjectile::OnHit(
 	UPrimitiveComponent* HitComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
@@ -91,7 +91,7 @@ void ATankProjectile::OnHit(
 	}
 }
 
-void ATankProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
+void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex,

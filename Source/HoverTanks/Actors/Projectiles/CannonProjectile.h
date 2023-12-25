@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TankProjectile.generated.h"
+#include "CannonProjectile.generated.h"
 
 class UProjectileMovementComponent;
 
 UCLASS()
-class HOVERTANKS_API ATankProjectile : public AActor
+class HOVERTANKS_API ACannonProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ATankProjectile();
+	ACannonProjectile();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

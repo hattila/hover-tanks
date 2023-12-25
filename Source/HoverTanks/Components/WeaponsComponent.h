@@ -7,7 +7,7 @@
 #include "WeaponsComponent.generated.h"
 
 class ARocketLauncher;
-class ATankProjectile;
+class ACannonProjectile;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class HOVERTANKS_API UWeaponsComponent : public UActorComponent
@@ -30,7 +30,7 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ATankProjectile> ProjectileClass;
+	TSubclassOf<ACannonProjectile> ProjectileClass;
 
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;
