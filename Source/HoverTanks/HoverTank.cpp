@@ -224,14 +224,16 @@ void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
 	OnTankDeath.Broadcast();
 }
 
-FVector AHoverTank::GetLocationUnderTheCrosshair() const
+FVector AHoverTank::FindTargetLocationAtCrosshair() const
 {
 	FHitResult Hit;
 	FVector Start = Camera->GetComponentLocation();
 	FVector End = Start + Camera->GetForwardVector() * 20000;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	// line trace with the custom FindTarget channel
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel2, Params);
 
 	return Hit.Location;
 }
@@ -417,7 +419,7 @@ void AHoverTank::ShootStarted()
 	
 	if (WeaponsComponent)
 	{
-		FVector LocationUnderTheCrosshair = GetLocationUnderTheCrosshair();
+		FVector LocationUnderTheCrosshair = FindTargetLocationAtCrosshair();
 		WeaponsComponent->AttemptToShoot(LocationUnderTheCrosshair);
 	}
 }
@@ -518,7 +520,7 @@ void AHoverTank::DebugDrawSphereAsCrosshair() const
 	// Params.AddIgnoredActor(this);
 	// GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
 
-	FVector HitLocation = GetLocationUnderTheCrosshair();
+	FVector HitLocation = FindTargetLocationAtCrosshair();
 
 	// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
 	float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
