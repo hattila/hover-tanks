@@ -228,7 +228,7 @@ FVector AHoverTank::FindTargetLocationAtCrosshair() const
 {
 	FHitResult Hit;
 	FVector Start = Camera->GetComponentLocation();
-	FVector End = Start + Camera->GetForwardVector() * 20000;
+	FVector End = Start + Camera->GetForwardVector() * 40000;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 
@@ -269,7 +269,7 @@ void AHoverTank::UnPossessed()
 {
 	if (WeaponsComponent)
 	{
-		WeaponsComponent->DestroyAttachedWeapons();
+		WeaponsComponent->MulticastDestroyAttachedWeapons();
 	}
 	
 	Super::UnPossessed();

@@ -34,7 +34,8 @@ public:
 	void SwitchToNextWeapon();
 	void SwitchToPrevWeapon();
 
-	void DestroyAttachedWeapons();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDestroyAttachedWeapons();
 
 protected:
 	// Called when the game starts
