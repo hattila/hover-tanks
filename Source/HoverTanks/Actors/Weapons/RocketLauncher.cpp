@@ -33,6 +33,22 @@ void ARocketLauncher::BeginPlay()
 void ARocketLauncher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (RocketTargetHitResult.IsValidBlockingHit())
+	{
+		FVector HitLocation;
+		
+		if (AHoverTank* HoverTank = Cast<AHoverTank>(RocketTargetHitResult.GetActor()))
+		{
+			HitLocation = HoverTank->GetActorLocation();
+		}
+		else
+		{
+			HitLocation = RocketTargetHitResult.Location;
+		}
+
+		DrawDebugSphere(GetWorld(), HitLocation,200,12, FColor::Blue,false,0);
+	}
 }
 
 void ARocketLauncher::Fire()
@@ -42,44 +58,14 @@ void ARocketLauncher::Fire()
 		return;
 	}
 
-	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), RocketTargetLocation is %s"), *RocketTargetLocation.ToString());
-
-	// if RocketTargetLocation is not a null vector
-	if (RocketTargetLocation == FVector::ZeroVector)
-	{
-		RocketTargetLocationComponent = nullptr;
-	}
-	else
-	{
-		RocketTargetLocationComponent = NewObject<USceneComponent>(this, TEXT("RocketTargetLocationComponent"));
-		RocketTargetLocationComponent->SetWorldLocation(RocketTargetLocation);
-
-		// draw a debug sphere at RocketTargetLocation
-		DrawDebugSphere(
-			GetWorld(),
-			RocketTargetLocation,
-			200,
-			12,
-			FColor::Blue,
-			false,
-			2
-		);
-	}
 	
-
-	// create TimerHandle params
 	FTimerDelegate FireTimerDelegate = FTimerDelegate::CreateUObject(
 		this,
-		&ARocketLauncher::BurstFire,
-		RocketTargetLocationComponent
+		&ARocketLauncher::BurstFire
 	);
-	
-	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), my Owner is %s"), *GetOwner()->GetName());
 
-	// GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ARocketLauncher::BurstFire, TimeBetweenShots, true, 0);
 	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, FireTimerDelegate, TimeBetweenShots, true, 0);
-	
-	// SpawnProjectile();
+
 	bIsOnCooldown = true;
 	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
 }
@@ -90,7 +76,7 @@ void ARocketLauncher::ClearFireCooldownTimer()
 	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
 }
 
-void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent)
+void ARocketLauncher::BurstFire()
 {
 	if (CurrentFireCount >= MaxBurstFireCount)
 	{
@@ -99,7 +85,7 @@ void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent
 		return;
 	}
 
-	SpawnProjectile(InRocketTargetLocationComponent);
+	SpawnProjectile(RocketTargetHitResult);
 	CurrentFireCount++;
 }
 
@@ -108,22 +94,16 @@ void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent
  * not replicated to Clients. The only way I found around this is to spawn the projectile on the clients as well, and do
  * not replicate the movement component. This is not viable however because of the changed properties on the server.
  */
-void ARocketLauncher::SpawnProjectile(USceneComponent* InRocketTargetLocationComponent)
+void ARocketLauncher::SpawnProjectile(const FHitResult& InTargetHitResult) const
 {
 	if (!HasAuthority())
 	{
 		return;
 	}
 
-	// create a transform form SpawnLocation and SpawnRotation
 	FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
-
 	ARocketProjectile* Projectile = GetWorld()->SpawnActorDeferred<ARocketProjectile>(ARocketProjectile::StaticClass(), SpawnTransform, GetOwner(), GetOwner()->GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-
-	if (InRocketTargetLocationComponent)
-	{
-		Projectile->SetRocketTargetLocationComponent(InRocketTargetLocationComponent);
-	}
 	
+	Projectile->SetRocketTargetHitResult(InTargetHitResult);
 	Projectile->FinishSpawning(SpawnTransform);
 }

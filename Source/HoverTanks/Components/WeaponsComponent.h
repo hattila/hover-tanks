@@ -29,7 +29,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void AttemptToShoot(const FVector& LocationUnderTheCrosshair);
+	// void AttemptToShoot(const FVector& LocationUnderTheCrosshair);
+	void AttemptToShoot(const FHitResult& Hit);
 	
 	void SwitchToNextWeapon();
 	void SwitchToPrevWeapon();
@@ -70,7 +71,7 @@ private:
 	ARocketLauncher* RocketLauncher = nullptr;
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerAttemptToShootRocketLauncher(const FVector& LocationUnderTheCrosshair);
+	void ServerAttemptToShootRocketLauncher(const FHitResult& Hit);
 
 	/**
 	 * Weapon switching

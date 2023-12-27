@@ -224,7 +224,7 @@ void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
 	OnTankDeath.Broadcast();
 }
 
-FVector AHoverTank::FindTargetLocationAtCrosshair() const
+FHitResult AHoverTank::FindTargetAtCrosshair() const
 {
 	FHitResult Hit;
 	FVector Start = Camera->GetComponentLocation();
@@ -235,9 +235,14 @@ FVector AHoverTank::FindTargetLocationAtCrosshair() const
 	// line trace with the custom FindTarget channel
 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel2, Params);
 
-	UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetName() : TEXT("null"));
+	// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s, compoent type is %s \n Hit Actor: %s, actor type is %s"),
+	// 	Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetName() : TEXT("null"),
+	// 	Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetClass()->GetName() : TEXT("null"),
+	// 	Hit.IsValidBlockingHit() ? *Hit.GetActor()->GetName() : TEXT("null"),
+	// 	Hit.IsValidBlockingHit() ? *Hit.GetActor()->GetClass()->GetName() : TEXT("null")
+	// );
 	
-	return Hit.Location;
+	return Hit;
 }
 
 // Called when the game starts or when spawned
@@ -421,8 +426,9 @@ void AHoverTank::ShootStarted()
 	
 	if (WeaponsComponent)
 	{
-		FVector LocationUnderTheCrosshair = FindTargetLocationAtCrosshair();
-		WeaponsComponent->AttemptToShoot(LocationUnderTheCrosshair);
+		// FVector LocationUnderTheCrosshair = FindTargetLocationAtCrosshair();
+		FHitResult Hit = FindTargetAtCrosshair();
+		WeaponsComponent->AttemptToShoot(Hit);
 	}
 }
 
@@ -522,9 +528,13 @@ void AHoverTank::DebugDrawSphereAsCrosshair() const
 	// Params.AddIgnoredActor(this);
 	// GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
 
-	FVector HitLocation = FindTargetLocationAtCrosshair();
+	const FHitResult Hit = FindTargetAtCrosshair();
+	if (Hit.IsValidBlockingHit())
+	{
+		const FVector HitLocation = Hit.Location;
 
-	// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
-	float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
-	DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
+		// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
+		float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
+		DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
+	}
 }

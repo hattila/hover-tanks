@@ -89,7 +89,8 @@ void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
-void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
+// void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
+void UWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
 {
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
@@ -100,7 +101,8 @@ void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
 				ServerAttemptToShoot();
 				break;
 			case EAvailableWeapons::RocketLauncher:
-				ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
+				// ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
+				ServerAttemptToShootRocketLauncher(Hit);
 				break;
 			default:
 			return;
@@ -170,18 +172,18 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	
 }
 
-void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const FVector& LocationUnderTheCrosshair)
+void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const FHitResult& Hit)
 {
 	if (RocketLauncher == nullptr)
 	{
 		return;
 	}
 
-	RocketLauncher->SetRocketTargetLocation(LocationUnderTheCrosshair);
+	RocketLauncher->SetRocketTargetHitResult(Hit);
 	RocketLauncher->Fire();
 }
 
-bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FVector& LocationUnderTheCrosshair)
+bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitResult& Hit)
 {
 	return true;
 }

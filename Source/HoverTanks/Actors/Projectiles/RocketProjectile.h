@@ -20,7 +20,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void SetRocketTargetLocationComponent(USceneComponent* InRocketTargetLocationComponent) { RocketTargetLocationComponent = InRocketTargetLocationComponent; }
+	void SetRocketTargetHitResult(const FHitResult& Hit) { RocketTargetHitResult = Hit; }
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true"))
@@ -65,9 +65,7 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastDeactivateRocket();
 
-	
-	USceneComponent* RocketTargetLocationComponent = nullptr;
-
+	FHitResult RocketTargetHitResult;
 	FTimerHandle DelayedHomingTargetTimerHandle;
 	void SetHomingTargetDelayed();
 };

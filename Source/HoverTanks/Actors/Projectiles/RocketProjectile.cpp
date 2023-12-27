@@ -5,6 +5,7 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "HoverTanks/HoverTank.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -137,13 +138,25 @@ void ARocketProjectile::DoDestroy()
 
 void ARocketProjectile::SetHomingTargetDelayed()
 {
-	if (RocketTargetLocationComponent == nullptr)
+	if (!RocketTargetHitResult.IsValidBlockingHit())
 	{
 		return;
 	}
 
 	ProjectileMovementComponent->bIsHomingProjectile = true;
-	ProjectileMovementComponent->HomingTargetComponent = RocketTargetLocationComponent;
+
+	// should be targetable interface
+	if (AHoverTank* HoverTank = Cast<AHoverTank>(RocketTargetHitResult.GetActor()))
+	{
+		ProjectileMovementComponent->HomingTargetComponent = HoverTank->GetRootComponent();
+	}
+	else
+	{
+		USceneComponent* RocketTargetLocationComponent = NewObject<USceneComponent>(this, TEXT("RocketTargetLocationComponent"));
+		RocketTargetLocationComponent->SetWorldLocation(RocketTargetHitResult.Location);
+		
+		ProjectileMovementComponent->HomingTargetComponent = RocketTargetLocationComponent;
+	}
 }
 
 void ARocketProjectile::MulticastDeactivateRocket_Implementation()

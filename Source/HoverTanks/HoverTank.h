@@ -77,7 +77,7 @@ public:
 	UFUNCTION(Client, Unreliable)
 	void ClientBroadcastOnTankDeath();
 
-	FVector FindTargetLocationAtCrosshair() const;
+	FHitResult FindTargetAtCrosshair() const;
 	
 protected:
 	// Called when the game starts or when spawned
