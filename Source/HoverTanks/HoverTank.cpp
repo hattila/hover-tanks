@@ -235,6 +235,8 @@ FVector AHoverTank::FindTargetLocationAtCrosshair() const
 	// line trace with the custom FindTarget channel
 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel2, Params);
 
+	UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetName() : TEXT("null"));
+	
 	return Hit.Location;
 }
 

@@ -14,7 +14,7 @@ ARocketLauncher::ARocketLauncher()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketLauncherMesh"));
-	BaseMesh->SetupAttachment(RootComponent);
+	RootComponent = BaseMesh;
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
 	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
@@ -42,7 +42,7 @@ void ARocketLauncher::Fire()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), RocketTargetLocation is %s"), *RocketTargetLocation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::Fire(), RocketTargetLocation is %s"), *RocketTargetLocation.ToString());
 
 	// if RocketTargetLocation is not a null vector
 	if (RocketTargetLocation == FVector::ZeroVector)

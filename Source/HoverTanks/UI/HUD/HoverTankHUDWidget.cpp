@@ -29,7 +29,7 @@ void UHoverTankHUDWidget::OnHealthChangeHandler(const float InHealth, const floa
 
 void UHoverTankHUDWidget::OnWeaponSwitchedHandler(int32 NewWeapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnWeaponSwitchedHandler, NewWeapon is %d"), NewWeapon);
+	// UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnWeaponSwitchedHandler, NewWeapon is %d"), NewWeapon);
 	
 	switch (NewWeapon)
 	{

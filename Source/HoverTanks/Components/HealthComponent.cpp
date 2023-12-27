@@ -66,7 +66,7 @@ void UHealthComponent::OnAnyDamage(
 		}
 		
 		Health -= Damage;
-		UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
+		// UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
 
 		AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 		if (HoverTank == nullptr)

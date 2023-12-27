@@ -406,7 +406,7 @@ FVector UHoverTankMovementComponent::CalculateVerticalForceFromThrust(const FHov
 		
 		float AppliedUpwardForceMagnitude = MaximumUpwardForceMagnitude * PowerUsageMultiplier * HeightFalloffMultiplier;
 		
-		UE_LOG(LogTemp, Warning, TEXT("DST: %f, HFM: %f, PUM: %f \n Applied force magnitude: %f"), DistanceFromGround, HeightFalloffMultiplier, PowerUsageMultiplier, AppliedUpwardForceMagnitude);
+		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, HFM: %f, PUM: %f \n Applied force magnitude: %f"), DistanceFromGround, HeightFalloffMultiplier, PowerUsageMultiplier, AppliedUpwardForceMagnitude);
 
 		FVector AppliedUpwardForce = FVector(0, 0, 1) * AppliedUpwardForceMagnitude;
 		

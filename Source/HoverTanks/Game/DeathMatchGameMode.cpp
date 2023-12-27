@@ -52,7 +52,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
 
 	APlayerController* DeadPlayerController = Cast<APlayerController>(DeadHoverTank->GetController());
 	if (DeadPlayerController)
@@ -112,7 +112,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 void ADeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay %d"), MatchTimeInSeconds);
+	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay %d"), MatchTimeInSeconds);
 
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
