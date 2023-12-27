@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "RocketLauncher.generated.h"
 
+class ARocketProjectile;
+
 UCLASS()
 class HOVERTANKS_API ARocketLauncher : public AActor
 {

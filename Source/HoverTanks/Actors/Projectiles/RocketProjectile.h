@@ -20,10 +20,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void SetHomingTarget(USceneComponent* SceneComponent) const { ProjectileMovementComponent->HomingTargetComponent = SceneComponent; }
-	void SetIsHoming(const bool bIsHoming) const { ProjectileMovementComponent->bIsHomingProjectile = bIsHoming; }
-	void SetProjectileSpeed(const float Speed) const { ProjectileMovementComponent->InitialSpeed = Speed; }
-
+	void SetRocketTargetLocationComponent(USceneComponent* InRocketTargetLocationComponent) { RocketTargetLocationComponent = InRocketTargetLocationComponent; }
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true"))
 	float Damage = 40;
@@ -37,6 +35,9 @@ protected:
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
 
 private:
+	/**
+	 * Base Projectile
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* SphereCollider;
 
@@ -50,6 +51,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	/**
+	 * Rocket spec
+	 */
+
 	UNiagaraComponent* SmokeTrailFX = nullptr;
 
 	FTimerHandle DestroyTimerHandle;
@@ -59,4 +64,10 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastDeactivateRocket();
+
+	
+	USceneComponent* RocketTargetLocationComponent = nullptr;
+
+	FTimerHandle DelayedHomingTargetTimerHandle;
+	void SetHomingTargetDelayed();
 };

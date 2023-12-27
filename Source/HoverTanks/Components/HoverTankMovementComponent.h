@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankMovementComponent.generated.h"
 
+class ARocketLauncher;
 class UBoxComponent;
 
 USTRUCT()
@@ -178,6 +179,11 @@ private:
 
 	FHoverTankCannonRotate LastCannonRotate;
 	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation);
+
+	// /**
+	//  * Experiment
+	//  */
+	// ARocketLauncher* RocketLauncher = nullptr;
 
 	/**
 	 * Helper Functions

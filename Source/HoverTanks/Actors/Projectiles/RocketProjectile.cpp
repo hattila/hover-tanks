@@ -81,6 +81,13 @@ void ARocketProjectile::BeginPlay()
 	{
 		SphereCollider->OnComponentHit.AddDynamic(this, &ARocketProjectile::OnHit);
 		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ARocketProjectile::OnOverlap);
+
+		const FTimerDelegate IncreaseSpeedTimerDelegate = FTimerDelegate::CreateUObject(
+			this,
+			&ARocketProjectile::SetHomingTargetDelayed
+		);
+
+		GetWorld()->GetTimerManager().SetTimer(DelayedHomingTargetTimerHandle, IncreaseSpeedTimerDelegate,1,false, 1.f);
 	}
 }
 
@@ -126,6 +133,17 @@ void ARocketProjectile::DoDestroy()
 {
 	GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
 	Destroy();
+}
+
+void ARocketProjectile::SetHomingTargetDelayed()
+{
+	if (RocketTargetLocationComponent == nullptr)
+	{
+		return;
+	}
+
+	ProjectileMovementComponent->bIsHomingProjectile = true;
+	ProjectileMovementComponent->HomingTargetComponent = RocketTargetLocationComponent;
 }
 
 void ARocketProjectile::MulticastDeactivateRocket_Implementation()

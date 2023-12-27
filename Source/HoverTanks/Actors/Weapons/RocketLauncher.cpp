@@ -87,7 +87,7 @@ void ARocketLauncher::Fire()
 void ARocketLauncher::ClearFireCooldownTimer()
 {
 	bIsOnCooldown = false;
-	UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
+	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
 }
 
 void ARocketLauncher::BurstFire(USceneComponent* InRocketTargetLocationComponent)
@@ -122,19 +122,8 @@ void ARocketLauncher::SpawnProjectile(USceneComponent* InRocketTargetLocationCom
 
 	if (InRocketTargetLocationComponent)
 	{
-		Projectile->SetIsHoming(true);	
-	}
-	else
-	{
-		Projectile->SetHomingTarget(nullptr);
-		Projectile->SetIsHoming(false);
-		Projectile->SetProjectileSpeed(10000);
+		Projectile->SetRocketTargetLocationComponent(InRocketTargetLocationComponent);
 	}
 	
 	Projectile->FinishSpawning(SpawnTransform);
-
-	if (InRocketTargetLocationComponent)
-	{
-		Projectile->SetHomingTarget(InRocketTargetLocationComponent);
-	}
 }
