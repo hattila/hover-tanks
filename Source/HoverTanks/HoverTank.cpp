@@ -8,12 +8,14 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
 
+class UNiagaraSystem;
 // Sets default values
 AHoverTank::AHoverTank()
 {
@@ -108,6 +110,21 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
+	/**
+	 * FX
+	 */
+	// setup the burning fx
+
+	BurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
+	BurningFX->SetupAttachment(RootComponent);
+	BurningFX->SetAutoActivate(false);
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
+	UNiagaraSystem* BurningEmitterObject = BurningEmitterAsset.Object;
+	BurningFX->SetAsset(BurningEmitterObject);
+	BurningFX->SetRelativeLocation(FVector(-140.f, 0.f, 40.f));
+
+	BurningFX->SetIsReplicated(true);
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -205,9 +222,15 @@ void AHoverTank::OnDeath()
 	ClientBroadcastOnTankDeath(); // eg: notify the HUD
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	
-	// spawn explosion
+
+	MulticastActivateBurningFX();
+
 	// changed the mesh to a wreckage
+}
+
+void AHoverTank::MulticastActivateBurningFX_Implementation()
+{
+	BurningFX->Activate();
 }
 
 bool AHoverTank::IsDead() const

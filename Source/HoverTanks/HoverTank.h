@@ -9,6 +9,7 @@
 #include "HoverTank.generated.h"
 
 
+class UNiagaraComponent;
 class UHoverTankHUDWidget;
 class USphereComponent;
 class UHealthComponent;
@@ -167,6 +168,15 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
+	
+	/**
+	 * FX
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FX", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* BurningFX = nullptr;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastActivateBurningFX();
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
