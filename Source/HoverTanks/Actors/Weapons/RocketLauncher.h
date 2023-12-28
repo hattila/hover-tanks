@@ -15,7 +15,6 @@ class HOVERTANKS_API ARocketLauncher : public AActor
 
 public:
 	ARocketLauncher();
-
 	virtual void Tick(float DeltaTime) override;
 
 	void SetRocketTargetHitResult(const FHitResult& Hit) const { RocketTargetHitResult = Hit; }
@@ -46,6 +45,7 @@ private:
 	void SpawnProjectile(const FHitResult& InTargetHitResult) const;
 
 	FVector RocketTargetLocation = FVector::ZeroVector;
+	
 	FHitResult& RocketTargetHitResult = *(new FHitResult());
 	USceneComponent* RocketTargetLocationComponent = nullptr;
 };

@@ -39,6 +39,7 @@ AHoverTank::AHoverTank()
 	HealthComponent->SetIsReplicated(true);
 
 	WeaponsComponent = CreateDefaultSubobject<UWeaponsComponent>(TEXT("Weapons Component"));
+	WeaponsComponent->SetIsReplicated(true);
 
 	/**
 	 * Create Visible Components

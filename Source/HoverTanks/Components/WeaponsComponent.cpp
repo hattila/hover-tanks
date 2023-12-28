@@ -6,6 +6,7 @@
 #include "HoverTanks/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/CannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
@@ -15,6 +16,11 @@ UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(
 	PrimaryComponentTick.bCanEverTick = true;
 
 	ProjectileClass = ACannonProjectile::StaticClass();
+}
+
+void UWeaponsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void UWeaponsComponent::SwitchToNextWeapon()
@@ -85,6 +91,12 @@ void UWeaponsComponent::BeginPlay()
 void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+
+	if (ClientRocketLauncherTarget.IsValidBlockingHit())
+	{
+		ShowRocketTarget(ClientRocketLauncherTarget);
+	}
 
 	// ...
 }
@@ -180,10 +192,38 @@ void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const 
 	}
 
 	RocketLauncher->SetRocketTargetHitResult(Hit);
+	MulticastShowRocketTarget(Hit);
+
 	RocketLauncher->Fire();
 }
 
 bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitResult& Hit)
 {
 	return true;
+}
+
+void UWeaponsComponent::MulticastShowRocketTarget_Implementation(const FHitResult& Hit)
+{
+	ClientRocketLauncherTarget = Hit;
+}
+
+void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
+{
+	if (Hit.IsValidBlockingHit())
+	{
+		FVector HitLocation;
+		
+		if (AHoverTank* HoverTank = Cast<AHoverTank>(Hit.GetActor()))
+		{
+			HitLocation = HoverTank->GetActorLocation();
+		}
+		else
+		{
+			HitLocation = Hit.Location;
+		}
+
+		// show the debug sphere to the owning client only
+		// ShowTargetIndicator(HitLocation);
+		DrawDebugSphere(GetWorld(), HitLocation,200,12, FColor::Red,false,0);
+	}
 }

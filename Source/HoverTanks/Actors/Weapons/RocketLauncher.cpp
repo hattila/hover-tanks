@@ -33,22 +33,6 @@ void ARocketLauncher::BeginPlay()
 void ARocketLauncher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (RocketTargetHitResult.IsValidBlockingHit())
-	{
-		FVector HitLocation;
-		
-		if (AHoverTank* HoverTank = Cast<AHoverTank>(RocketTargetHitResult.GetActor()))
-		{
-			HitLocation = HoverTank->GetActorLocation();
-		}
-		else
-		{
-			HitLocation = RocketTargetHitResult.Location;
-		}
-
-		DrawDebugSphere(GetWorld(), HitLocation,200,12, FColor::Blue,false,0);
-	}
 }
 
 void ARocketLauncher::Fire()

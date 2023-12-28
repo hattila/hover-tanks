@@ -25,6 +25,9 @@ public:
 	// Sets default values for this component's properties
 	UWeaponsComponent();
 
+	// replication
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -77,4 +80,17 @@ private:
 	 * Weapon switching
 	 */
 	EAvailableWeapons CurrentWeapon = EAvailableWeapons::Cannon;
+
+
+	// UPROPERTY(Replicated)
+	// FHitResult& RocketLauncherTarget = *(new FHitResult());
+	
+	FHitResult& ClientRocketLauncherTarget = *(new FHitResult());
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastShowRocketTarget(const FHitResult& Hit);
+
+	
+
+	void ShowRocketTarget(const FHitResult& Hit) const;
 };
