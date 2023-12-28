@@ -3,6 +3,7 @@
 
 #include "CannonProjectile.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,6 +14,8 @@ ACannonProjectile::ACannonProjectile()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	SetReplicatingMovement(true);
+	bAlwaysRelevant = true;
 
 	// set actor lifetime to 3 seconds
 	InitialLifeSpan = 3.f;
@@ -52,6 +55,11 @@ ACannonProjectile::ACannonProjectile()
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveCannonProjectileMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveCannonProjectile"));
 	UMaterialInstance* EmissiveCannonProjectileMaterialObject = EmissiveCannonProjectileMaterialAsset.Object;
 	ProjectileMesh->SetMaterial(0, EmissiveCannonProjectileMaterialObject);
+
+	// setup the explosion FX
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Explosion"));
+	UNiagaraSystem* ExplosionEmitterObject = ExplosionEmitterAsset.Object;
+	ExplosionFX = ExplosionEmitterObject;
 }
 
 // Called when the game starts or when spawned
@@ -87,7 +95,8 @@ void ACannonProjectile::OnHit(
 	
 	if (BounceCount > 1)
 	{
-		Destroy();
+		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
+		DelayedDestroy();
 	}
 }
 
@@ -102,12 +111,14 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	AActor* MyOwner = GetOwner();
 	if (MyOwner == nullptr)
 	{
-		Destroy();
+		DelayedDestroy();
 		return;
 	}
 
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
+		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
+		
 		// apply damage to the OtherActor
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
@@ -118,6 +129,39 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 		);
 
 		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
-		Destroy();
+		DelayedDestroy();
 	}
+}
+
+void ACannonProjectile::DelayedDestroy()
+{
+	FTimerHandle DestroyTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this, &ACannonProjectile::DoDestroy,1,false, 1.f);
+
+	MulticastDeactivateProjectile();
+}
+
+void ACannonProjectile::DoDestroy()
+{
+	Destroy();
+}
+
+void ACannonProjectile::MulticastDeactivateProjectile_Implementation()
+{
+	SphereCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SphereCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	ProjectileMesh->SetVisibility(false, true);
+}
+
+void ACannonProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ACannonProjectile::MulticastSpawnExplosionFX_Implementation()"));
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		ExplosionFX,
+		Location,
+		Rotation
+	);
 }

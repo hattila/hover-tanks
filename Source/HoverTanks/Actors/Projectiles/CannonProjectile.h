@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "CannonProjectile.generated.h"
 
+class UNiagaraSystem;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -50,4 +51,17 @@ private:
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	float BounceCount = 0;
+
+
+	void DelayedDestroy();
+	void DoDestroy();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastDeactivateProjectile();
+	
+
+	UNiagaraSystem* ExplosionFX = nullptr;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastSpawnExplosionFX(FVector Location, FRotator Rotation);
 };
