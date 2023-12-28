@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
-#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "HealthPickup.generated.h"
 
@@ -40,4 +39,12 @@ private:
 
 	void DelayedDestroy();
 	void DoDestroy();
+
+	UPROPERTY(Replicated)
+	bool bIsSpawningIn = false;
+	void SpawnInComplete();
+
+	void SpawnInAnimation(float DeltaTime) const;
+	void FloatingAnimation(float DeltaTime) const;
+	void DeSpawnAnimation(float DeltaTime) const;
 };

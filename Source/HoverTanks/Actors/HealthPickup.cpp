@@ -52,31 +52,21 @@ void AHealthPickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bIsPickedUp)
+	if (bIsSpawningIn)
 	{
-		FVector NewLocation = PickupMesh->GetComponentLocation();
-		NewLocation.Z = InitialZ + FMath::Sin(GetGameTimeSinceCreation() * 2) * 50.0f; // Adjust the amplitude as needed
-		PickupMesh->SetWorldLocation(NewLocation);
-
-		// rotate the mesh constantly
-		FRotator NewRotation = PickupMesh->GetComponentRotation();
-		NewRotation.Yaw += DeltaTime * 100.0f;
-		PickupMesh->SetWorldRotation(NewRotation);	
+		SpawnInAnimation(DeltaTime);
+	}
+	
+	if (!bIsPickedUp && !bIsSpawningIn)
+	{
+		FloatingAnimation(DeltaTime);
 	}
 
 	if (bIsPickedUp)
 	{
-		// gradually set the scale to 0.1
-		FVector NewScale = PickupMesh->GetComponentScale();
-		NewScale.X = FMath::Lerp(NewScale.X, .05f, DeltaTime * 2);
-		NewScale.Y = FMath::Lerp(NewScale.Y, .05f, DeltaTime * 2);
-		NewScale.Z = FMath::Lerp(NewScale.Z, .05f, DeltaTime * 2);
-		PickupMesh->SetWorldScale3D(NewScale);
-
-		FVector NewHeight = PickupMesh->GetComponentLocation();
-		NewHeight.Z = FMath::Lerp(NewHeight.Z, InitialZ + 400.0f, DeltaTime * 3);
-		PickupMesh->SetWorldLocation(NewHeight);
+		DeSpawnAnimation(DeltaTime);
 	}
+	
 }
 
 void AHealthPickup::BeginPlay()
@@ -88,6 +78,16 @@ void AHealthPickup::BeginPlay()
 	if (HasAuthority())
 	{
 		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHealthPickup::OnOverlapBegin);
+
+		bIsSpawningIn = true;
+		PickupMesh->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
+
+		FVector Height = PickupMesh->GetComponentLocation();
+		Height.Z = InitialZ + 400.0f;
+		PickupMesh->SetWorldLocation(Height);
+
+		FTimerHandle SpawnInTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(SpawnInTimerHandle, this, &AHealthPickup::SpawnInComplete, 1.0f, false);
 	}
 }
 
@@ -119,6 +119,49 @@ void AHealthPickup::DelayedDestroy()
 void AHealthPickup::DoDestroy()
 {
 	Destroy();
+}
+
+void AHealthPickup::SpawnInComplete()
+{
+	bIsSpawningIn = false;
+}
+
+void AHealthPickup::SpawnInAnimation(const float DeltaTime) const
+{
+	FVector NewScale = PickupMesh->GetComponentScale();
+	NewScale.X = FMath::Lerp(NewScale.X, 1.0f, DeltaTime * 2);
+	NewScale.Y = FMath::Lerp(NewScale.Y, 1.0f, DeltaTime * 2);
+	NewScale.Z = FMath::Lerp(NewScale.Z, 1.0f, DeltaTime * 2);
+	PickupMesh->SetWorldScale3D(NewScale);
+
+	FVector NewHeight = PickupMesh->GetComponentLocation();
+	NewHeight.Z = FMath::Lerp(NewHeight.Z, InitialZ, DeltaTime * 2);
+	PickupMesh->SetWorldLocation(NewHeight);
+}
+
+void AHealthPickup::FloatingAnimation(const float DeltaTime) const
+{
+	FVector NewLocation = PickupMesh->GetComponentLocation();
+	NewLocation.Z = InitialZ + FMath::Sin(GetGameTimeSinceCreation() * 2) * 50.0f; // Adjust the amplitude as needed
+	PickupMesh->SetWorldLocation(NewLocation);
+
+	// rotate the mesh constantly
+	FRotator NewRotation = PickupMesh->GetComponentRotation();
+	NewRotation.Yaw += DeltaTime * 100.0f;
+	PickupMesh->SetWorldRotation(NewRotation);	
+}
+
+void AHealthPickup::DeSpawnAnimation(const float DeltaTime) const
+{
+	FVector NewScale = PickupMesh->GetComponentScale();
+	NewScale.X = FMath::Lerp(NewScale.X, .05f, DeltaTime * 2);
+	NewScale.Y = FMath::Lerp(NewScale.Y, .05f, DeltaTime * 2);
+	NewScale.Z = FMath::Lerp(NewScale.Z, .05f, DeltaTime * 2);
+	PickupMesh->SetWorldScale3D(NewScale);
+
+	FVector NewHeight = PickupMesh->GetComponentLocation();
+	NewHeight.Z = FMath::Lerp(NewHeight.Z, InitialZ + 400.0f, DeltaTime * 3);
+	PickupMesh->SetWorldLocation(NewHeight);
 }
 
 
