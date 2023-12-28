@@ -188,7 +188,7 @@ void ARocketProjectile::MulticastDeactivateRocket_Implementation()
 
 void ARocketProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ARocketProjectile::MulticastSpawnExplosionFX_Implementation()"));
+	// UE_LOG(LogTemp, Warning, TEXT("ARocketProjectile::MulticastSpawnExplosionFX_Implementation()"));
 	
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 		GetWorld(),

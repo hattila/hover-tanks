@@ -156,7 +156,7 @@ void ACannonProjectile::MulticastDeactivateProjectile_Implementation()
 
 void ACannonProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ACannonProjectile::MulticastSpawnExplosionFX_Implementation()"));
+	// UE_LOG(LogTemp, Warning, TEXT("ACannonProjectile::MulticastSpawnExplosionFX_Implementation()"));
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 		GetWorld(),
