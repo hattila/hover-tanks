@@ -16,11 +16,7 @@ AHealthPickup::AHealthPickup()
 
 	// initialize the box collider
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
-	// todo: preset: pickup
-	// BoxCollider->SetCollisionObjectType(ECC_WorldDynamic);
-	BoxCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	BoxCollider->SetCollisionResponseToAllChannels(ECR_Ignore);
-	BoxCollider->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	BoxCollider->SetCollisionProfileName(TEXT("Pickup"));
 	
 	BoxCollider->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
 	RootComponent = BoxCollider;
