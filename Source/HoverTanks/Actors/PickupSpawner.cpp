@@ -13,7 +13,7 @@ APickupSpawner::APickupSpawner(): BoxCollider(nullptr), BaseMesh(nullptr)
 	// initialize the box collider
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
 	BoxCollider->SetCollisionProfileName(TEXT("PickupSpawner"));
-	BoxCollider->SetBoxExtent(FVector(100.0f, 100.0f, 100.0f));
+	BoxCollider->SetBoxExtent(FVector(100.0f, 100.0f, 200.0f));
 	RootComponent = BoxCollider;
 
 	// initialize the baseMesh as the engine cube
@@ -27,7 +27,7 @@ APickupSpawner::APickupSpawner(): BoxCollider(nullptr), BaseMesh(nullptr)
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	BaseMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -140.0f));
+	BaseMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -240.0f));
 
 	HealthPickupClass = AHealthPickup::StaticClass();
 }
@@ -78,7 +78,7 @@ void APickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AAct
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &APickupSpawner::SpawnPickup, ItemRespawnTime, false, ItemRespawnTime);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) the OtherActor was a %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) the OtherActor was a %s"), *OtherActor->GetName());
 }
 
 void APickupSpawner::SpawnPickup()
