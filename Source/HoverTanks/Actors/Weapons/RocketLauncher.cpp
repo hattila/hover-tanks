@@ -16,10 +16,19 @@ ARocketLauncher::ARocketLauncher()
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RocketLauncherMesh"));
 	RootComponent = BaseMesh;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/HoverTank/TankRocketLauncher"));
 	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
 	BaseMesh->SetStaticMesh(BaseMeshObject);
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	/**
+	 * Materials
+	 */
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
+	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
+	BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 }
 
 // Called when the game starts or when spawned
@@ -86,7 +95,10 @@ void ARocketLauncher::SpawnProjectile(const FHitResult& InTargetHitResult) const
 		return;
 	}
 
-	FTransform SpawnTransform = FTransform(GetActorRotation(), GetActorLocation());
+	// find SocketLocation named RocketSpawnPoint
+	FVector RocketSpawnPoint = BaseMesh->GetSocketLocation("RocketSpawnPoint");
+	
+	FTransform SpawnTransform = FTransform(GetActorRotation(), RocketSpawnPoint);
 	ARocketProjectile* Projectile = GetWorld()->SpawnActorDeferred<ARocketProjectile>(ARocketProjectile::StaticClass(), SpawnTransform, GetOwner(), GetOwner()->GetInstigator(), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	
 	Projectile->SetRocketTargetHitResult(InTargetHitResult);
