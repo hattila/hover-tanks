@@ -68,4 +68,8 @@ private:
 	FHitResult RocketTargetHitResult;
 	FTimerHandle DelayedHomingTargetTimerHandle;
 	void SetHomingTargetDelayed();
+
+	UNiagaraSystem* ExplosionFX = nullptr;
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastSpawnExplosionFX(FVector Location, FRotator Rotation);
 };

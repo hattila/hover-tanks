@@ -7,6 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "HoverTanks/HoverTank.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 ARocketProjectile::ARocketProjectile()
@@ -66,14 +67,22 @@ ARocketProjectile::ARocketProjectile()
 	SmokeTrailFX->SetupAttachment(RootComponent);
 	SmokeTrailFX->SetAutoActivate(true);
 
-	// find and initialize the smoke trail emitter: P_SmokeTrail
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> SmokeTrailEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_SmokeTrail"));
 	UNiagaraSystem* SmokeTrailEmitterObject = SmokeTrailEmitterAsset.Object;
 	SmokeTrailFX->SetAsset(SmokeTrailEmitterObject);
+
+	// setup the explosion FX
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Explosion"));
+	UNiagaraSystem* ExplosionEmitterObject = ExplosionEmitterAsset.Object;
+	ExplosionFX = ExplosionEmitterObject;
 	
 }
 
-// Called when the game starts or when spawned
+void ARocketProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void ARocketProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -95,6 +104,8 @@ void ARocketProjectile::BeginPlay()
 void ARocketProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
+	
 	DelayedDestroy();	
 }
 
@@ -110,6 +121,9 @@ void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
+		// Create the Niagara System Explosion FX in at the hit location
+		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
+		
 		// apply damage to the OtherActor
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
@@ -172,9 +186,12 @@ void ARocketProjectile::MulticastDeactivateRocket_Implementation()
 	SmokeTrailFX->Deactivate();
 }
 
-// Called every frame
-void ARocketProjectile::Tick(float DeltaTime)
+void ARocketProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
-	Super::Tick(DeltaTime);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		ExplosionFX,
+		Location,
+		Rotation
+	);
 }
-
