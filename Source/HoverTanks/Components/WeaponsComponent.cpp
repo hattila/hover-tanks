@@ -192,9 +192,11 @@ void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const 
 	}
 
 	RocketLauncher->SetRocketTargetHitResult(Hit);
-	MulticastShowRocketTarget(Hit);
 
-	RocketLauncher->Fire();
+	if (RocketLauncher->Fire())
+	{
+		MulticastShowRocketTarget(Hit);
+	}
 }
 
 bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitResult& Hit)
@@ -205,6 +207,9 @@ bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitRe
 void UWeaponsComponent::MulticastShowRocketTarget_Implementation(const FHitResult& Hit)
 {
 	ClientRocketLauncherTarget = Hit;
+
+	FTimerHandle ClearTargetTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(ClearTargetTimerHandle, this, &UWeaponsComponent::ClearRocketTarget, 2.9f, false, 2.9f);
 }
 
 void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
@@ -226,4 +231,9 @@ void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 		// ShowTargetIndicator(HitLocation);
 		DrawDebugSphere(GetWorld(), HitLocation,200,12, FColor::Red,false,0);
 	}
+}
+
+void UWeaponsComponent::ClearRocketTarget()
+{
+	ClientRocketLauncherTarget = FHitResult();
 }

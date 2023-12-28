@@ -18,7 +18,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetRocketTargetHitResult(const FHitResult& Hit) const { RocketTargetHitResult = Hit; }
-	void Fire();
+	bool Fire();
 
 protected:
 	virtual void BeginPlay() override;

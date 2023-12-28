@@ -82,15 +82,15 @@ private:
 	EAvailableWeapons CurrentWeapon = EAvailableWeapons::Cannon;
 
 
-	// UPROPERTY(Replicated)
-	// FHitResult& RocketLauncherTarget = *(new FHitResult());
-	
+	/**
+	 * Rocket Launcher Target
+	 */
 	FHitResult& ClientRocketLauncherTarget = *(new FHitResult());
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastShowRocketTarget(const FHitResult& Hit);
-
-	
-
 	void ShowRocketTarget(const FHitResult& Hit) const;
+
+	// FTimerHandle RocketTargetTimerHandle;
+	void ClearRocketTarget();
 };

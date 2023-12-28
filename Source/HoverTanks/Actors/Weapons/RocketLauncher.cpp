@@ -35,13 +35,12 @@ void ARocketLauncher::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ARocketLauncher::Fire()
+bool ARocketLauncher::Fire()
 {
 	if (bIsOnCooldown)
 	{
-		return;
+		return false;
 	}
-
 	
 	FTimerDelegate FireTimerDelegate = FTimerDelegate::CreateUObject(
 		this,
@@ -52,6 +51,8 @@ void ARocketLauncher::Fire()
 
 	bIsOnCooldown = true;
 	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
+
+	return true;
 }
 
 void ARocketLauncher::ClearFireCooldownTimer()
