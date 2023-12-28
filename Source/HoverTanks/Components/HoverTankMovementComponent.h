@@ -134,10 +134,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float HoveringPowerUsageMultiplier = 1;
 	
-	/** Higher value means more loss of momentum on collision */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="1.0", ClampMax="3.0"))
-	float BounceDampening = 2.0f;
-	
 	float Throttle;
 	float Steering;
 	bool bIsEBraking = false;
