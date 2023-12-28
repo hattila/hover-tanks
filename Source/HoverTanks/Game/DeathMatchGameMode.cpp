@@ -47,7 +47,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	// use the DeathMatchHUD as default HUD
 	HUDClass = ADeathMatchHUD::StaticClass();
 
-	bUseSeamlessTravel = true;
+	bUseSeamlessTravel = false;
 }
 
 void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
