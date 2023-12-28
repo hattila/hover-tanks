@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "HealthPickup.generated.h"
 
@@ -14,6 +15,8 @@ class HOVERTANKS_API AHealthPickup : public AActor
 
 public:
 	AHealthPickup();
+	// replicateion
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void Tick(float DeltaTime) override;
 	
@@ -31,4 +34,10 @@ private:
 	UStaticMeshComponent* PickupMesh;
 
 	float InitialZ;
+
+	UPROPERTY(Replicated)
+	bool bIsPickedUp = false;
+
+	void DelayedDestroy();
+	void DoDestroy();
 };
