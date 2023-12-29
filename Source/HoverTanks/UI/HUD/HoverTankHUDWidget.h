@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DeathMatchHUD.h"
+#include "WeaponCooldownWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 #include "HoverTankHUDWidget.generated.h"
@@ -20,6 +21,9 @@ class HOVERTANKS_API UHoverTankHUDWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	// constructor
+	UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer);
+	
 	virtual bool Initialize() override;
 	
 	UFUNCTION()
@@ -46,6 +50,13 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UBorder* RocketsIndicator;
+
+	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
+	UWeaponCooldownWidget* CannonCooldownWidget = nullptr;
+	UWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
+	
+	UPROPERTY(meta=(BindWidget))
+	UWidgetSwitcher* WeaponCooldownIndicatorSwitch;
 
 	void RefreshHealth() const;
 };
