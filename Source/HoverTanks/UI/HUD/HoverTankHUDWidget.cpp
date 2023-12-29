@@ -73,6 +73,23 @@ void UHoverTankHUDWidget::OnHealthChangeHandler(const float InHealth, const floa
 	RefreshHealth();
 }
 
+void UHoverTankHUDWidget::OnWeaponFireHandler(const int32 WeaponIndex, const float CooldownTime)
+{
+	switch (WeaponIndex)
+	{
+		// case EAvailableWeapons::Cannon:
+		case 0:
+			CannonCooldownWidget->StartCooldownTimer(CooldownTime);
+		break;
+		// case EAvailableWeapons::RocketLauncher:
+		case 1:
+			RocketsCooldownWidget->StartCooldownTimer(CooldownTime);
+		break;
+	default:
+		return;
+	}
+}
+
 void UHoverTankHUDWidget::OnWeaponSwitchedHandler(int32 NewWeapon)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnWeaponSwitchedHandler, NewWeapon is %d"), NewWeapon);
@@ -83,11 +100,13 @@ void UHoverTankHUDWidget::OnWeaponSwitchedHandler(int32 NewWeapon)
 		case 0:
 			WeaponIndicatorSwitch->SetActiveWidget(CannonIndicator);
 			WeaponCooldownIndicatorSwitch->SetActiveWidget(CannonCooldownWidget);
+			// CannonCooldownWidget->StartCooldownTimer(1.0f);
 		break;
 		// case EAvailableWeapons::RocketLauncher:
 		case 1:
 			WeaponIndicatorSwitch->SetActiveWidget(RocketsIndicator);
 			WeaponCooldownIndicatorSwitch->SetActiveWidget(RocketsCooldownWidget);
+			// RocketsCooldownWidget->StartCooldownTimer(3.0f);
 		break;
 	default:
 		return;

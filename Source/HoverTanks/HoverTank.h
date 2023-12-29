@@ -80,6 +80,8 @@ public:
 
 	FHitResult FindTargetAtCrosshair() const;
 	
+	UWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -9,6 +9,9 @@
 class ARocketLauncher;
 class ACannonProjectile;
 
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRocketLauncherFireDelegate, float, CooldownTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponFireDelegate, int32, WeaponIndex, float, CooldownTime);
+
 UENUM()
 enum EAvailableWeapons
 {
@@ -22,13 +25,12 @@ class HOVERTANKS_API UWeaponsComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
+	FOnWeaponFireDelegate OnWeaponFire;
+
 	UWeaponsComponent();
 
-	// replication
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
@@ -93,4 +95,7 @@ private:
 
 	// FTimerHandle RocketTargetTimerHandle;
 	void ClearRocketTarget();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientOnFire(int32 WeaponIndex, float CooldownTime);
 };

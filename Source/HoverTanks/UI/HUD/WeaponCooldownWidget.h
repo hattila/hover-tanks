@@ -16,9 +16,25 @@ class HOVERTANKS_API UWeaponCooldownWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetProgressBarPercent(float InPercent) const;
+	// constructor
+	UWeaponCooldownWidget(const FObjectInitializer& ObjectInitializer);
+
+	virtual bool Initialize() override;
 	
+	void StartCooldownTimer(float InCooldownTime);
+	void SetProgressBarPercent(const float InPercent) const { ProgressBar->SetPercent(InPercent); }
+
 private:
 	UPROPERTY(meta=(BindWidget))
 	UProgressBar* ProgressBar;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* CooldownAnimation;
+
+	UPROPERTY(Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* ShowAnimation;
+
+	float CooldownTime = 0.0f;
+
+	void HideDelayed();
 };

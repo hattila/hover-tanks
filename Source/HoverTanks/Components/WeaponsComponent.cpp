@@ -136,6 +136,8 @@ void UWeaponsComponent::ServerAttemptToShoot_Implementation()
 	SpawnProjectile();
 	bIsMainCannonOnCooldown = true;
 	GetWorld()->GetTimerManager().SetTimer(MainCannonCooldownTimerHandle, this, &UWeaponsComponent::ClearMainCannonCooldown, 1.f, false, 1.f);
+
+	ClientOnFire(0, 1);
 }
 
 bool UWeaponsComponent::ServerAttemptToShoot_Validate()
@@ -195,6 +197,7 @@ void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const 
 
 	if (RocketLauncher->Fire())
 	{
+		ClientOnFire(1, RocketLauncher->GetFireCooldownTime());
 		MulticastShowRocketTarget(Hit);
 	}
 }
@@ -236,4 +239,10 @@ void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 void UWeaponsComponent::ClearRocketTarget()
 {
 	ClientRocketLauncherTarget = FHitResult();
+}
+
+
+void UWeaponsComponent::ClientOnFire_Implementation(int32 WeaponIndex, float CooldownTime)
+{
+	OnWeaponFire.Broadcast(WeaponIndex, CooldownTime);
 }

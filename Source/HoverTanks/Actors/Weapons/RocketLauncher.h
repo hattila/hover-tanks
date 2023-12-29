@@ -19,6 +19,7 @@ public:
 
 	void SetRocketTargetHitResult(const FHitResult& Hit) const { RocketTargetHitResult = Hit; }
 	bool Fire();
+	float GetFireCooldownTime() const { return FireCooldownTime; }
 
 protected:
 	virtual void BeginPlay() override;

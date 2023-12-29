@@ -28,7 +28,10 @@ public:
 	
 	UFUNCTION()
 	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
-	
+
+	UFUNCTION()
+	void OnWeaponFireHandler(int32 WeaponIndex, float CooldownTime);
+
 	UFUNCTION()
 	void OnWeaponSwitchedHandler(int32 NewWeapon);
 
