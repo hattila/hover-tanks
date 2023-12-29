@@ -6,6 +6,7 @@
 #include "DeathMatchHUD.h"
 #include "WeaponCooldownWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/HorizontalBox.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 #include "HoverTankHUDWidget.generated.h"
 
@@ -57,9 +58,9 @@ private:
 	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
 	UWeaponCooldownWidget* CannonCooldownWidget = nullptr;
 	UWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
-	
+
 	UPROPERTY(meta=(BindWidget))
-	UWidgetSwitcher* WeaponCooldownIndicatorSwitch;
+	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;
 
 	void RefreshHealth() const;
 };

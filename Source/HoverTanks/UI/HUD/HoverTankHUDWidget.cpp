@@ -3,7 +3,9 @@
 
 #include "HoverTankHUDWidget.h"
 
+#include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
+#include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
@@ -14,8 +16,7 @@ UHoverTankHUDWidget::UHoverTankHUDWidget(const FObjectInitializer& ObjectInitial
 	MaxHealthText(nullptr),
 	WeaponIndicatorSwitch(nullptr),
 	CannonIndicator(nullptr),
-	RocketsIndicator(nullptr),
-	WeaponCooldownIndicatorSwitch(nullptr)
+	RocketsIndicator(nullptr)
 {
 	// get the blueprint version of the weapon cooldown widget class
 	static ConstructorHelpers::FClassFinder<UUserWidget> WeaponCooldownWidgetClassFinder(
@@ -47,14 +48,15 @@ bool UHoverTankHUDWidget::Initialize()
 		return false;
 	}
 
-	CannonCooldownWidget->SetProgressBarPercent(0.2f);
-	RocketsCooldownWidget->SetProgressBarPercent(0.6f);
+	// set their widths to 15
+	CannonCooldownWidget->SetDesiredSizeInViewport(FVector2d(15, 75));
 
-	// add them to the switcher
-	WeaponCooldownIndicatorSwitch->AddChild(CannonCooldownWidget);
-	WeaponCooldownIndicatorSwitch->AddChild(RocketsCooldownWidget);
-
-	WeaponCooldownIndicatorSwitch->SetActiveWidget(CannonCooldownWidget);
+	WeaponCooldownIndicatorsContainer->AddChild(CannonCooldownWidget);
+	// add a spacer
+	USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
+	Spacer->SetSize(FVector2d(5, 5));
+	WeaponCooldownIndicatorsContainer->AddChild(Spacer);
+	WeaponCooldownIndicatorsContainer->AddChild(RocketsCooldownWidget);
 	
 	return true;
 }
@@ -99,14 +101,10 @@ void UHoverTankHUDWidget::OnWeaponSwitchedHandler(int32 NewWeapon)
 		// case EAvailableWeapons::Cannon:
 		case 0:
 			WeaponIndicatorSwitch->SetActiveWidget(CannonIndicator);
-			WeaponCooldownIndicatorSwitch->SetActiveWidget(CannonCooldownWidget);
-			// CannonCooldownWidget->StartCooldownTimer(1.0f);
 		break;
 		// case EAvailableWeapons::RocketLauncher:
 		case 1:
 			WeaponIndicatorSwitch->SetActiveWidget(RocketsIndicator);
-			WeaponCooldownIndicatorSwitch->SetActiveWidget(RocketsCooldownWidget);
-			// RocketsCooldownWidget->StartCooldownTimer(3.0f);
 		break;
 	default:
 		return;
