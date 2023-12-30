@@ -20,16 +20,21 @@ APickupSpawner::APickupSpawner(): BoxCollider(nullptr), BaseMesh(nullptr)
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	BaseMesh->SetupAttachment(RootComponent);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Actors/Pickups/PickupSpawner"));
 	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
 	BaseMesh->SetStaticMesh(BaseMeshObject);
 	
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BaseMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -192.0f));
 
-	BaseMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -240.0f));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
+	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
+	BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
 	HealthPickupClass = AHealthPickup::StaticClass();
+	
 }
 
 // Called every frame

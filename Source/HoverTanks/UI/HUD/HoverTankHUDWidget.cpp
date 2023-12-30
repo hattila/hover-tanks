@@ -49,7 +49,7 @@ bool UHoverTankHUDWidget::Initialize()
 	}
 
 	// set their widths to 15
-	CannonCooldownWidget->SetDesiredSizeInViewport(FVector2d(15, 75));
+	CannonCooldownWidget->SetDesiredSizeInViewport(FVector2d(15, 75)); // does nothing currently
 
 	WeaponCooldownIndicatorsContainer->AddChild(CannonCooldownWidget);
 	// add a spacer
