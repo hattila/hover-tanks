@@ -9,6 +9,7 @@
 #include "HoverTank.generated.h"
 
 
+class UHoverTankEffectsComponent;
 class UNiagaraComponent;
 class UHoverTankHUDWidget;
 class USphereComponent;
@@ -60,12 +61,15 @@ public:
 	USceneComponent* GetGroundTraceLocation() const { return GroundTraceLocation; }
 
 	FVector GetGroundTraceLocationOffset() const { return GroundTraceLocationOffset; }
-	
-	UFUNCTION(BlueprintPure)
-	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
 
 	UFUNCTION(BlueprintPure)
-	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
+	UStaticMeshComponent* GetTankBaseMesh() const { return TankBaseMesh; }
+	
+	UFUNCTION(BlueprintPure)
+	UStaticMeshComponent* GetTankCannonMesh() const { return TankCannonMesh; }
+
+	UFUNCTION(BlueprintPure)
+	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
 	void OnDeath();
 	bool IsDead() const;
@@ -101,6 +105,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UWeaponsComponent* WeaponsComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
+	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;

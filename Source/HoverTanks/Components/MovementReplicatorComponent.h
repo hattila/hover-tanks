@@ -67,6 +67,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	FHoverTankMoveState GetHoverTankMoveState() const { return ServerMoveState; }
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
