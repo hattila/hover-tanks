@@ -110,11 +110,15 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankLightsMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_HoverTankLights"));
+	UMaterialInterface* TankLightsMaterialAssetObject = TankLightsMaterialAsset.Object;
+	TankBaseMesh->SetMaterial(1, TankLightsMaterialAssetObject);
+	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
+	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
+	
 	/**
 	 * FX
 	 */
-	// setup the burning fx
-
 	BurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
 	BurningFX->SetupAttachment(RootComponent);
 	BurningFX->SetAutoActivate(false);
@@ -289,6 +293,37 @@ void AHoverTank::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	
+	
+	TankLightsDynamicMaterialInstance = TankBaseMesh->CreateDynamicMaterialInstance(1);
+
+	// // alternatively: 
+	// UMaterialInterface* MaterialInstance = TankBaseMesh->GetMaterial(1);
+	// TankLightsDynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
+
+	if (TankLightsDynamicMaterialInstance == nullptr)
+	{
+		return;
+	}
+
+	TankBaseMesh->SetMaterial(1, TankLightsDynamicMaterialInstance);
+
+	// float CurrentStrength;
+	// TankLightsDynamicMaterialInstance->GetScalarParameterValue(TankLightsThrusterStrengthName, CurrentStrength);
+	
+	// UE_LOG(LogTemp, Warning, TEXT("TankLightsMaterialInstance: %s, Strength_B values is: %f"),
+	// 	*TankLightsDynamicMaterialInstance->GetName(),
+	// 	CurrentStrength
+	// );
+	//
+	TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsThrusterStrengthName, TankLightsThrusterDefaultStrength);
+	//
+	// TankLightsDynamicMaterialInstance->GetScalarParameterValue(TankLightsThrusterStrengthName, CurrentStrength);
+	//
+	// UE_LOG(LogTemp, Warning, TEXT("TankLightsMaterialInstance: %s, Strength_B values is: %f"),
+	// 	*TankLightsDynamicMaterialInstance->GetName(),
+	// 	CurrentStrength
+	// );
 }
 
 void AHoverTank::PossessedBy(AController* NewController)
@@ -394,6 +429,12 @@ void AHoverTank::JumpTriggered()
 	{
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Name of the lights material is %s"), *TankLightsDynamicMaterialInstance->GetName());
+
+	// get parameters of TankLightsMaterialInstance
+	// TankLightsMaterialInstance->ClearParameterValues();
+	TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsThrusterStrengthName, TankLightsThrusterMaxStrength);
 	
 	// UE_LOG(LogTemp, Warning, TEXT("Jump started"));
 	if (HoverTankMovementComponent)
@@ -408,6 +449,8 @@ void AHoverTank::JumpCompleted()
 	{
 		return;
 	}
+
+	TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsThrusterStrengthName, TankLightsThrusterDefaultStrength);
 	
 	if (HoverTankMovementComponent)
 	{
