@@ -12,6 +12,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
 #include "Components/WeaponsComponent.h"
+#include "Game/InTeamPlayerState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -553,6 +554,16 @@ void AHoverTank::DebugDrawPlayerTitle()
 
 	APlayerState* CurrentPlayerState = GetPlayerState();
 	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+
+	if (CurrentPlayerState)
+	{
+		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(CurrentPlayerState);
+		if (InTeamPlayerState)
+		{
+			PlayerName += FString::Printf(TEXT(" (Team %d)"), InTeamPlayerState->GetTeamId());
+		}
+	}
+	
 	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
 	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
 }

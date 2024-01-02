@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DeathMatchPlayerScore.h"
+#include "HoverTanks/Game/DeathMatchPlayerScore.h"
 #include "GameFramework/GameStateBase.h"
 #include "DeathMatchGameState.generated.h"
 

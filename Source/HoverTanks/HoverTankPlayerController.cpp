@@ -11,7 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
-#include "Game/DeathMatchGameMode.h"
+#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
 #include "UI/HUD/DeathMatchHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():

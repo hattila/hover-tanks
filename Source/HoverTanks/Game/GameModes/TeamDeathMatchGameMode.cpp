@@ -3,8 +3,10 @@
 
 #include "TeamDeathMatchGameMode.h"
 
+#include "TeamDeathMatchGameState.h"
 #include "GameFramework/PlayerStart.h"
 #include "HoverTanks/HoverTankPlayerController.h"
+#include "HoverTanks/Game/InTeamPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
@@ -25,6 +27,12 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 	{
 		SpawnPoints.Add(Cast<APlayerStart>(SpawnPoint));
 	}
+
+	// set the default PlayerState class to be InTeamPlayerState
+	PlayerStateClass = AInTeamPlayerState::StaticClass();
+
+	// set the default game state class to be TeamDeathMatchGameState
+	GameStateClass = ATeamDeathMatchGameState::StaticClass();
 }
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
@@ -37,6 +45,38 @@ void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* D
 void ATeamDeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("Team Death Match Begin Play"));
+
+	// create teams
+	// sort players to teams
+
+	// get the TeamDeathMatchGameState
+	ATeamDeathMatchGameState* TeamDeathMatchGameState = Cast<ATeamDeathMatchGameState>(GameState);
+	if (TeamDeathMatchGameState)
+	{
+		TeamDeathMatchGameState->CreateTeams();
+		TeamDeathMatchGameState->AssignPlayersToTeams();
+	}
+	
+}
+
+void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	AInTeamPlayerState* PlayerState = NewPlayer->GetPlayerState<AInTeamPlayerState>();
+
+	ATeamDeathMatchGameState* TeamDeathMatchGameState = Cast<ATeamDeathMatchGameState>(GameState);
+	if (TeamDeathMatchGameState)
+	{
+		TeamDeathMatchGameState->AssignPlayerToTeam(PlayerState);
+
+		UE_LOG(LogTemp, Warning, TEXT("Player %s assigned to team %d"), *PlayerState->GetPlayerName(), PlayerState->GetTeamId());
+	}
+}
+
+void ATeamDeathMatchGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
 }

@@ -3,7 +3,7 @@
 
 #include "DeathMatchGameState.h"
 
-#include "DeathMatchPlayerScore.h"
+#include "HoverTanks/Game/DeathMatchPlayerScore.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/HasScoreBoard.h"
 #include "Net/UnrealNetwork.h"

@@ -3,13 +3,13 @@
 #include "DeathMatchHUD.h"
 
 #include "HoverTankHUDWidget.h"
-#include "HoverTanks/Game/DeathMatchGameState.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Game/GameModes/DeathMatchGameState.h"
 
 ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
                                   DeathMatchPlayerHUDWidget(nullptr),

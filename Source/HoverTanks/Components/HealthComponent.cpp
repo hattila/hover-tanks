@@ -3,7 +3,7 @@
 
 #include "HealthComponent.h"
 
-#include "HoverTanks/Game/DeathMatchGameMode.h"
+#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
 #include "HoverTanks/HoverTank.h"
 #include "Net/UnrealNetwork.h"
 
