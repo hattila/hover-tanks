@@ -5,6 +5,7 @@
 
 #include "TeamDeathMatchGameState.h"
 #include "GameFramework/PlayerStart.h"
+#include "HoverTanks/HoverTank.h"
 #include "HoverTanks/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -42,6 +43,42 @@ void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* D
 	UE_LOG(LogTemp, Warning, TEXT("Tank dies in Team Death Match "));
 }
 
+void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
+{
+	ATeamDeathMatchGameState* TeamDeathMatchGameState = GetGameState<ATeamDeathMatchGameState>();
+
+	if (TeamDeathMatchGameState)
+	{
+		const int32 TimeRemaining = TeamDeathMatchGameState->GetTimeRemaining();
+		if (TimeRemaining > 0 && MatchState == EMatchState::InProgress)
+		{
+			APawn* CurrentPawn = InPlayerController->GetPawn();
+			InPlayerController->UnPossess();
+			if (CurrentPawn)
+			{
+				CurrentPawn->Destroy();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ADeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
+			}
+
+			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
+			AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
+
+			const AInTeamPlayerState* TeamPlayerState = InPlayerController->GetPlayerState<AInTeamPlayerState>();
+			IHasTeamColors* TeamColoredPawn = Cast<IHasTeamColors>(NewHoverTank);
+			if (TeamPlayerState && TeamColoredPawn)
+			{
+				UTeamDataAsset* TeamDataAsset = TeamDeathMatchGameState->GetTeamDataAsset(TeamPlayerState->GetTeamId());
+				TeamColoredPawn->ApplyTeamColors(TeamDataAsset);
+			}
+			
+			InPlayerController->Possess(NewHoverTank);
+		}
+	}
+}
+
 void ATeamDeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -70,9 +107,9 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	ATeamDeathMatchGameState* TeamDeathMatchGameState = Cast<ATeamDeathMatchGameState>(GameState);
 	if (TeamDeathMatchGameState)
 	{
-		TeamDeathMatchGameState->AssignPlayerToTeam(PlayerState);
-
-		UE_LOG(LogTemp, Warning, TEXT("Player %s assigned to team %d"), *PlayerState->GetPlayerName(), PlayerState->GetTeamId());
+		const bool bIsAssigned = TeamDeathMatchGameState->AssignPlayerToLeastPopulatedTeam(PlayerState);
+		FString IsAssigned = bIsAssigned ? TEXT("") : TEXT("NOT");
+		UE_LOG(LogTemp, Warning, TEXT("Player %s was %s assigned to team %d"), *PlayerState->GetPlayerName(), *IsAssigned, PlayerState->GetTeamId());
 	}
 }
 
@@ -80,3 +117,4 @@ void ATeamDeathMatchGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 }
+

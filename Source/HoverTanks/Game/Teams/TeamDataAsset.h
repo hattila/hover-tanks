@@ -23,6 +23,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Teams)
 	void ApplyToActor(AActor* TargetActor, bool bIncludeChildActors = true);
+
+	FLinearColor GetTeamColor() const { return ColorParameters[TEXT("TeamColor")]; }
+	FText GetTeamShortName() const { return TeamShortName; }
+	
 private:
 
 	void ApplyToMeshComponent(UMeshComponent* MeshComponent);

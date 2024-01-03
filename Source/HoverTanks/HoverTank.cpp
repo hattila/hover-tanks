@@ -13,6 +13,7 @@
 #include "Components/HoverTankEffectsComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "Game/InTeamPlayerState.h"
+#include "Game/GameModes/TeamDeathMatchGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -207,6 +208,11 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 }
 
+void AHoverTank::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+}
+
 void AHoverTank::OnDeath()
 {
 	if (!HasAuthority())
@@ -274,6 +280,20 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
 	// );
 	
 	return Hit;
+}
+
+/**
+ * IHasTeamColors interface 
+ */
+void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
+{
+	if (HoverTankEffectsComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HoverTankEffectsComponent is null on HoverTank, cannot apply team colors"));
+		return;
+	}
+
+	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
 // Called when the game starts or when spawned
@@ -497,10 +517,12 @@ void AHoverTank::ShowDebugActionStarted()
 
 	if (bShowDebug)
 	{
+		ServerAssignMeToTeam(2);
 		ColliderMesh->SetVisibility(true);
 	}
 	else
 	{
+		ServerAssignMeToTeam(1);
 		ColliderMesh->SetVisibility(false);
 	}
 }
@@ -586,4 +608,23 @@ void AHoverTank::DebugDrawSphereAsCrosshair() const
 		float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
 		DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
 	}
+}
+
+void AHoverTank::ServerAssignMeToTeam_Implementation(int8 TeamId)
+{
+	// get the GameState as ATeamDeathMatchGameState
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState)
+	{
+		// get player state
+		AInTeamPlayerState* TeamPlayerState = Cast<AInTeamPlayerState>(GetPlayerState());
+		if (TeamPlayerState == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ServerAssignMeToTeam: TeamPlayerState is null"));
+			return;
+		}
+		
+		GameState->AssignPlayerToTeam(TeamPlayerState, TeamId);
+	}
+	
 }

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankEffectsComponent.generated.h"
 
+class UTeamDataAsset;
 class UMovementReplicatorComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -21,6 +22,11 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void OnTeamIdChanged(int8 NewTeamId);
+
+	void ApplyTeamColors(UTeamDataAsset* TeamDataAsset);
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -45,4 +51,7 @@ private:
 	
 	void BrakeLights(bool bBraking) const;
 	void ThrusterLights(bool bThrusting) const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastApplyTeamColors(UTeamDataAsset* TeamDataAsset);
 };

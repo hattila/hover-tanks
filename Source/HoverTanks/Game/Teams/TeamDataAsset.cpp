@@ -9,6 +9,7 @@ void UTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
 {
 	if (TargetActor == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToActor: TargetActor is nullptr"));
 		return;
 	}
 
@@ -16,6 +17,7 @@ void UTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
 	{
 		if (UMeshComponent* MeshComponent = Cast<UMeshComponent>(InComponent))
 		{
+			// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToActor: Applying to mesh component"));
 			ApplyToMeshComponent(MeshComponent);
 		}
 		else if (UNiagaraComponent* NiagaraComponent = Cast<UNiagaraComponent>(InComponent))
@@ -38,8 +40,9 @@ void UTeamDataAsset::ApplyToMeshComponent(UMeshComponent* MeshComponent)
 			UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(MaterialInterface);
 			if (!DynamicMaterial)
 			{
-				// DynamicMaterial = MeshComponent->CreateAndSetMaterialInstanceDynamic(MaterialIndex);
-				continue;
+				// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToMeshComponent: material is not yet dynamic"));
+				DynamicMaterial = MeshComponent->CreateAndSetMaterialInstanceDynamic(MaterialIndex);
+				// continue;
 			}
 
 			for (const auto& ColorParameter : ColorParameters)

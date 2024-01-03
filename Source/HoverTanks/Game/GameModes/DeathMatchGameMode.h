@@ -30,7 +30,7 @@ public:
 	ADeathMatchGameMode();
 
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser);
-	void RequestRespawn(APlayerController* InPlayerController);
+	virtual void RequestRespawn(APlayerController* InPlayerController);
 
 protected:
 	TArray<APlayerStart*> SpawnPoints;

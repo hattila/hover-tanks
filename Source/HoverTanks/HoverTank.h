@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Pawns/HasTeamColors.h"
 #include "HoverTank.generated.h"
 
 
@@ -29,7 +30,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
-class HOVERTANKS_API AHoverTank : public APawn
+class HOVERTANKS_API AHoverTank : public APawn, public IHasTeamColors
 {
 	GENERATED_BODY()
 	
@@ -50,7 +51,9 @@ public:
 
 	// create definition of the standard input binding method
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
+	
+	virtual void OnRep_PlayerState() override;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -85,6 +88,11 @@ public:
 	FHitResult FindTargetAtCrosshair() const;
 	
 	UWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
+	UHoverTankEffectsComponent* GetEffectsComponent() const { return HoverTankEffectsComponent; }
+
+	//~ Begin IHasTeamColors interface
+	virtual void ApplyTeamColors(UTeamDataAsset* TeamDataAsset) override;
+	//~ End of IHasTeamColors interface
 
 protected:
 	// Called when the game starts or when spawned
@@ -238,4 +246,8 @@ private:
 	 */
 	void DebugDrawPlayerTitle();
 	void DebugDrawSphereAsCrosshair() const;
+
+
+	UFUNCTION(Server, Reliable)
+	void ServerAssignMeToTeam(int8 TeamId);
 };

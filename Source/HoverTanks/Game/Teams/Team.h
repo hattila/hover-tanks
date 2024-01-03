@@ -15,15 +15,15 @@ class HOVERTANKS_API ATeam : public AInfo
 
 public:
 	ATeam();
-	virtual void Tick(float DeltaTime) override;
 
 	void SetTeamId(int8 NewTeamId) { TeamId = NewTeamId; }
 	int8 GetTeamId() const { return TeamId; }
 	
 	void SetTeamDataAsset(TObjectPtr<UTeamDataAsset> NewTeamDataAsset) { TeamDataAsset = NewTeamDataAsset; }
+	UTeamDataAsset* GetTeamDataAsset() const { return TeamDataAsset; }
 	
 protected:
-	virtual void BeginPlay() override;
+
 	
 private:
 	int8 TeamId;

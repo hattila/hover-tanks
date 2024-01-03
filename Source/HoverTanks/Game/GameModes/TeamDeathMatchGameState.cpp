@@ -57,16 +57,45 @@ void ATeamDeathMatchGameState::AssignPlayersToTeams()
 	{
 		if (AInTeamPlayerState* InTeamPS = Cast<AInTeamPlayerState>(PS))
 		{
-			AssignPlayerToTeam(InTeamPS);
+			AssignPlayerToLeastPopulatedTeam(InTeamPS);
 		}
 	}
 }
 
-void ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* PlayerState)
+bool ATeamDeathMatchGameState::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState)
 {
-	PlayerState->SetTeamId(GetLeastPopulatedTeamId());
+	int8 LeastPopulatedTeamId = GetLeastPopulatedTeamId();
+	if (LeastPopulatedTeamId == INDEX_NONE)
+	{
+		return false;
+	}
+
+	return AssignPlayerToTeam(PlayerState, LeastPopulatedTeamId);
 }
 
+bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId)
+{
+	// is the team id valid?
+	if (!TeamMap.Contains(TeamId))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Invalid team id %d"), TeamId);
+		return false;
+	}
+
+	if (!HasAuthority())
+	{
+		// log
+		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Only callable on the server"));
+		return false;
+	}
+
+	TeamPlayerState->SetTeamId(TeamId);
+	return true;
+}
+
+/**
+ * Based on the Lyra example
+ */
 int8 ATeamDeathMatchGameState::GetLeastPopulatedTeamId() const
 {
 	const int32 TeamsNum = TeamMap.Num();

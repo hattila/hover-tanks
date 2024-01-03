@@ -33,6 +33,9 @@ public:
 	virtual void OnRep_Pawn() override; // Controller.cpp
 
 protected:
+	UFUNCTION()
+	void ApplyTeamColorToPawn(int8 NewTeamId);
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;

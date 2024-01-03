@@ -9,18 +9,8 @@ ATeam::ATeam()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	bAlwaysRelevant = true;
+	// NetPriority = 3.0f;
+	SetReplicatingMovement(false);
 }
-
-// Called when the game starts or when spawned
-void ATeam::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ATeam::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
