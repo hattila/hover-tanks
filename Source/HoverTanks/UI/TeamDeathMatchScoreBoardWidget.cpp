@@ -3,42 +3,55 @@
 
 #include "TeamDeathMatchScoreBoardWidget.h"
 
-void UTeamDeathMatchScoreBoardWidget::Setup()
-{
-	AddToViewport();
+#include "DeathMatchPlayerScoreWidget.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/ScrollBox.h"
+#include "Components/Spacer.h"
 
-	RefreshTimeLeft();
-	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UTeamDeathMatchScoreBoardWidget::RefreshTimeLeft, 1, true);
-}
-
-void UTeamDeathMatchScoreBoardWidget::Teardown()
+UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
-	
-	RemoveFromParent();
-}
-
-void UTeamDeathMatchScoreBoardWidget::RefreshTimeLeft()
-{
-	// UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
-	
-	if (TimeLeftText == nullptr)
+	// initialize the player score class
+	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
+		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchPlayerScoreWidget"));
+	if (!ensure(PlayerScoreClassFinder.Class != nullptr))
 	{
 		return;
 	}
+	PlayerScoreClass = PlayerScoreClassFinder.Class;
+}
 
-	if (TimeLeft <= 0)
+void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
+{
+	if (PlayerScoreClass == nullptr || PlayerScoresBoxTeam1 == nullptr || PlayerScoresBoxTeam2 == nullptr)
 	{
-		TimeLeftText->SetText(FText::FromString(TEXT("00:00")));
+		UE_LOG(LogTemp, Warning, TEXT("UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores, sum ting wong"));
 		return;
 	}
 
-	// format the time left
-	int32 Minutes = TimeLeft / 60;
-	int32 Seconds = TimeLeft % 60;
-	FString TimeLeftString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+	PlayerScoresBoxTeam1->ClearChildren();
+	PlayerScoresBoxTeam2->ClearChildren();
 
-	TimeLeftText->SetText(FText::FromString(TimeLeftString));
+	int32 i = 1;
+	for (FPlayerScore PlayerScore : InPlayerScores)
+	{
+		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		if (!PlayerScoreWidget)
+		{
+			return;
+		}
+		PlayerScoreWidget->Setup(i, PlayerScore.PlayerName, PlayerScore.Score);
+		PlayerScoresBoxTeam1->AddChild(PlayerScoreWidget);
+		PlayerScoresBoxTeam2->AddChild(PlayerScoreWidget);
 
-	TimeLeft--;
+		// create a Spacer element and Add it to the PlayerScoresBox unless it is the last element
+		if (i < InPlayerScores.Num())
+		{
+			USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
+			Spacer->SetSize(FVector2d(1, 10));
+			PlayerScoresBoxTeam1->AddChild(Spacer);
+			PlayerScoresBoxTeam2->AddChild(Spacer);
+		}
+		
+		++i;
+	}
 }

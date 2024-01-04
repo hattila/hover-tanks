@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ScoreBoardWidgetInterface.h"
+#include "ScoreBoardWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "HoverTanks/Game/DeathMatchPlayerScore.h"
+#include "HoverTanks/Game/PlayerScore.h"
 #include "DeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
@@ -15,42 +15,16 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UUserWidget, public IScoreBoardWidgetInterface
+class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UScoreBoardWidget
 {
 	GENERATED_BODY()
 public:
 	UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
-
-	// Initialize
-	virtual bool Initialize() override;
-
-	//~ Begin ScoreBoardWidgetInterface
-	virtual void Setup() override;
-	virtual void Teardown() override;
-
-	virtual void SetMapName(const FString& InMapName) const override { MapName->SetText(FText::FromString(InMapName)); }
-	virtual void SetGameModeName(const FString& InGameModeName) const override { GameModeName->SetText(FText::FromString(InGameModeName)); }
-	virtual void SetTimeLeft(int32 InTimeLeft) override { TimeLeft = InTimeLeft; }
-	virtual void RefreshTimeLeft() override;
-	//~ End ScoreBoardWidgetInterface
-
-	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores);
+	
+	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MapName;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* GameModeName;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TimeLeftText;
-
-	UPROPERTY(meta = (BindWidget))
-	UScrollBox* PlayerScoresBox;
-
-	TSubclassOf<UUserWidget> PlayerScoreClass;
+	UScrollBox* PlayerScoresBox = nullptr;
 	
-	int32 TimeLeft;
-	FTimerHandle TimeLeftRefreshTimerHandle;
 };

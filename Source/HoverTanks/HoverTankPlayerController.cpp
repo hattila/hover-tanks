@@ -11,12 +11,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/HoverTankEffectsComponent.h"
 #include "Game/InTeamPlayerState.h"
 #include "Game/GameModes/TeamDeathMatchGameState.h"
-#include "Game/Teams/Team.h"
 #include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
-#include "UI/HUD/DeathMatchHUD.h"
+#include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
 	InGameMenu(nullptr),
@@ -61,13 +59,27 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 
 void AHoverTankPlayerController::ClientOnScoresChanged_Implementation()
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	// AInGameHUD* HUD = Cast<AInGameHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+	
 	HUD->RefreshPlayerScores();
 }
 
 void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	// AInGameHUD* HUD = Cast<AInGameHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+
 	HUD->ForceOpenScoreBoard();
 }
 
@@ -131,7 +143,7 @@ void AHoverTankPlayerController::BeginPlay()
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
 	
 	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
 	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
@@ -219,7 +231,13 @@ void AHoverTankPlayerController::OpenInGameMenu()
 
 void AHoverTankPlayerController::OpenScoreBoard()
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+	
 	HUD->ToggleScoreBoard();
 }
 

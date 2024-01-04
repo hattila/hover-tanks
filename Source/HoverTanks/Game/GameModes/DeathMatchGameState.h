@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HoverTanks/Game/DeathMatchPlayerScore.h"
+#include "HoverTanks/Game/PlayerScore.h"
 #include "GameFramework/GameStateBase.h"
 #include "DeathMatchGameState.generated.h"
 
@@ -21,7 +21,7 @@ public:
 	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
 	void RemovePlayersScore(const FString& PlayerName);
 	
-	TArray<FDeathMatchPlayerScore> GetPlayerScores() const { return PlayerScores; }
+	TArray<FPlayerScore> GetPlayerScores() const { return PlayerScores; }
 	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
 
 	int32 GetTimeRemaining() const { return TimeRemainingInSeconds; }
@@ -29,7 +29,7 @@ public:
 	
 private:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
-	TArray<FDeathMatchPlayerScore> PlayerScores;
+	TArray<FPlayerScore> PlayerScores;
 
 	UPROPERTY(Replicated)
 	int32 TimeRemainingInSeconds;

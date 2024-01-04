@@ -8,6 +8,8 @@
 #include "HoverTanks/HoverTank.h"
 #include "HoverTanks/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
+#include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
 #include "Kismet/GameplayStatics.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
@@ -34,6 +36,9 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 
 	// set the default game state class to be TeamDeathMatchGameState
 	GameStateClass = ATeamDeathMatchGameState::StaticClass();
+
+	// use the TeamDeathMatchHUD as default HUD
+	HUDClass = ATeamDeathMatchHUD::StaticClass();
 }
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)

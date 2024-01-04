@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ScoreBoardWidgetInterface.h"
-#include "Blueprint/UserWidget.h"
+#include "ScoreBoardWidget.h"
 #include "Components/TextBlock.h"
+#include "HoverTanks/Game/PlayerScore.h"
 #include "TeamDeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
@@ -13,39 +13,25 @@ class UScrollBox;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UTeamDeathMatchScoreBoardWidget : public UUserWidget, public IScoreBoardWidgetInterface
+class HOVERTANKS_API UTeamDeathMatchScoreBoardWidget : public UScoreBoardWidget
 {
 	GENERATED_BODY()
 
 public:
-	//~ Begin ScoreBoardWidgetInterface
-	virtual void Setup() override;
-	virtual void Teardown() override;
-
-	virtual void SetMapName(const FString& InMapName) const override { MapName->SetText(FText::FromString(InMapName)); }
-	virtual void SetGameModeName(const FString& InGameModeName) const override { GameModeName->SetText(FText::FromString(InGameModeName)); }
-	virtual void SetTimeLeft(int32 InTimeLeft) override { TimeLeft = InTimeLeft; }
-	virtual void RefreshTimeLeft() override;
-	//~ End ScoreBoardWidgetInterface
+	UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
+	
+	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* MapName;
+	UScrollBox* PlayerScoresBoxTeam1 = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* GameModeName;
+	UScrollBox* PlayerScoresBoxTeam2 = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TimeLeftText;
+	UTextBlock* Team1Score = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UScrollBox* PlayerScoresBoxTeam1;
-
-	UPROPERTY(meta = (BindWidget))
-	UScrollBox* PlayerScoresBoxTeam2;
-		
-	TSubclassOf<UUserWidget> PlayerScoreClass;
-	
-	int32 TimeLeft = 0;
-	FTimerHandle TimeLeftRefreshTimerHandle;
+	UTextBlock* Team2Score = nullptr;
 };

@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "ScoringHUDInterface.h"
 #include "GameFramework/HUD.h"
-#include "DeathMatchHUD.generated.h"
+#include "TeamDeathMatchHUD.generated.h"
 
+class UScoreBoardWidget;
 class AHoverTankPlayerController;
 class UHoverTankHUDWidget;
 class ADeathMatchGameState;
@@ -16,13 +17,13 @@ class UDeathMatchPlayerHUDWidget;
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchHUD : public AHUD, public IScoringHUDInterface
+class HOVERTANKS_API ATeamDeathMatchHUD : public AHUD, public IScoringHUDInterface
 {
 	GENERATED_BODY()
 
 public:
 	// create a constructor
-	ADeathMatchHUD();
+	ATeamDeathMatchHUD();
 
 	virtual void PostInitializeComponents() override;
 
@@ -31,7 +32,7 @@ public:
 	virtual void ForceOpenScoreBoard() override;
 	virtual void RefreshPlayerScores() override;
 	// ~IScoringHUDInterface
-	
+
 	UFUNCTION()
 	void OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn);
 	
@@ -41,16 +42,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	ADeathMatchGameState* DeathMatchGameStateRef;
+	
+	ADeathMatchGameState* DeathMatchGameStateRef = nullptr;
 
 	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass; // timer, score, etc
-	UDeathMatchPlayerHUDWidget* DeathMatchPlayerHUDWidget;
+	UDeathMatchPlayerHUDWidget* DeathMatchPlayerHUDWidget = nullptr;
 
 private:
 	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
 	UHoverTankHUDWidget* HoverTankHUDWidget;
 
-	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
-	UDeathMatchScoreBoardWidget* DeathMatchScoreBoardWidget;
+	TSubclassOf<UUserWidget> ScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
+	UScoreBoardWidget* ScoreBoardWidget;
 };
