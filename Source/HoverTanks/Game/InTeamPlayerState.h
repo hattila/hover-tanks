@@ -29,12 +29,9 @@ public:
 	int8 GetTeamId() const { return MyTeamId; }
 	
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_TeamId)
+	UPROPERTY(Replicated)
 	int8 MyTeamId = INDEX_NONE;
 
-	UFUNCTION()
-	void OnRep_TeamId() const;
-
-	UFUNCTION()
-	void OnPawnSetCallback(APlayerState* Player, APawn* NewPawn, APawn* OldPawn);
+	// UFUNCTION()
+	// void OnPawnSetCallback(APlayerState* Player, APawn* NewPawn, APawn* OldPawn); // gets called by the engine, handy.
 };

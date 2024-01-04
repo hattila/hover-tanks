@@ -8,6 +8,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HoverTankPlayerController.h"
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
@@ -153,10 +154,10 @@ void AHoverTank::Tick(float DeltaTime)
 	
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	if (bShowDebug)
-	{
+	// if (bShowDebug)
+	// {
 		DebugDrawPlayerTitle();	
-	}
+	// }
 	
 	// if (IsLocallyControlled() && bShowDebug)
 	// {
@@ -287,6 +288,12 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
  */
 void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 {
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyTeamColors can only be called on the server!"));
+		return;
+	}
+	
 	if (HoverTankEffectsComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("HoverTankEffectsComponent is null on HoverTank, cannot apply team colors"));

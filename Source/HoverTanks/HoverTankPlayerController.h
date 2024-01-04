@@ -31,6 +31,7 @@ public:
 	void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds);
 	
 	virtual void OnRep_Pawn() override; // Controller.cpp
+	// virtual void OnRep_PlayerState() override; // Controller.cpp
 
 protected:
 	UFUNCTION()

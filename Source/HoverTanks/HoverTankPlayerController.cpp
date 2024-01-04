@@ -81,7 +81,7 @@ void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 	// log
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnTeamIdChanged, role %s, team id: %d"), *RoleString, NewTeamId);
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ApplyTeamColorToPawn, role %s, team id: %d"), *RoleString, NewTeamId);
 
 	// do we have a possessed pawn?
 	if (GetPawn() == nullptr)
@@ -89,20 +89,20 @@ void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 		return;
 	}
 
-	// pawn has team id?
+	// pawn has team colors?
 	IHasTeamColors* TeamColorPawn = Cast<IHasTeamColors>(GetPawn());
 	if (TeamColorPawn == nullptr)
 	{
 		return;
 	}
 
-	// get the teams data asset
+	// get the teams data asset todo: TeamGameStateInterface
 	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
 	if (GameState == nullptr)
 	{
 		return;
 	}
-	
+
 	TeamColorPawn->ApplyTeamColors(GameState->GetTeamDataAsset(NewTeamId));
 }
 
@@ -113,19 +113,28 @@ void AHoverTankPlayerController::BeginPlay()
 	// todo: respawn able game mode interface?
 	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
 
-	// is it a team game?
-	// get PlayerState
-	AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
-	if (TeamPlayerState)
-	{
-		// log
-		FString RoleString;
-		UEnum::GetValueAsString(GetLocalRole(), RoleString);
-		UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
 
-		TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	/**
+	 * Listen to team changes on a team game.
+	 */
+	AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+	if (!TeamPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, no team player state"), *RoleString);
+		return;
 	}
 	
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
+	
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
+	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
 }
 
 void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -166,25 +175,7 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		FString RoleString;
-		UEnum::GetValueAsString(GetLocalRole(), RoleString);
-		
-		// get the player state
-		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
-		if (TeamPlayerState)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnPossess, role %s, team id: %d, subscribing to onTeamChange"), *RoleString, TeamPlayerState->GetTeamId());
-			ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
-			
-			AHoverTank* HoverTank = Cast<AHoverTank>(InPawn);
-			TeamPlayerState->OnTeamIdChanged.AddDynamic(HoverTank->GetEffectsComponent(), &UHoverTankEffectsComponent::OnTeamIdChanged);
-			// TeamPlayerState->OnTeamIdChanged.AddDynamic(HoverTank, &AHoverTank::ApplyTeamColors);
 
-	
-			
-			// TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::OnTeamIdChangeHandler);
-			// HoverTank->GetEffectsComponent()->OnTeamIdChanged(TeamPlayerState->GetTeamId());
-		}
 	}
 }
 

@@ -3,12 +3,8 @@
 
 #include "HoverTankEffectsComponent.h"
 
-#include "EngineUtils.h"
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
-#include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
-#include "HoverTanks/Game/Teams/Team.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
 #include "Net/UnrealNetwork.h"
 
@@ -22,12 +18,12 @@ UHoverTankEffectsComponent::UHoverTankEffectsComponent()
 	// ...
 }
 
-// void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-// {
-// 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-// 	DOREPLIFETIME(UHoverTankEffectsComponent, TankLightsDynamicMaterialInstance);
-// }
+void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UHoverTankEffectsComponent, TeamDataAsset);
+}
 
 void UHoverTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -91,88 +87,26 @@ void UHoverTankEffectsComponent::BeginPlay()
 	{
 		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
 	}
-
-	//
-	// if (GetOwnerRole() == ROLE_AutonomousProxy)
-	// {
-	// }
-	
-
-	
-	// FString RoleString;
-	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	//
-	//
-	// APawn* Owner = Cast<APawn>(GetOwner());
-	// if (Owner == nullptr)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("FX comp, %s Owner is not a Pawn"), *RoleString);
-	// 	return;
-	// }
-	//
-	// AController* OwnerController = Owner->GetController();
-	// APlayerController* PlayerController = Cast<APlayerController>(OwnerController);
-	//
-	// if (PlayerController == nullptr)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("FX comp, %s Owner Has no player controller"), *RoleString);
-	// 	return;
-	// }
-	//
-	// // get the player state
-	// AInTeamPlayerState* TeamPlayerState = PlayerController->GetPlayerState<AInTeamPlayerState>();
-	// if (TeamPlayerState)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("FX comp %s, team id: %d, subscribing to onTeamChange"), *RoleString, TeamPlayerState->GetTeamId());
-	// 	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &UHoverTankEffectsComponent::OnTeamIdChanged);
-	//
-	// 	OnTeamIdChanged(TeamPlayerState->GetTeamId());
-	// }
-
-	
 }
 
-void UHoverTankEffectsComponent::OnTeamIdChanged(int8 NewTeamId)
+void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset)
 {
-	// get Owner actor name and role
 	FString RoleString;
 	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnTeamIdChanged Owner: %s, Role: %s, new TeamId: %d"), *GetOwner()->GetName(), *RoleString, NewTeamId);
 	
-	if (!GetWorld())
+	if (!InTeamDataAsset)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("FX comp, OnTeamIdChanged no world"));
-		return;
-	}
-
-	// get hold of the game state
-	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
-	TMap<int8, ATeam*> TeamMap = GameState->GetTeamMap();
-
-	ATeam** Team = TeamMap.Find(NewTeamId);
-	UTeamDataAsset* TeamDataAsset = Team ? (*Team)->GetTeamDataAsset() : nullptr;
-	if (TeamDataAsset)
-	{
-		ApplyTeamColors(TeamDataAsset);
-	}
-}
-
-void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
-{
-	if (!TeamDataAsset)
-	{
-		FString RoleString;
-		UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
 		UE_LOG(LogTemp, Warning, TEXT("FX comp, ApplyTeamColors, no team data asset, role %s"), *RoleString);
 		return;
 	}
-	
-	TeamDataAsset->ApplyToActor(GetOwner());
-	MulticastApplyTeamColors(TeamDataAsset);
+
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, ApplyTeamColors, color %s, role %s"), *InTeamDataAsset->GetTeamShortName().ToString(), *RoleString);
+	TeamDataAsset = InTeamDataAsset;
+	OnRep_TeamDataAsset();
 }
 
-void UHoverTankEffectsComponent::MulticastApplyTeamColors_Implementation(UTeamDataAsset* TeamDataAsset)
+void UHoverTankEffectsComponent::OnRep_TeamDataAsset()
 {
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, MulticastApplyTeamColors_Implementation, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamDataAsset, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
 	TeamDataAsset->ApplyToActor(GetOwner());
 }

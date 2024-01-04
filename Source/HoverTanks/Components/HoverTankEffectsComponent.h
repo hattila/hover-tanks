@@ -18,14 +18,11 @@ public:
 	UHoverTankEffectsComponent();
 
 	// replication
-	// void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
-	void OnTeamIdChanged(int8 NewTeamId);
-
-	void ApplyTeamColors(UTeamDataAsset* TeamDataAsset);
+	void ApplyTeamColors(UTeamDataAsset* InTeamDataAsset);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +49,12 @@ private:
 	void BrakeLights(bool bBraking) const;
 	void ThrusterLights(bool bThrusting) const;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastApplyTeamColors(UTeamDataAsset* TeamDataAsset);
+	/**
+	 * Team colors
+	 */
+	UPROPERTY(ReplicatedUsing=OnRep_TeamDataAsset)
+	UTeamDataAsset* TeamDataAsset = nullptr;
+
+	UFUNCTION()
+	void OnRep_TeamDataAsset();
 };

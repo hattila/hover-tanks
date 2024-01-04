@@ -47,6 +47,7 @@ void UTeamDataAsset::ApplyToMeshComponent(UMeshComponent* MeshComponent)
 
 			for (const auto& ColorParameter : ColorParameters)
 			{
+				// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToMeshComponent: setting parameter: %s with value %s"), *ColorParameter.Key.ToString(), *ColorParameter.Value.ToString());
 				DynamicMaterial->SetVectorParameterValue(ColorParameter.Key, ColorParameter.Value);
 			}
 		}
