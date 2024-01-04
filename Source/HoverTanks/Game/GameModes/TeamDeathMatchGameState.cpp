@@ -24,6 +24,63 @@ ATeamDeathMatchGameState::ATeamDeathMatchGameState()
 	
 }
 
+void ATeamDeathMatchGameState::InitializeNewPlayerScore(const APlayerController* NewPlayer)
+{
+	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(NewPlayer->PlayerState);
+	if (!InTeamPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is not InTeamPlayerState"));
+		Super::InitializeNewPlayerScore(NewPlayer);
+		return;
+	}
+	
+	// return if the player is already in the array
+	for (int32 i = 0; i < PlayerScores.Num(); i++)
+	{
+		if (PlayerScores[i].PlayerName == InTeamPlayerState->GetPlayerName())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("InitializeNewPlayerScore : Player already in array. Name: %s, team: %d"), *InTeamPlayerState->GetPlayerName(), InTeamPlayerState->GetTeamId());
+			
+			PlayerScores[i].TeamId = InTeamPlayerState->GetTeamId();
+			OnRep_PlayerScores();
+			return;
+		}
+	}
+	
+	FPlayerScore PlayerScore;
+	PlayerScore.PlayerName = InTeamPlayerState->GetPlayerName();
+	PlayerScore.Score = 0;
+	PlayerScore.TeamId = InTeamPlayerState->GetTeamId();
+
+	PlayerScores.Add(PlayerScore);
+
+	OnRep_PlayerScores();
+}
+
+void ATeamDeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
+{
+	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(PlayerController->PlayerState);
+	if (!InTeamPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is not InTeamPlayerState"));
+		Super::AddScoreToPlayer(PlayerController, ScoreToAdd);
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is InTeamPlayerState, finding player and adding teamID"));
+	
+	for (int32 i = 0; i < PlayerScores.Num(); i++)
+	{
+		if (PlayerScores[i].PlayerName == InTeamPlayerState->GetPlayerName())
+		{
+			PlayerScores[i].TeamId = InTeamPlayerState->GetTeamId();
+			break;
+		}
+	}
+	
+	Super::AddScoreToPlayer(PlayerController, ScoreToAdd);
+}
+
 void ATeamDeathMatchGameState::CreateTeams()
 {
 	if (TeamMap.Num() > 0)
@@ -92,6 +149,35 @@ bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayer
 	TeamPlayerState->SetTeamId(TeamId);
 	return true;
 }
+
+void ATeamDeathMatchGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	// log
+	// UE_LOG(LogTemp, Warning, TEXT("Team Death Match Begin Play, subscribing to OnTeamIdChanged"));
+	//
+	// // foreach player state, cast to InTeamPlayerState and subscribe to OnTeamIdChanged
+	// for (APlayerState* PS : PlayerArray)
+	// {
+	// 	if (AInTeamPlayerState* InTeamPS = Cast<AInTeamPlayerState>(PS))
+	// 	{
+	// 		InTeamPS->OnTeamIdChanged.AddDynamic(this, &ATeamDeathMatchGameState::HandleTeamIdChanged);
+	// 	}
+	// }
+}
+
+// void ATeamDeathMatchGameState::HandleTeamIdChanged(int8 NewTeamId)
+// {
+// 	UE_LOG(LogTemp, Warning, TEXT("Team Death Match HandleTeamIdChanged, calling on rep player scores"));
+// 	
+// 	OnRep_PlayerScores();
+// }
 
 /**
  * Based on the Lyra example

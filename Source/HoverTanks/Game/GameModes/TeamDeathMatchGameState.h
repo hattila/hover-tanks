@@ -19,6 +19,9 @@ class HOVERTANKS_API ATeamDeathMatchGameState : public ADeathMatchGameState
 
 public:
 	ATeamDeathMatchGameState();
+
+	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) override;
+	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd) override;
 	
 	void CreateTeams();
 	void AssignPlayersToTeams();
@@ -29,6 +32,13 @@ public:
 	UTeamDataAsset* GetTeamDataAsset(const int8 TeamId) const { return TeamsToCreate.FindRef(TeamId); }
 	
 	TMap<int8, ATeam*> GetTeamMap() { return TeamMap; }
+
+protected:
+	virtual void BeginPlay() override;
+
+	// UFUNCTION()
+	// void HandleTeamIdChanged(int8 NewTeamId);
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Team", meta = (AllowPrivateAccess = "true"))
 	TMap<int8, TObjectPtr<UTeamDataAsset>> TeamsToCreate;

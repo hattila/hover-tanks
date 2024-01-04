@@ -40,18 +40,33 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 			return;
 		}
 		PlayerScoreWidget->Setup(i, PlayerScore.PlayerName, PlayerScore.Score);
-		PlayerScoresBoxTeam1->AddChild(PlayerScoreWidget);
-		PlayerScoresBoxTeam2->AddChild(PlayerScoreWidget);
 
-		// create a Spacer element and Add it to the PlayerScoresBox unless it is the last element
-		if (i < InPlayerScores.Num())
+		if (PlayerScore.TeamId == INDEX_NONE)
 		{
-			USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
-			Spacer->SetSize(FVector2d(1, 10));
-			PlayerScoresBoxTeam1->AddChild(Spacer);
-			PlayerScoresBoxTeam2->AddChild(Spacer);
+			// UE_LOG(LogTemp, Warning, TEXT("skipping player, with no team id"));
+			continue;
 		}
-		
-		++i;
+
+		if (PlayerScore.TeamId == 1)
+		{
+			PlayerScoresBoxTeam1->AddChild(PlayerScoreWidget);
+			PlayerScoresBoxTeam1->AddChild(CreateSpacerElement());
+			continue;
+		}
+
+		if (PlayerScore.TeamId == 2)
+		{
+			PlayerScoresBoxTeam2->AddChild(PlayerScoreWidget);
+			PlayerScoresBoxTeam2->AddChild(CreateSpacerElement());
+			continue;
+		}
 	}
+}
+
+USpacer* UTeamDeathMatchScoreBoardWidget::CreateSpacerElement() const
+{
+	USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
+	Spacer->SetSize(FVector2d(1, 10));
+
+	return Spacer;
 }

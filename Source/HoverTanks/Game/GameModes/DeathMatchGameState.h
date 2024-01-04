@@ -18,16 +18,16 @@ class HOVERTANKS_API ADeathMatchGameState : public AGameStateBase
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
+	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer);
 	void RemovePlayersScore(const FString& PlayerName);
 	
 	TArray<FPlayerScore> GetPlayerScores() const { return PlayerScores; }
-	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
+	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
 
 	int32 GetTimeRemaining() const { return TimeRemainingInSeconds; }
 	void SetTimeRemaining(const int32 NewTimeRemaining) { TimeRemainingInSeconds = NewTimeRemaining; }
 	
-private:
+protected:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
 	TArray<FPlayerScore> PlayerScores;
 

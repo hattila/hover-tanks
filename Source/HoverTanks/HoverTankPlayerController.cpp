@@ -118,6 +118,21 @@ void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 	TeamColorPawn->ApplyTeamColors(GameState->GetTeamDataAsset(NewTeamId));
 }
 
+void AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
+{
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation, role %s, team id: %d"), *RoleString, NewTeamId);
+	
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState == nullptr)
+	{
+		return;
+	}
+
+	GameState->InitializeNewPlayerScore(this);
+}
+
 void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -146,7 +161,9 @@ void AHoverTankPlayerController::BeginPlay()
 	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
 	
 	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard);
 	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
+	ServerRefreshMeOnTheScoreBoard(TeamPlayerState->GetTeamId());
 }
 
 void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)

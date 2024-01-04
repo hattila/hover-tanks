@@ -8,6 +8,7 @@
 #include "HoverTanks/Game/PlayerScore.h"
 #include "TeamDeathMatchScoreBoardWidget.generated.h"
 
+class USpacer;
 class UScrollBox;
 /**
  * 
@@ -34,4 +35,6 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Team2Score = nullptr;
+
+	USpacer* CreateSpacerElement() const;
 };
