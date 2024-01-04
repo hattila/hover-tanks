@@ -6,24 +6,18 @@
 #include "ScoreBoardWidgetInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "HoverTanks/Game/DeathMatchPlayerScore.h"
-#include "DeathMatchScoreBoardWidget.generated.h"
+#include "TeamDeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
-class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UUserWidget, public IScoreBoardWidgetInterface
+class HOVERTANKS_API UTeamDeathMatchScoreBoardWidget : public UUserWidget, public IScoreBoardWidgetInterface
 {
 	GENERATED_BODY()
+
 public:
-	UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
-
-	// Initialize
-	virtual bool Initialize() override;
-
 	//~ Begin ScoreBoardWidgetInterface
 	virtual void Setup() override;
 	virtual void Teardown() override;
@@ -33,8 +27,6 @@ public:
 	virtual void SetTimeLeft(int32 InTimeLeft) override { TimeLeft = InTimeLeft; }
 	virtual void RefreshTimeLeft() override;
 	//~ End ScoreBoardWidgetInterface
-
-	void RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -47,10 +39,13 @@ private:
 	UTextBlock* TimeLeftText;
 
 	UPROPERTY(meta = (BindWidget))
-	UScrollBox* PlayerScoresBox;
+	UScrollBox* PlayerScoresBoxTeam1;
 
+	UPROPERTY(meta = (BindWidget))
+	UScrollBox* PlayerScoresBoxTeam2;
+		
 	TSubclassOf<UUserWidget> PlayerScoreClass;
 	
-	int32 TimeLeft;
+	int32 TimeLeft = 0;
 	FTimerHandle TimeLeftRefreshTimerHandle;
 };
