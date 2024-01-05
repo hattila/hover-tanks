@@ -62,6 +62,7 @@ void ATeamDeathMatchHUD::ToggleScoreBoard()
 	if (ScoreBoardWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
 		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
+		ScoreBoardWidget->SetInputModeGameOnly();
 		DeathMatchPlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
@@ -74,6 +75,8 @@ void ATeamDeathMatchHUD::ToggleScoreBoard()
 	}
 
 	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
+	ScoreBoardWidget->SetupInputModeGameAndUi();
+
 	DeathMatchPlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 

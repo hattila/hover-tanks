@@ -36,6 +36,12 @@ public:
 
 	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores);
 
+	/**
+	 * Could this be an OpenableMenu?
+	 */
+	void SetupInputModeGameAndUi();
+	void SetInputModeGameOnly() const;
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MapName = nullptr;

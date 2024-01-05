@@ -5,8 +5,6 @@
 
 #include "DeathMatchPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
-#include "Components/ScrollBox.h"
-#include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 
 bool UScoreBoardWidget::Initialize()
@@ -31,7 +29,6 @@ void UScoreBoardWidget::Setup()
 void UScoreBoardWidget::Teardown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
-	
 	RemoveFromParent();
 }
 
@@ -63,4 +60,34 @@ void UScoreBoardWidget::RefreshTimeLeft()
 void UScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
 {
 	return;
+}
+
+void UScoreBoardWidget::SetupInputModeGameAndUi()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))
+	{
+		return;
+	}
+
+	FInputModeGameAndUI InputModeData;
+	InputModeData.SetWidgetToFocus(TakeWidget());
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	
+	PlayerController->SetInputMode(InputModeData);
+	PlayerController->SetShowMouseCursor(true);
+}
+
+void UScoreBoardWidget::SetInputModeGameOnly() const
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))
+	{
+		return;
+	}
+
+	const FInputModeGameOnly InputModeData;
+	PlayerController->SetInputMode(InputModeData);
+
+	PlayerController->bShowMouseCursor = false;
 }
