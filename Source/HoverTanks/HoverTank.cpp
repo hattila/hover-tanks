@@ -524,12 +524,10 @@ void AHoverTank::ShowDebugActionStarted()
 
 	if (bShowDebug)
 	{
-		ServerAssignMeToTeam(2);
 		ColliderMesh->SetVisibility(true);
 	}
 	else
 	{
-		ServerAssignMeToTeam(1);
 		ColliderMesh->SetVisibility(false);
 	}
 }
@@ -615,23 +613,4 @@ void AHoverTank::DebugDrawSphereAsCrosshair() const
 		float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
 		DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
 	}
-}
-
-void AHoverTank::ServerAssignMeToTeam_Implementation(int8 TeamId)
-{
-	// get the GameState as ATeamDeathMatchGameState
-	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
-	if (GameState)
-	{
-		// get player state
-		AInTeamPlayerState* TeamPlayerState = Cast<AInTeamPlayerState>(GetPlayerState());
-		if (TeamPlayerState == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ServerAssignMeToTeam: TeamPlayerState is null"));
-			return;
-		}
-		
-		GameState->AssignPlayerToTeam(TeamPlayerState, TeamId);
-	}
-	
 }

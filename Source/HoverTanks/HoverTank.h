@@ -246,8 +246,4 @@ private:
 	 */
 	void DebugDrawPlayerTitle();
 	void DebugDrawSphereAsCrosshair() const;
-
-
-	UFUNCTION(Server, Reliable)
-	void ServerAssignMeToTeam(int8 TeamId);
 };
