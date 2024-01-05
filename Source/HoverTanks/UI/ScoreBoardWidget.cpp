@@ -7,17 +7,6 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 
-bool UScoreBoardWidget::Initialize()
-{
-	bool bIsSuperInitDone = Super::Initialize();
-	if (!bIsSuperInitDone)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 void UScoreBoardWidget::Setup()
 {
 	AddToViewport();
@@ -60,34 +49,4 @@ void UScoreBoardWidget::RefreshTimeLeft()
 void UScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
 {
 	return;
-}
-
-void UScoreBoardWidget::SetupInputModeGameAndUi()
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	FInputModeGameAndUI InputModeData;
-	InputModeData.SetWidgetToFocus(TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	
-	PlayerController->SetInputMode(InputModeData);
-	PlayerController->SetShowMouseCursor(true);
-}
-
-void UScoreBoardWidget::SetInputModeGameOnly() const
-{
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))
-	{
-		return;
-	}
-
-	const FInputModeGameOnly InputModeData;
-	PlayerController->SetInputMode(InputModeData);
-
-	PlayerController->bShowMouseCursor = false;
 }

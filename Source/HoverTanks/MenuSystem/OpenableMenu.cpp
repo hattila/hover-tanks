@@ -20,11 +20,6 @@ void UOpenableMenu::Teardown()
 	SetInputModeGameOnly();
 }
 
-bool UOpenableMenu::IsEveryElementInitialized()
-{
-	return true;
-}
-
 void UOpenableMenu::SetupInputModeUIOnly()
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
@@ -69,4 +64,9 @@ void UOpenableMenu::SetInputModeGameOnly() const
 	PlayerController->SetInputMode(InputModeData);
 
 	PlayerController->bShowMouseCursor = false;
+}
+
+bool UOpenableMenu::IsEveryElementInitialized()
+{
+	return true;
 }

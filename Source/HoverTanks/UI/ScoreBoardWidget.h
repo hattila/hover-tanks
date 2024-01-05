@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "UObject/Interface.h"
 #include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/MenuSystem/OpenableMenu.h"
 #include "ScoreBoardWidget.generated.h"
 
 struct FPlayerScore;
@@ -17,16 +18,13 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UScoreBoardWidget : public UUserWidget
+class HOVERTANKS_API UScoreBoardWidget : public UOpenableMenu
 {
 	GENERATED_BODY()
 
 public:
-	// Initialize
-	virtual bool Initialize() override;
-	
-	virtual void Setup();
-	virtual void Teardown();
+	virtual void Setup() override;
+	virtual void Teardown() override;
 
 	virtual void SetMapName(const FString& InMapName) const { MapName->SetText(FText::FromString(InMapName)); }
 	virtual void SetGameModeName(const FString& InGameModeName) const { GameModeName->SetText(FText::FromString(InGameModeName)); }
@@ -35,12 +33,6 @@ public:
 	virtual void RefreshTimeLeft();
 
 	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores);
-
-	/**
-	 * Could this be an OpenableMenu?
-	 */
-	void SetupInputModeGameAndUi();
-	void SetInputModeGameOnly() const;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
