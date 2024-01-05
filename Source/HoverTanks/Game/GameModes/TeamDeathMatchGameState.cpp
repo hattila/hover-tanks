@@ -132,17 +132,15 @@ bool ATeamDeathMatchGameState::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerSta
 
 bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId)
 {
-	// is the team id valid?
-	if (!TeamMap.Contains(TeamId))
+	if (!HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Invalid team id %d"), TeamId);
+		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Only callable on the server"));
 		return false;
 	}
 
-	if (!HasAuthority())
+	if (!TeamMap.Contains(TeamId))
 	{
-		// log
-		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Only callable on the server"));
+		UE_LOG(LogTemp, Warning, TEXT("AssignPlayerToTeam : Invalid team id %d"), TeamId);
 		return false;
 	}
 

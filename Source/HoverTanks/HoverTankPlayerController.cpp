@@ -88,6 +88,23 @@ void AHoverTankPlayerController::OnRep_Pawn()
 	Super::OnRep_Pawn();
 }
 
+void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
+{
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState)
+	{
+		// get player state
+		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+		if (TeamPlayerState == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));
+			return;
+		}
+		
+		GameState->AssignPlayerToTeam(TeamPlayerState, TeamId);
+	}
+}
+
 void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 {
 	// log

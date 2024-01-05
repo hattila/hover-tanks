@@ -8,6 +8,7 @@
 #include "HoverTanks/Game/PlayerScore.h"
 #include "TeamDeathMatchScoreBoardWidget.generated.h"
 
+class UButton;
 class USpacer;
 class UScrollBox;
 /**
@@ -20,9 +21,14 @@ class HOVERTANKS_API UTeamDeathMatchScoreBoardWidget : public UScoreBoardWidget
 
 public:
 	UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
+
+	virtual bool Initialize() override;
 	
 	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
 
+protected:
+	virtual bool IsEveryElementInitialized() override;
+	
 private:
 	UPROPERTY(meta = (BindWidget))
 	UScrollBox* PlayerScoresBoxTeam1 = nullptr;
@@ -36,5 +42,19 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* Team2Score = nullptr;
 
+	UPROPERTY(meta = (BindWidget))
+	UButton* JoinTeam1 = nullptr;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* JoinTeam2 = nullptr;
+	
 	USpacer* CreateSpacerElement() const;
+
+	void AttemptToJoinTeam(const uint8 TeamId) const;
+	
+	UFUNCTION()
+	void AttemptToJoinTeam1();
+
+	UFUNCTION()
+	void AttemptToJoinTeam2();
 };

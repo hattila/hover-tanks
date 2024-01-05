@@ -33,6 +33,9 @@ public:
 	virtual void OnRep_Pawn() override; // Controller.cpp
 	// virtual void OnRep_PlayerState() override; // Controller.cpp
 
+	UFUNCTION(Server, Reliable)
+	void ServerAttemptToJoinTeam(int8 TeamId);
+
 protected:
 	UFUNCTION()
 	void ApplyTeamColorToPawn(int8 NewTeamId);

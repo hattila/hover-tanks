@@ -5,8 +5,13 @@
 
 #include "DeathMatchPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Components/Spacer.h"
+#include "HoverTanks/HoverTankPlayerController.h"
+#include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
+// #include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
 
 UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -18,6 +23,25 @@ UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectIn
 		return;
 	}
 	PlayerScoreClass = PlayerScoreClassFinder.Class;
+}
+
+bool UTeamDeathMatchScoreBoardWidget::Initialize()
+{
+	bool Success = Super::Initialize();
+	if (!Success)
+	{
+		return false;
+	}
+
+	if (!IsEveryElementInitialized())
+	{
+		return false;
+	}
+	
+	JoinTeam1->OnClicked.AddDynamic(this, &UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1);
+	JoinTeam2->OnClicked.AddDynamic(this, &UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2);
+
+	return true;
 }
 
 void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
@@ -63,10 +87,61 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 	}
 }
 
+bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized()
+{
+	if (PlayerScoresBoxTeam1 == nullptr)
+	{
+		return false;
+	}
+
+	if (PlayerScoresBoxTeam2 == nullptr)
+	{
+		return false;
+	}
+	
+	if (JoinTeam1 == nullptr)
+	{
+		return false;
+	}
+
+	if (JoinTeam2 == nullptr)
+	{
+		return false;
+	}
+	
+	return true;
+}
+
 USpacer* UTeamDeathMatchScoreBoardWidget::CreateSpacerElement() const
 {
 	USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
 	Spacer->SetSize(FVector2d(1, 10));
 
 	return Spacer;
+}
+
+void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam(const uint8 TeamId) const
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	AHoverTankPlayerController* HoverTankPlayerController = GetOwningPlayer<AHoverTankPlayerController>();
+	if (!HoverTankPlayerController)
+	{
+		return;	
+	}
+
+	HoverTankPlayerController->ServerAttemptToJoinTeam(TeamId);
+}
+
+void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1()
+{
+	AttemptToJoinTeam(1);
+}
+
+void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2()
+{
+	AttemptToJoinTeam(2);
 }
