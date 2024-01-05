@@ -55,6 +55,9 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 	PlayerScoresBoxTeam1->ClearChildren();
 	PlayerScoresBoxTeam2->ClearChildren();
 
+	int32 Team1ScoreValue = 0;
+	int32 Team2ScoreValue = 0;
+
 	int32 i = 1;
 	for (FPlayerScore PlayerScore : InPlayerScores)
 	{
@@ -75,6 +78,8 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 		{
 			PlayerScoresBoxTeam1->AddChild(PlayerScoreWidget);
 			PlayerScoresBoxTeam1->AddChild(CreateSpacerElement());
+			Team1ScoreValue += PlayerScore.Score;
+
 			continue;
 		}
 
@@ -82,9 +87,12 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 		{
 			PlayerScoresBoxTeam2->AddChild(PlayerScoreWidget);
 			PlayerScoresBoxTeam2->AddChild(CreateSpacerElement());
-			continue;
+			Team2ScoreValue += PlayerScore.Score;
 		}
 	}
+
+	Team1Score->SetText(FText::FromString(FString::FromInt(Team1ScoreValue)));
+	Team2Score->SetText(FText::FromString(FString::FromInt(Team2ScoreValue)));
 }
 
 bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized()
