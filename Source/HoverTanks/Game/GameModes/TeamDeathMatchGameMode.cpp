@@ -43,9 +43,34 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
-	Super::TankDies(DeadHoverTank, DeathCauser);
+	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
 
-	UE_LOG(LogTemp, Warning, TEXT("Tank dies in Team Death Match "));
+	APlayerController* DeadPlayerController = Cast<APlayerController>(DeadHoverTank->GetController());
+	if (DeadPlayerController)
+	{
+		// Kill indicator
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			3.f,
+			FColor::Green,
+			FString::Printf(
+				TEXT("%s died!"),
+				*DeadPlayerController->PlayerState->GetPlayerName()
+			)
+		);
+
+		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
+		
+		ATeamDeathMatchGameState* TeamGameState = GetGameState<ATeamDeathMatchGameState>();
+		if (TeamGameState && KillerPlayerController != nullptr)
+		{
+			const int32 ScoreToAdd = TeamGameState->AreSameTeam(DeadPlayerController, KillerPlayerController) ? -1 : 1;
+			TeamGameState->AddScoreToPlayer(KillerPlayerController, ScoreToAdd);
+		}
+
+		DeadHoverTank->OnDeath();
+	}
+	
 }
 
 void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)

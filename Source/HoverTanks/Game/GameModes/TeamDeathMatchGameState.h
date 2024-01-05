@@ -33,6 +33,8 @@ public:
 	
 	TMap<int8, ATeam*> GetTeamMap() { return TeamMap; }
 
+	bool AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2);
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -19,7 +19,7 @@ public:
 
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
 
-	virtual void RequestRespawn(APlayerController* InPlayerController);
+	virtual void RequestRespawn(APlayerController* InPlayerController) override;
 
 protected:
 	virtual void BeginPlay() override;

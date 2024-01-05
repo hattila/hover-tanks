@@ -148,6 +148,19 @@ bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayer
 	return true;
 }
 
+bool ATeamDeathMatchGameState::AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2)
+{
+	AInTeamPlayerState* PlayerState1 = PlayerController1->GetPlayerState<AInTeamPlayerState>();
+	AInTeamPlayerState* PlayerState2 = PlayerController2->GetPlayerState<AInTeamPlayerState>();
+
+	if (PlayerState1 && PlayerState2)
+	{
+		return PlayerState1->GetTeamId() == PlayerState2->GetTeamId();
+	}
+	
+	return false;
+}
+
 void ATeamDeathMatchGameState::BeginPlay()
 {
 	Super::BeginPlay();
