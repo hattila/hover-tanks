@@ -12,6 +12,7 @@
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
+#include "Components/RectLightComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "Game/InTeamPlayerState.h"
 #include "Game/GameModes/TeamDeathMatchGameState.h"
@@ -90,6 +91,16 @@ AHoverTank::AHoverTank()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	TankLights = CreateDefaultSubobject<URectLightComponent>(TEXT("Tank Lights"));
+	TankLights->SetupAttachment(ColliderMesh);
+	TankLights->SetIntensity(50000.f);
+	TankLights->SetAttenuationRadius(2000.f);
+	TankLights->SetSourceHeight(16);
+	TankLights->SetSourceWidth(32);
+	TankLights->SetBarnDoorAngle(30);
+	TankLights->SetBarnDoorLength(30);
+	TankLights->SetRelativeLocation(FVector(216.317645f, 0.f, 4.462727f));
 
 	/**
 	 * Components Setup

@@ -10,6 +10,7 @@
 #include "HoverTank.generated.h"
 
 
+class URectLightComponent;
 class UHoverTankEffectsComponent;
 class UNiagaraComponent;
 class UHoverTankHUDWidget;
@@ -102,6 +103,10 @@ protected:
 	virtual void UnPossessed() override;
 
 private:
+	/**
+	 * Actor components
+	 */
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UHoverTankMovementComponent* HoverTankMovementComponent;
 
@@ -116,6 +121,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;
+
+	/**
+	 * Game components
+	 */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;
@@ -149,6 +158,13 @@ private:
 	// create a camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	URectLightComponent* TankLights = nullptr;
+
+    /**
+     * Input mapping
+     */
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
