@@ -5,6 +5,8 @@
 
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
+#include "Components/RectLightComponent.h"
+#include "HoverTanks/HoverTank.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
 #include "Net/UnrealNetwork.h"
 
@@ -23,6 +25,7 @@ void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UHoverTankEffectsComponent, TeamDataAsset);
+	DOREPLIFETIME(UHoverTankEffectsComponent, bAreLightsOn);
 }
 
 void UHoverTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -105,8 +108,42 @@ void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset
 	OnRep_TeamDataAsset();
 }
 
+
 void UHoverTankEffectsComponent::OnRep_TeamDataAsset()
 {
 	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamDataAsset, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
 	TeamDataAsset->ApplyToActor(GetOwner());
 }
+
+void UHoverTankEffectsComponent::ServerToggleLights_Implementation()
+{
+	bAreLightsOn = !bAreLightsOn;
+	OnRep_LightsOn();
+}
+
+void UHoverTankEffectsComponent::OnRep_LightsOn()
+{
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (!HoverTank)
+	{
+		return;
+	}
+	
+	if (bAreLightsOn)
+	{
+		HoverTank->GetTankLights()->SetHiddenInGame(false);
+	}
+	else
+	{
+		HoverTank->GetTankLights()->SetHiddenInGame(true);
+	}
+
+	if (TankLightsDynamicMaterialInstance)
+	{
+		const FVector Color = TankLightsHeadlight;
+		const float Strength = bAreLightsOn ? 100 : 0;
+		TankLightsDynamicMaterialInstance->SetVectorParameterValue(TankLightsHeadlightColorName, Color);
+		TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsHeadlightColorStrengthName, Strength);
+	}
+}
+

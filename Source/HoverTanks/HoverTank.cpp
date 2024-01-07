@@ -213,6 +213,10 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		//Switch weapons
 		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHoverTank::NextWeaponActionStarted);
 		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHoverTank::PrevWeaponActionStarted);
+
+		//Toggle lights
+		EnhancedInputComponent->BindAction(ToggleLightsAction, ETriggerEvent::Started, this, &AHoverTank::ToggleLightsActionStarted);
+		
 		
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
@@ -582,6 +586,22 @@ void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 	if (WeaponsComponent)
 	{
 		WeaponsComponent->SwitchToPrevWeapon();
+	}
+}
+
+void AHoverTank::ToggleLightsActionStarted()
+{
+	// log
+	UE_LOG(LogTemp, Warning, TEXT("ToggleLightsActionStarted"));
+	
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	if (HoverTankEffectsComponent)
+	{
+		HoverTankEffectsComponent->ServerToggleLights();
 	}
 }
 

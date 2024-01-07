@@ -75,6 +75,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
+	UFUNCTION(BlueprintPure)
+	URectLightComponent* GetTankLights() const { return TankLights; }
+
 	void OnDeath();
 	bool IsDead() const;
 	bool IsInputEnabled() const { return bIsInputEnabled; }
@@ -200,6 +203,9 @@ private:
 	UInputAction* PrevWeaponAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* ToggleLightsAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
 	
 	/**
@@ -253,6 +259,8 @@ private:
 
 	void NextWeaponActionStarted(const FInputActionValue& Value);
 	void PrevWeaponActionStarted(const FInputActionValue& Value);
+
+	void ToggleLightsActionStarted();
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();
