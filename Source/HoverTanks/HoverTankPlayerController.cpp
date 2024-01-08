@@ -11,6 +11,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/HealthComponent.h"
 #include "Game/InTeamPlayerState.h"
 #include "Game/GameModes/TeamDeathMatchGameState.h"
 #include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
@@ -99,6 +100,15 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 		{
 			UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));
 			return;
+		}
+
+		if (GetPawn() != nullptr)
+		{
+			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
+			{
+				PossessedHoverTank->GetHealthComponent()->OnAnyDamage(PossessedHoverTank, 999.f, nullptr, this, nullptr);
+			}
 		}
 		
 		GameState->AssignPlayerToTeam(TeamPlayerState, TeamId);

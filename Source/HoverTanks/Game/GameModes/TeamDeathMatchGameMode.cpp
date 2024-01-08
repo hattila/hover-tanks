@@ -43,7 +43,7 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died in TDM!"), *DeadHoverTank->GetName());
 
 	APlayerController* DeadPlayerController = Cast<APlayerController>(DeadHoverTank->GetController());
 	if (DeadPlayerController)
