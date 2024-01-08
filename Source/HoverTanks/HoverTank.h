@@ -207,14 +207,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
-
-	/**
-	 * Lights
-	 */
-	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
-	FName TankLightsThrusterStrengthName = TEXT("StrengthB");
-	float TankLightsThrusterDefaultStrength = 1.f;
-	float TankLightsThrusterMaxStrength = 100.f;
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;

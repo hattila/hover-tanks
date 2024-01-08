@@ -95,6 +95,9 @@ void UHoverTankEffectsComponent::ServerOnDeath_Implementation()
 	OnRep_TeamColorEmissiveStrength();
 
 	MulticastActivateBurningFX();
+
+	bAreLightsOn = false;
+	OnRep_LightsOn();
 	
 	// bIsBurningFxActive = true;
 	// OnRep_IsBurningFxActive();
@@ -214,6 +217,11 @@ void UHoverTankEffectsComponent::OnRep_LightsOn()
 		const float Strength = bAreLightsOn ? 100 : 0;
 		TankLightsDynamicMaterialInstance->SetVectorParameterValue(TankLightsHeadlightColorName, Color);
 		TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsHeadlightColorStrengthName, Strength);
+
+		// log
+		// FString RoleString;
+		// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
+		// UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_LightsOn, role %s, color %s, strength %f"), *RoleString, *Color.ToString(), Strength);
 	}
 }
 
