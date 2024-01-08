@@ -11,7 +11,7 @@ class UTeamDataAsset;
 class UMovementReplicatorComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class HOVERTANKS_API UHoverTankEffectsComponent : public USceneComponent
+class HOVERTANKS_API UHoverTankEffectsComponent : public UActorComponent // USceneComponent
 {
 	GENERATED_BODY()
 
@@ -42,6 +42,7 @@ private:
 
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UNiagaraComponent* TankBurningFX = nullptr;
 	
 	// UPROPERTY(ReplicatedUsing=OnRep_IsBurningFxActive)

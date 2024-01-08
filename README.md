@@ -59,3 +59,5 @@ PS H:\UnrealProjects\BUILD\HoverTanks\Windows\HoverTanks\Saved\Logs> Get-Content
 - Custom collision mesh as complex collision does not work on the HoverTank.
 - &Game parameter cannot be used during ServerTravel, because Steam Session is not joinable that way.
 - Start a session find by clicking on join, host a server before it finishes: crash.
+- Burning FX is multicast only, late joiners cannot see dead tanks burning.
+- Headlights are replicated, but late joiners cannot see the material change, only the light.

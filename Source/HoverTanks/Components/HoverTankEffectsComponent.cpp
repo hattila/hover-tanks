@@ -18,8 +18,7 @@ UHoverTankEffectsComponent::UHoverTankEffectsComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	TankBurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
-	// BurningFX->SetupAttachment(RootComponent);
+	TankBurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Burning FX"));
 	TankBurningFX->SetAutoActivate(false);
 	
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
