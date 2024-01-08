@@ -207,15 +207,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
-	
-	/**
-	 * FX
-	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FX", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* BurningFX = nullptr;
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastActivateBurningFX();
 
 	/**
 	 * Lights
@@ -224,8 +215,6 @@ private:
 	FName TankLightsThrusterStrengthName = TEXT("StrengthB");
 	float TankLightsThrusterDefaultStrength = 1.f;
 	float TankLightsThrusterMaxStrength = 100.f;
-
-	
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;

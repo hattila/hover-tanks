@@ -8,14 +8,12 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "HoverTankPlayerController.h"
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
 #include "Components/RectLightComponent.h"
 #include "Components/WeaponsComponent.h"
 #include "Game/InTeamPlayerState.h"
-#include "Game/GameModes/TeamDeathMatchGameState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -133,20 +131,6 @@ AHoverTank::AHoverTank()
 	TankBaseMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
-	
-	/**
-	 * FX
-	 */
-	BurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
-	BurningFX->SetupAttachment(RootComponent);
-	BurningFX->SetAutoActivate(false);
-
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
-	UNiagaraSystem* BurningEmitterObject = BurningEmitterAsset.Object;
-	BurningFX->SetAsset(BurningEmitterObject);
-	BurningFX->SetRelativeLocation(FVector(-140.f, 0.f, 40.f));
-
-	BurningFX->SetIsReplicated(true);
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -252,14 +236,12 @@ void AHoverTank::OnDeath()
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
-	MulticastActivateBurningFX();
-
+	if (HoverTankEffectsComponent)
+	{
+		HoverTankEffectsComponent->ServerOnDeath(); // unnecessary RPC declaration?
+	}
+	
 	// changed the mesh to a wreckage
-}
-
-void AHoverTank::MulticastActivateBurningFX_Implementation()
-{
-	BurningFX->Activate();
 }
 
 bool AHoverTank::IsDead() const
@@ -591,8 +573,7 @@ void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 
 void AHoverTank::ToggleLightsActionStarted()
 {
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("ToggleLightsActionStarted"));
+	// UE_LOG(LogTemp, Warning, TEXT("ToggleLightsActionStarted"));
 	
 	if (bIsInputEnabled == false)
 	{
@@ -623,7 +604,7 @@ void AHoverTank::DebugDrawPlayerTitle()
 	}
 	
 	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
-	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
 }
 
 void AHoverTank::DebugDrawSphereAsCrosshair() const

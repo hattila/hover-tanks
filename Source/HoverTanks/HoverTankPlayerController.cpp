@@ -107,10 +107,9 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 
 void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 {
-	// log
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ApplyTeamColorToPawn, role %s, team id: %d"), *RoleString, NewTeamId);
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ApplyTeamColorToPawn, role %s, team id: %d"), *RoleString, NewTeamId);
 
 	// do we have a possessed pawn?
 	if (GetPawn() == nullptr)
@@ -137,9 +136,9 @@ void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
 
 void AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
 {
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation, role %s, team id: %d"), *RoleString, NewTeamId);
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation, role %s, team id: %d"), *RoleString, NewTeamId);
 	
 	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
 	if (GameState == nullptr)

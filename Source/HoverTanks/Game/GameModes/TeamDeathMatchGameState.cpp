@@ -39,7 +39,7 @@ void ATeamDeathMatchGameState::InitializeNewPlayerScore(const APlayerController*
 	{
 		if (PlayerScores[i].PlayerName == InTeamPlayerState->GetPlayerName())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("InitializeNewPlayerScore : Player already in array. Name: %s, team: %d"), *InTeamPlayerState->GetPlayerName(), InTeamPlayerState->GetTeamId());
+			// UE_LOG(LogTemp, Warning, TEXT("InitializeNewPlayerScore : Player already in array. Name: %s, team: %d"), *InTeamPlayerState->GetPlayerName(), InTeamPlayerState->GetTeamId());
 			
 			PlayerScores[i].TeamId = InTeamPlayerState->GetTeamId();
 			OnRep_PlayerScores();

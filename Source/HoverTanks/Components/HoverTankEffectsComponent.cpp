@@ -5,6 +5,7 @@
 
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
+#include "NiagaraComponent.h"
 #include "Components/RectLightComponent.h"
 #include "HoverTanks/HoverTank.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
@@ -17,7 +18,16 @@ UHoverTankEffectsComponent::UHoverTankEffectsComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	TankBurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
+	// BurningFX->SetupAttachment(RootComponent);
+	TankBurningFX->SetAutoActivate(false);
+	
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
+	UNiagaraSystem* BurningEmitterObject = BurningEmitterAsset.Object;
+	TankBurningFX->SetAsset(BurningEmitterObject);
+	TankBurningFX->SetRelativeLocation(FVector(-140.f, 0.f, 40.f));
+	
+	TankBurningFX->SetIsReplicated(true);
 }
 
 void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,6 +36,8 @@ void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 
 	DOREPLIFETIME(UHoverTankEffectsComponent, TeamDataAsset);
 	DOREPLIFETIME(UHoverTankEffectsComponent, bAreLightsOn);
+	DOREPLIFETIME(UHoverTankEffectsComponent, TeamColorEmissiveStrength);
+	// DOREPLIFETIME(UHoverTankEffectsComponent, bIsBurningFxActive);
 }
 
 void UHoverTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -75,6 +87,24 @@ void UHoverTankEffectsComponent::ThrusterLights(const bool bThrusting) const
 	}
 }
 
+void UHoverTankEffectsComponent::ServerOnDeath_Implementation()
+{
+	UE_LOG(LogTemp, Warning, TEXT("FX comp, ServerOnDeath"));
+	
+	TeamColorEmissiveStrength = 0;
+	OnRep_TeamColorEmissiveStrength();
+
+	MulticastActivateBurningFX();
+	
+	// bIsBurningFxActive = true;
+	// OnRep_IsBurningFxActive();
+}
+
+void UHoverTankEffectsComponent::MulticastActivateBurningFX_Implementation()
+{
+	TankBurningFX->Activate();
+}
+
 void UHoverTankEffectsComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -89,6 +119,44 @@ void UHoverTankEffectsComponent::BeginPlay()
 	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
 	{
 		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
+	}
+
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		// TankBurningFX = HoverTank->GetBurningFXComponent();
+		TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	}
+
+	// log out the TeamColorEmissiveStrength value
+	FString RoleString;
+	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
+	UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
+}
+
+// void UHoverTankEffectsComponent::OnRep_IsBurningFxActive()
+// {
+// 	if (!TankBurningFx)
+// 	{
+// 		return;
+// 	}
+// 	
+// 	if (bIsBurningFxActive)
+// 	{
+// 		TankBurningFx->Activate();
+// 	}
+// 	else
+// 	{
+// 		TankBurningFx->Deactivate();
+// 	}
+// }
+
+void UHoverTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
+{
+	if (TankLightsDynamicMaterialInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamColorEmissiveStrength, strength %f"), TeamColorEmissiveStrength);
+		TankLightsDynamicMaterialInstance->SetScalarParameterValue(TeamColorMaterialParamStrengthName, TeamColorEmissiveStrength);
 	}
 }
 
@@ -132,10 +200,12 @@ void UHoverTankEffectsComponent::OnRep_LightsOn()
 	if (bAreLightsOn)
 	{
 		HoverTank->GetTankLights()->SetHiddenInGame(false);
+		// TankBurningFx->Activate();
 	}
 	else
 	{
 		HoverTank->GetTankLights()->SetHiddenInGame(true);
+		// TankBurningFx->Deactivate();
 	}
 
 	if (TankLightsDynamicMaterialInstance)

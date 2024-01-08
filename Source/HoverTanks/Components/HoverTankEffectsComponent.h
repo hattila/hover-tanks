@@ -6,11 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankEffectsComponent.generated.h"
 
+class UNiagaraComponent;
 class UTeamDataAsset;
 class UMovementReplicatorComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class HOVERTANKS_API UHoverTankEffectsComponent : public UActorComponent
+class HOVERTANKS_API UHoverTankEffectsComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
@@ -27,6 +28,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerToggleLights();
 
+	UFUNCTION(Server, Reliable)
+	void ServerOnDeath();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastActivateBurningFX();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,6 +41,26 @@ private:
 	UMovementReplicatorComponent* MovementReplicatorComponent = nullptr;
 
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
+
+	UNiagaraComponent* TankBurningFX = nullptr;
+	
+	// UPROPERTY(ReplicatedUsing=OnRep_IsBurningFxActive)
+	// bool bIsBurningFxActive = false;
+	//
+	// UFUNCTION()
+	// void OnRep_IsBurningFxActive();
+	
+	/**
+	 * Team Color
+	 */
+	FName TeamColorMaterialParamName = TEXT("EmissiveTeamColor");
+	FName TeamColorMaterialParamStrengthName = TEXT("EmissiveTeamColorStrength");
+
+	UPROPERTY(ReplicatedUsing=OnRep_TeamColorEmissiveStrength)
+	float TeamColorEmissiveStrength = 50.f;
+
+	UFUNCTION()
+	void OnRep_TeamColorEmissiveStrength();
 	
 	/**
 	 * Lights, thrusters
