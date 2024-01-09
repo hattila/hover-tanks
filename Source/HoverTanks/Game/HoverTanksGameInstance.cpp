@@ -8,6 +8,7 @@
 #include "OnlineSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/MenuSystem/MainMenu.h"
+#include "Kismet/GameplayStatics.h"
 
 UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
 {
@@ -200,26 +201,28 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	FString ServerTravelURL = FString::Printf(TEXT("/Game/HoverTanks/Maps/%s?listen"), *MapName);
 
 	/**
-	 * Steam Session cannot be joined if initialized with a &game= parameter todo: investigate
+	 * Set the Game parameter if GameMode is chosen
 	 */
-	// if (HostGameSettings.GameModeName != "")
-	// {
-	// 	ServerTravelURL.Append(FString::Printf(TEXT("&game=%s"), *HostGameSettings.GameModeName));
-	// }
+	if (HostGameSettings.GameModeName != "")
+	{
+		// const FString GameModePath = FString::Printf(TEXT("HoverTanks./Script/HoverTanks/Game/GameModes/%s"), *HostGameSettings.GameModeName);
+		const FString GameModePath = FString::Printf(TEXT("HoverTanks.Game.GameModes.%sGameMode"), *HostGameSettings.GameModeName); // todo class exists check
+		ServerTravelURL.Append(FString::Printf(TEXT("?Game=%s"), *GameModePath));
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete success, Traveling with string ... %s"), *ServerTravelURL);
 
 	if (GEngine)
 	{
-		FString Message = FString::Printf(TEXT("Server Travel to: %s"), *ServerTravelURL);
+		FString Message = FString::Printf(TEXT("Starting up server with params: %s"), *ServerTravelURL);
 		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);
 	}
 
 	/**
-	 * Absolute or not, Steam session is joinable with ?listen param, and without a game parameter
+	 * ServerTravel or OpenLevel
 	 */
-	World->ServerTravel(ServerTravelURL, true);
-	// World->ServerTravel("/Game/HoverTanks/Maps/PrototypeMap?listen");
+	// World->ServerTravel(ServerTravelURL, true); // eg "/Game/HoverTanks/Maps/PrototypeMap?listen
+	UGameplayStatics::OpenLevel(World, FName(*MapName), true, ServerTravelURL);
 }
 
 void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
@@ -301,7 +304,7 @@ void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSe
 		GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Green, *Message);
 	}
 
-	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Relative);
 }
 
 /**

@@ -3,6 +3,7 @@
 	"EngineAssociation": "5.1",
 	"Category": "",
 	"Description": "",
+	"Name": "HoverTanks",
 	"Modules": [
 		{
 			"Name": "HoverTanks",
