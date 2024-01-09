@@ -86,9 +86,13 @@ void UHoverTankEffectsComponent::ThrusterLights(const bool bThrusting) const
 	}
 }
 
-void UHoverTankEffectsComponent::ServerOnDeath_Implementation()
+void UHoverTankEffectsComponent::OnDeath()
 {
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, ServerOnDeath"));
+	if (!GetOwner() || !GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FX comp, OnDeath only on Authority"));
+		return;
+	}
 	
 	TeamColorEmissiveStrength = 0;
 	OnRep_TeamColorEmissiveStrength();

@@ -250,5 +250,4 @@ private:
 	 * Debug 
 	 */
 	void DebugDrawPlayerTitle();
-	void DebugDrawSphereAsCrosshair() const;
 };

@@ -12,24 +12,19 @@
 // Sets default values
 ARocketProjectile::ARocketProjectile()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
 
-	// set actor lifetime to 5 seconds
 	InitialLifeSpan = 5.f;
 
-	// initialize the Sphere Collider, make it the root component
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
 	RootComponent = SphereCollider;
 
-	// initialize the mesh, add it under the sphere collider
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 
-	// initialize the projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->SetIsReplicated(true);
 	ProjectileMovementComponent->InitialSpeed = 1500.f;
@@ -49,13 +44,11 @@ ARocketProjectile::ARocketProjectile()
 	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// Set the mesh transform scale to .5
 	ProjectileMesh->SetWorldScale3D(FVector(1.0f, 1.0f, 1.0f));
 
 	/**
 	 * Material
 	 */
-	// find and initialize the material instance: MI_EmissiveCannonProjectile
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveCannonProjectileMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveCannonProjectile"));
 	UMaterialInstance* EmissiveCannonProjectileMaterialObject = EmissiveCannonProjectileMaterialAsset.Object;
 	ProjectileMesh->SetMaterial(0, EmissiveCannonProjectileMaterialObject);

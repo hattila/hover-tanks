@@ -92,6 +92,14 @@ AHoverTank::AHoverTank()
 
 	TankLights = CreateDefaultSubobject<URectLightComponent>(TEXT("Tank Lights"));
 	TankLights->SetupAttachment(ColliderMesh);
+
+	/**
+	 * Components Setup
+	 */
+	SpringArm->TargetArmLength = SpringArmLength;
+	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
+	SpringArm->bUsePawnControlRotation = true;
+
 	TankLights->SetIntensity(50000.f);
 	TankLights->SetAttenuationRadius(2000.f);
 	TankLights->SetSourceHeight(16);
@@ -99,13 +107,7 @@ AHoverTank::AHoverTank()
 	TankLights->SetBarnDoorAngle(30);
 	TankLights->SetBarnDoorLength(30);
 	TankLights->SetRelativeLocation(FVector(216.317645f, 0.f, 4.462727f));
-
-	/**
-	 * Components Setup
-	 */
-	SpringArm->TargetArmLength = SpringArmLength;
-	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
-
+	
 	ColliderMesh->SetCollisionProfileName(TEXT("HoverTank"), true);
 	ColliderMesh->SetVisibility(false);
 
@@ -146,18 +148,11 @@ void AHoverTank::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleCameraZoom(DeltaTime);
-	
-	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	// if (bShowDebug)
-	// {
+	if (bShowDebug)
+	{
 		DebugDrawPlayerTitle();	
-	// }
-	
-	// if (IsLocallyControlled() && bShowDebug)
-	// {
-	// 	DebugDrawSphereAsCrosshair();	
-	// }
+	}
 }
 
 void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -238,7 +233,7 @@ void AHoverTank::OnDeath()
 
 	if (HoverTankEffectsComponent)
 	{
-		HoverTankEffectsComponent->ServerOnDeath(); // unnecessary RPC declaration?
+		HoverTankEffectsComponent->OnDeath();
 	}
 	
 	// changed the mesh to a wreckage
@@ -377,7 +372,7 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		
-		HoverTankMovementComponent->SetLookUp(LookAxisVector.Y); // beware! -1 is up, 1 is down
+		HoverTankMovementComponent->SetLookUp(LookAxisVector.Y);
 		HoverTankMovementComponent->SetLookRight(LookAxisVector.X);
 	}
 }
@@ -426,13 +421,6 @@ void AHoverTank::JumpTriggered()
 		return;
 	}
 
-	// UE_LOG(LogTemp, Warning, TEXT("Name of the lights material is %s"), *TankLightsDynamicMaterialInstance->GetName());
-
-	// get parameters of TankLightsMaterialInstance
-	// TankLightsMaterialInstance->ClearParameterValues();
-	// TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsThrusterStrengthName, TankLightsThrusterMaxStrength);
-	
-	// UE_LOG(LogTemp, Warning, TEXT("Jump started"));
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->JumpTriggered();
@@ -446,8 +434,6 @@ void AHoverTank::JumpCompleted()
 		return;
 	}
 
-	// TankLightsDynamicMaterialInstance->SetScalarParameterValue(TankLightsThrusterStrengthName, TankLightsThrusterDefaultStrength);
-	
 	if (HoverTankMovementComponent)
 	{
 		HoverTankMovementComponent->JumpCompleted();
@@ -605,24 +591,4 @@ void AHoverTank::DebugDrawPlayerTitle()
 	
 	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
 	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
-}
-
-void AHoverTank::DebugDrawSphereAsCrosshair() const
-{
-	// FHitResult Hit;
-	// FVector Start = Camera->GetComponentLocation();
-	// FVector End = Start + Camera->GetForwardVector() * 20000;
-	// FCollisionQueryParams Params;
-	// Params.AddIgnoredActor(this);
-	// GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
-
-	const FHitResult Hit = FindTargetAtCrosshair();
-	if (Hit.IsValidBlockingHit())
-	{
-		const FVector HitLocation = Hit.Location;
-
-		// Scale up the sphere radius based on the distance from the camera. The greater the distance, the larger the radius
-		float SphereRadius = FMath::Clamp((HitLocation - Camera->GetComponentLocation()).Size() / 100, 25.f, 100.f);
-		DrawDebugSphere(GetWorld(), HitLocation, SphereRadius, 12, FColor::Yellow, false, 0.f, 0, 3.f);
-	}
 }

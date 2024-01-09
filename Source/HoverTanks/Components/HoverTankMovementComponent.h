@@ -190,11 +190,11 @@ private:
 	FRotator CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation);
 	FVector CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal);
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
-	FVector CalculateVerticalForceFromThrust(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
-	FVector CalculateGroundTraceStartLocation();
+	FVector CalculateGroundTraceStartLocation() const;
 	
-	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround);
+	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const;
 	bool IsInputEnabled();
+	bool IsTankDead() const;
 
 	/**
 	 * Debug

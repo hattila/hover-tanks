@@ -11,24 +11,19 @@
 // Sets default values
 ACannonProjectile::ACannonProjectile()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
 
-	// set actor lifetime to 3 seconds
 	InitialLifeSpan = 3.f;
 
-	// initialize the Sphere Collider, make it the root component
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
 	RootComponent = SphereCollider;
 
-	// initialize the mesh, add it under the sphere collider
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 
-	// initialize the projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->InitialSpeed = 20000.f;
 	ProjectileMovementComponent->MaxSpeed = 40000.f;
@@ -67,7 +62,6 @@ void ACannonProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// bind the OnHit event to the OnHit function
 	if (HasAuthority())
 	{
 		SphereCollider->OnComponentHit.AddDynamic(this, &ACannonProjectile::OnHit);
@@ -89,7 +83,7 @@ void ACannonProjectile::OnHit(
 	const FHitResult& Hit
 )
 {
-	DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
+	// DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
 	
 	BounceCount++;
 	
@@ -128,7 +122,7 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 			UDamageType::StaticClass()
 		);
 
-		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
+		// DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
 		DelayedDestroy();
 	}
 }

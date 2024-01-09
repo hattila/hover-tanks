@@ -28,8 +28,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerToggleLights();
 
-	UFUNCTION(Server, Reliable)
-	void ServerOnDeath();
+	void OnDeath();
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastActivateBurningFX();

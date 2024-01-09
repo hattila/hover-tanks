@@ -54,7 +54,7 @@ private:
 	/**
 	 * Rocket spec
 	 */
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UNiagaraComponent* SmokeTrailFX = nullptr;
 
 	FTimerHandle DestroyTimerHandle;

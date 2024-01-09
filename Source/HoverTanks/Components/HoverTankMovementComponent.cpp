@@ -91,9 +91,9 @@ void UHoverTankMovementComponent::BoostCompleted()
  * Movement Simulation covers
  *  - Throttle, acceleration, drag, rolling resistance
  *  - Updraft and gravity
+ *  - Bounce angle and dampening
  *  - Slopes and rotation along surface normals
  *  - Turning and Rotation
- *  - Cannon and barrel rotation 
  */
 void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
@@ -171,9 +171,14 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		FVector BounceVector = CalculateBounceVector(Velocity, HitResult.ImpactNormal);
 		// DrawDebugDirectionalArrow(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + BounceVector * 1000, 200, FColor::Red, false, 1, 0, 2);
 
-		float ImpactSeverity = FMath::Abs(FVector::DotProduct(BounceVector, HitResult.ImpactNormal));
-		float BounceDampening = 1 - ImpactSeverity + .2f;
-		BounceDampening = FMath::Clamp(BounceDampening, .2f, 0.8f);
+		float BounceDampening = .5;
+		if (!IsTankDead())
+		{
+			float ImpactSeverity = FMath::Abs(FVector::DotProduct(BounceVector, HitResult.ImpactNormal));
+			BounceDampening = 1 - ImpactSeverity + .2f;
+			BounceDampening = FMath::Clamp(BounceDampening, .2f, 0.8f);
+		}
+
 		// UE_LOG(LogTemp, Warning, TEXT("ImpactSeverity: %f, BounceDampening: %f"), ImpactSeverity, BounceDampening);
 		Velocity = BounceVector * Velocity.Size() * BounceDampening;
 		// Velocity = FVector::ZeroVector;
@@ -189,6 +194,9 @@ void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRot
 	{
 		return;
 	}
+
+	// log out CannonRotate ControlRotation, and Pitch
+	// UE_LOG(LogTemp, Warning, TEXT("CannonRotate ControlRotation: %s, Pitch: %f"), *CannonRotate.ControlRotation.ToString(), CannonRotate.ControlRotation.Pitch);
 	
 	FRotator CannonRotation;
 	CannonRotation.Pitch = 0;
@@ -204,6 +212,9 @@ void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRot
 	BarrelRotationTowardControlRotation.Roll = 0;
 	
 	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -10.0f, 15.0f);
+
+	// log out calculated Pitch
+	// UE_LOG(LogTemp, Warning, TEXT("BarrelRotationTowardControlRotation Pitch: %f"), BarrelRotationTowardControlRotation.Pitch);
 	
 	TankBarrelMesh->SetWorldRotation(BarrelRotationTowardControlRotation);
 }
@@ -307,20 +318,18 @@ FVector UHoverTankMovementComponent::CalculateRollingResistance(bool InIsEBrakin
 FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
 {
 	// Ensure that the incoming velocity and wall normal are normalized
-	FVector NormalizedVelocity = InVelocity.GetSafeNormal();
-	FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
+	const FVector NormalizedVelocity = InVelocity.GetSafeNormal();
+	const FVector NormalizedWallNormal = WallNormal.GetSafeNormal();
 
 	// Calculate the reflection vector using the formula: R = I - 2 * (I dot N) * N
-	FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
+	const FVector BounceVector = NormalizedVelocity - 2.0f * FVector::DotProduct(NormalizedVelocity, NormalizedWallNormal) * NormalizedWallNormal;
 
 	return BounceVector;
 }
 
 FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
 {
-	// return CalculateVerticalForceFromThrust(Move, DistanceFromGround, bIsGrounded);
-	
-	FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
+	const FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1); // m/s^2
 
 	FVector VerticalForce;
 	if (bIsGrounded)
@@ -334,10 +343,10 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 			UpDraftMultiplier = FMath::Square(UpDraftMultiplier);
 		}
 
-		float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z;
+		const float UpVectorMagnitude = UpDraftMultiplier * -Gravity.Z;
 		
 		VerticalForce = FVector(0, 0, 1) * UpVectorMagnitude;
-		FVector DownForce = VerticalForce - Gravity;
+		// FVector DownForce = VerticalForce - Gravity;
 		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, VForce %f \n Multiplier: %f UpDraft: %f, \n GRV: %f \n\n\n"), DistanceFromGround, VerticalForce.Z, UpDraftMultiplier, DownForce.Size(), Gravity.Z);
 
 		if (Move.bIsJumping)
@@ -361,95 +370,27 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
 	return VerticalForce * Move.DeltaTime;
 }
 
-FVector UHoverTankMovementComponent::CalculateVerticalForceFromThrust(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
-{
-	const FVector GravitationalForce = (GetWorld()->GetGravityZ() / 100) * Mass * FVector(0, 0, 1); // m/s^2 49000 N with 5000 kg mass
-	float MaximumUpwardForceMagnitude = 196000; // 5000 * 9.8 = 49000 N * 2 = 98000 N * 2 = 196000 N
-	DistanceFromGround = DistanceFromGround / 100; // meters
-
-	float HeightFalloffMultiplier;
-	
-	FVector CalculatedVerticalForce;
-	
-	if (!bIsGrounded)
-	{
-		CalculatedVerticalForce = GravitationalForce / 1000;
-	}
-	else
-	{
-		float PowerUsageMultiplier = HoveringPowerUsageMultiplier;
-		
-		if (Move.bIsJumping)
-		{
-			PowerUsageMultiplier = 2;
-		}
-
-		// calculate HeightFalloffMultiplier. with 0 Distance to the ground it should be 1. With 2 meter it should be 0.
-		// HeightFalloffMultiplier = -DistanceFromGround + 2; // 
-		// HeightFalloffMultiplier = -DistanceFromGround * 2 + 2; // 
-		
-		// https://www.desmos.com/calculator
-
-		// implement this equation x^2 = -4y + 4
-		// where x should be the DistanceFromGround and y should be the HeightFalloffMultiplier
-		// HeightFalloffMultiplier = FMath::Sqrt(-4 * DistanceFromGround + 4);
-
-
-		// DistanceFromGround = FMath::Sqrt(-4 * HeightFalloffMultiplier + 4);
-		// invert the above to solve for HeightFalloffMultiplier
-		// HeightFalloffMultiplier = (DistanceFromGround * DistanceFromGround - 4) / -4; // Copilot solution
-		
-		//
-		// FMath::Square(DistanceFromGround) = -4 * HeightFalloffMultiplier + 4;
-		// FMath::Square(DistanceFromGround) - 4 = -4 * HeightFalloffMultiplier;
-		// (FMath::Square(DistanceFromGround) - 4) / -4 = HeightFalloffMultiplier;
-
-		HeightFalloffMultiplier = (FMath::Square(DistanceFromGround) - 4) / -4;
-		// solve the above for  DistanceFromGround = 0 and DistanceFromGround = 2
-		// DistanceFromGround = 0, HeightFalloffMultiplier = 1
-		// DistanceFromGround = 2, HeightFalloffMultiplier = 0
-		
-		float AppliedUpwardForceMagnitude = MaximumUpwardForceMagnitude * PowerUsageMultiplier * HeightFalloffMultiplier;
-		
-		// UE_LOG(LogTemp, Warning, TEXT("DST: %f, HFM: %f, PUM: %f \n Applied force magnitude: %f"), DistanceFromGround, HeightFalloffMultiplier, PowerUsageMultiplier, AppliedUpwardForceMagnitude);
-
-		FVector AppliedUpwardForce = FVector(0, 0, 1) * AppliedUpwardForceMagnitude;
-		
-		// float
-		// CalculatedVerticalForce = FVector(0, 0, 1) * (MaximumUpwardForceMagnitude * PowerUsageMultiplier / 1000) + (GravitationalForce / 1000);	
-		CalculatedVerticalForce = AppliedUpwardForce / 1000 + GravitationalForce / 1000;	
-	}
-
-	
-	
-	return CalculatedVerticalForce * Move.DeltaTime;
-}
-
 /**
  * Move the GroundTraceStart component along the Velocity. As Velocity magnitude increases, the GroundTraceStart
  * component should move further ahead, maximized at MaxSpeed. As Velocity magnitude decreases, the GroundTraceStart
  * component should closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
  */
-FVector UHoverTankMovementComponent::CalculateGroundTraceStartLocation()
+FVector UHoverTankMovementComponent::CalculateGroundTraceStartLocation() const
 {
-	FVector GroundTraceOriginLocation = GetOwner()->GetActorLocation() + GroundTraceLocationOffset;
-	FVector NormalizedVelocity = Velocity.GetSafeNormal();
-	FVector NormalizedVelocityXZ = FVector(NormalizedVelocity.X, NormalizedVelocity.Y, 0);
-	FVector GroundTraceTargetLocation;
-	
-	float OffsetMaxMagnitude = 500;
+	const FVector GroundTraceOriginLocation = GetOwner()->GetActorLocation() + GroundTraceLocationOffset;
+	const FVector NormalizedVelocity = Velocity.GetSafeNormal();
+	const FVector NormalizedVelocityXZ = FVector(NormalizedVelocity.X, NormalizedVelocity.Y, 0);
+
+	const float OffsetMaxMagnitude = 500;
 
 	// Set the OffsetMagnitude to be a function of the Velocity magnitude. When we are at a standstill it should be 0. When we reached MaxSpeed it should be MaxOffsetMagnitude
-	float OffsetMagnitude = OffsetMaxMagnitude * (Velocity.Size() / MaxSpeed);
-
-	// UE_LOG(LogTemp, Warning, TEXT("OffsetMagnitude: %f"), OffsetMagnitude);
-	
-	GroundTraceTargetLocation = GroundTraceOriginLocation + NormalizedVelocityXZ * OffsetMagnitude;
+	const float OffsetMagnitude = OffsetMaxMagnitude * (Velocity.Size() / MaxSpeed);
+	const FVector GroundTraceTargetLocation = GroundTraceOriginLocation + NormalizedVelocityXZ * OffsetMagnitude;
 
 	return GroundTraceTargetLocation;
 }
 
-bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround)
+bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const
 {
 	if (GetOwner() == nullptr)
 	{
@@ -458,33 +399,26 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 
 	float GroundCheckDistance = 20000.f;
 	float GroundNormalThreshold = 0.7f;
-	
-	// Set up the parameters for the line trace
-	// FVector StartLocation = GetOwner()->GetActorLocation();
-	FVector StartLocation = GroundTraceLocation->GetComponentLocation();
+	FVector TraceStartLocation = GroundTraceLocation->GetComponentLocation();
 
 	if (ShowDebug())
 	{
-		// draw a debug cube at the Startlocation
-		DrawDebugBox(GetWorld(), StartLocation, FVector(100, 100, 100), FColor::Green, false, 0, 0, 2);
+		DrawDebugBox(GetWorld(), TraceStartLocation, FVector(100, 100, 100), FColor::Green, false, 0, 0, 2);
 	}
-	
-	// StartLocation.Z -= 75;
-	FVector EndLocation = StartLocation - FVector(0, 0, GroundCheckDistance);
 
-	// Perform a line trace to check for the ground
+	FVector EndLocation = TraceStartLocation - FVector(0, 0, GroundCheckDistance);
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
 	if (ShowDebug())
 	{
-		DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
+		DrawDebugLine(GetWorld(), TraceStartLocation, EndLocation, FColor::Green, false, 1, 0, 1);
 	}
 
 	GroundSurfaceNormal = FVector(0, 0, 1);
 	
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, CollisionParams))
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLocation, EndLocation, ECC_Visibility, CollisionParams))
 	{
 		GroundSurfaceNormal = HitResult.ImpactNormal.GetSafeNormal();
 		DistanceFromGround = HitResult.Distance;
@@ -506,6 +440,17 @@ bool UHoverTankMovementComponent::IsInputEnabled()
 	if (HoverTank)
 	{
 		return HoverTank->IsInputEnabled();
+	}
+
+	return false;
+}
+
+bool UHoverTankMovementComponent::IsTankDead() const
+{
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		return HoverTank->IsDead();
 	}
 
 	return false;
