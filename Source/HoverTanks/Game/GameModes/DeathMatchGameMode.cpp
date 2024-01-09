@@ -126,7 +126,7 @@ void ADeathMatchGameMode::BeginPlay()
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PlayerController = It->Get();
-		if (PlayerController)
+		if (PlayerController && DeathMatchGameState)
 		{
 			DeathMatchGameState->InitializeNewPlayerScore(PlayerController);
 		}

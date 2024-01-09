@@ -20,10 +20,10 @@ public:
 	virtual void Setup();
 	virtual void Teardown();
 
-protected:
-	virtual bool IsEveryElementInitialized();
-
 	void SetupInputModeUIOnly();
 	void SetupInputModeGameAndUi();
 	void SetInputModeGameOnly() const;
+
+protected:
+	virtual bool IsEveryElementInitialized();
 };

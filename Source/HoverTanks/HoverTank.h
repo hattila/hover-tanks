@@ -6,9 +6,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Pawns/HasTeamColors.h"
 #include "HoverTank.generated.h"
 
 
+class URectLightComponent;
 class UHoverTankEffectsComponent;
 class UNiagaraComponent;
 class UHoverTankHUDWidget;
@@ -29,7 +31,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
-class HOVERTANKS_API AHoverTank : public APawn
+class HOVERTANKS_API AHoverTank : public APawn, public IHasTeamColors
 {
 	GENERATED_BODY()
 	
@@ -50,7 +52,9 @@ public:
 
 	// create definition of the standard input binding method
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
+	
+	virtual void OnRep_PlayerState() override;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -71,6 +75,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
+	UFUNCTION(BlueprintPure)
+	URectLightComponent* GetTankLights() const { return TankLights; }
+
 	void OnDeath();
 	bool IsDead() const;
 	bool IsInputEnabled() const { return bIsInputEnabled; }
@@ -85,6 +92,11 @@ public:
 	FHitResult FindTargetAtCrosshair() const;
 	
 	UWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
+	UHoverTankEffectsComponent* GetEffectsComponent() const { return HoverTankEffectsComponent; }
+
+	//~ Begin IHasTeamColors interface
+	virtual void ApplyTeamColors(UTeamDataAsset* TeamDataAsset) override;
+	//~ End of IHasTeamColors interface
 
 protected:
 	// Called when the game starts or when spawned
@@ -94,6 +106,10 @@ protected:
 	virtual void UnPossessed() override;
 
 private:
+	/**
+	 * Actor components
+	 */
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UHoverTankMovementComponent* HoverTankMovementComponent;
 
@@ -108,6 +124,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;
+
+	/**
+	 * Game components
+	 */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;
@@ -141,6 +161,13 @@ private:
 	// create a camera component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	URectLightComponent* TankLights = nullptr;
+
+    /**
+     * Input mapping
+     */
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -176,26 +203,10 @@ private:
 	UInputAction* PrevWeaponAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* ToggleLightsAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
-	
-	/**
-	 * FX
-	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FX", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* BurningFX = nullptr;
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastActivateBurningFX();
-
-	/**
-	 * Lights
-	 */
-	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
-	FName TankLightsThrusterStrengthName = TEXT("StrengthB");
-	float TankLightsThrusterDefaultStrength = 1.f;
-	float TankLightsThrusterMaxStrength = 100.f;
-
-	
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
@@ -229,6 +240,8 @@ private:
 
 	void NextWeaponActionStarted(const FInputActionValue& Value);
 	void PrevWeaponActionStarted(const FInputActionValue& Value);
+
+	void ToggleLightsActionStarted();
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();

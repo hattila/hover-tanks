@@ -31,8 +31,18 @@ public:
 	void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds);
 	
 	virtual void OnRep_Pawn() override; // Controller.cpp
+	// virtual void OnRep_PlayerState() override; // Controller.cpp
+
+	UFUNCTION(Server, Reliable)
+	void ServerAttemptToJoinTeam(int8 TeamId);
 
 protected:
+	UFUNCTION()
+	void ApplyTeamColorToPawn(int8 NewTeamId);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRefreshMeOnTheScoreBoard(int8 NewTeamId);
+	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;

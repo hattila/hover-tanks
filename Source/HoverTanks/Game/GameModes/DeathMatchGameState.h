@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DeathMatchPlayerScore.h"
+#include "HoverTanks/Game/PlayerScore.h"
 #include "GameFramework/GameStateBase.h"
 #include "DeathMatchGameState.generated.h"
 
@@ -18,18 +18,18 @@ class HOVERTANKS_API ADeathMatchGameState : public AGameStateBase
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	void InitializeNewPlayerScore(const APlayerController* NewPlayer);
+	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer);
 	void RemovePlayersScore(const FString& PlayerName);
 	
-	TArray<FDeathMatchPlayerScore> GetPlayerScores() const { return PlayerScores; }
-	void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
+	TArray<FPlayerScore> GetPlayerScores() const { return PlayerScores; }
+	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd);
 
 	int32 GetTimeRemaining() const { return TimeRemainingInSeconds; }
 	void SetTimeRemaining(const int32 NewTimeRemaining) { TimeRemainingInSeconds = NewTimeRemaining; }
 	
-private:
+protected:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
-	TArray<FDeathMatchPlayerScore> PlayerScores;
+	TArray<FPlayerScore> PlayerScores;
 
 	UPROPERTY(Replicated)
 	int32 TimeRemainingInSeconds;

@@ -3,17 +3,12 @@
 
 #include "DeathMatchScoreBoardWidget.h"
 
+#include "Components/ScrollBox.h"
 #include "DeathMatchPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
-#include "Components/ScrollBox.h"
 #include "Components/Spacer.h"
 
-UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer),
-	MapName(nullptr),
-	GameModeName(nullptr),
-	TimeLeftText(nullptr),
-	PlayerScoresBox(nullptr),
-	TimeLeft(0)
+UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// initialize the player score class
 	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
@@ -25,33 +20,7 @@ UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitialize
 	PlayerScoreClass = PlayerScoreClassFinder.Class;
 }
 
-bool UDeathMatchScoreBoardWidget::Initialize()
-{
-	bool bIsSuperInitDone = Super::Initialize();
-	if (!bIsSuperInitDone)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void UDeathMatchScoreBoardWidget::Setup()
-{
-	AddToViewport();
-
-	RefreshTimeLeft();
-	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UDeathMatchScoreBoardWidget::RefreshTimeLeft, 1, true);
-}
-
-void UDeathMatchScoreBoardWidget::Teardown()
-{
-	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
-	
-	RemoveFromParent();
-}
-
-void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPlayerScore>& InPlayerScores)
+void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
 {
 	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
 	{
@@ -61,7 +30,7 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPl
 	PlayerScoresBox->ClearChildren();
 
 	int32 i = 1;
-	for (FDeathMatchPlayerScore PlayerScore : InPlayerScores)
+	for (FPlayerScore PlayerScore : InPlayerScores)
 	{
 		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)
@@ -81,29 +50,4 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FDeathMatchPl
 		
 		++i;
 	}
-}
-
-void UDeathMatchScoreBoardWidget::RefreshTimeLeft()
-{
-	// UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
-	
-	if (TimeLeftText == nullptr)
-	{
-		return;
-	}
-
-	if (TimeLeft <= 0)
-	{
-		TimeLeftText->SetText(FText::FromString(TEXT("00:00")));
-		return;
-	}
-
-	// format the time left
-	int32 Minutes = TimeLeft / 60;
-	int32 Seconds = TimeLeft % 60;
-	FString TimeLeftString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
-
-	TimeLeftText->SetText(FText::FromString(TimeLeftString));
-
-	TimeLeft--;
 }

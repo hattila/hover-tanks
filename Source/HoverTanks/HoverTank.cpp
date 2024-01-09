@@ -11,7 +11,9 @@
 #include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
+#include "Components/RectLightComponent.h"
 #include "Components/WeaponsComponent.h"
+#include "Game/InTeamPlayerState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -88,6 +90,16 @@ AHoverTank::AHoverTank()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	TankLights = CreateDefaultSubobject<URectLightComponent>(TEXT("Tank Lights"));
+	TankLights->SetupAttachment(ColliderMesh);
+	TankLights->SetIntensity(50000.f);
+	TankLights->SetAttenuationRadius(2000.f);
+	TankLights->SetSourceHeight(16);
+	TankLights->SetSourceWidth(32);
+	TankLights->SetBarnDoorAngle(30);
+	TankLights->SetBarnDoorLength(30);
+	TankLights->SetRelativeLocation(FVector(216.317645f, 0.f, 4.462727f));
+
 	/**
 	 * Components Setup
 	 */
@@ -119,20 +131,6 @@ AHoverTank::AHoverTank()
 	TankBaseMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
-	
-	/**
-	 * FX
-	 */
-	BurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Burning FX"));
-	BurningFX->SetupAttachment(RootComponent);
-	BurningFX->SetAutoActivate(false);
-
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
-	UNiagaraSystem* BurningEmitterObject = BurningEmitterAsset.Object;
-	BurningFX->SetAsset(BurningEmitterObject);
-	BurningFX->SetRelativeLocation(FVector(-140.f, 0.f, 40.f));
-
-	BurningFX->SetIsReplicated(true);
 }
 
 void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -151,10 +149,10 @@ void AHoverTank::Tick(float DeltaTime)
 	
 	// UE_LOG(LogTemp, Warning, TEXT("Throttle: %f"), Throttle);
 
-	if (bShowDebug)
-	{
+	// if (bShowDebug)
+	// {
 		DebugDrawPlayerTitle();	
-	}
+	// }
 	
 	// if (IsLocallyControlled() && bShowDebug)
 	// {
@@ -199,11 +197,20 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		//Switch weapons
 		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHoverTank::NextWeaponActionStarted);
 		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHoverTank::PrevWeaponActionStarted);
+
+		//Toggle lights
+		EnhancedInputComponent->BindAction(ToggleLightsAction, ETriggerEvent::Started, this, &AHoverTank::ToggleLightsActionStarted);
+		
 		
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
 		
 	}
+}
+
+void AHoverTank::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
 }
 
 void AHoverTank::OnDeath()
@@ -229,14 +236,12 @@ void AHoverTank::OnDeath()
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
-	MulticastActivateBurningFX();
-
+	if (HoverTankEffectsComponent)
+	{
+		HoverTankEffectsComponent->ServerOnDeath(); // unnecessary RPC declaration?
+	}
+	
 	// changed the mesh to a wreckage
-}
-
-void AHoverTank::MulticastActivateBurningFX_Implementation()
-{
-	BurningFX->Activate();
 }
 
 bool AHoverTank::IsDead() const
@@ -273,6 +278,26 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
 	// );
 	
 	return Hit;
+}
+
+/**
+ * IHasTeamColors interface 
+ */
+void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
+{
+	if (!HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ApplyTeamColors can only be called on the server!"));
+		return;
+	}
+	
+	if (HoverTankEffectsComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HoverTankEffectsComponent is null on HoverTank, cannot apply team colors"));
+		return;
+	}
+
+	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
 // Called when the game starts or when spawned
@@ -546,6 +571,21 @@ void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 	}
 }
 
+void AHoverTank::ToggleLightsActionStarted()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("ToggleLightsActionStarted"));
+	
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	if (HoverTankEffectsComponent)
+	{
+		HoverTankEffectsComponent->ServerToggleLights();
+	}
+}
+
 void AHoverTank::DebugDrawPlayerTitle()
 {
 	FString RoleString;
@@ -553,8 +593,18 @@ void AHoverTank::DebugDrawPlayerTitle()
 
 	APlayerState* CurrentPlayerState = GetPlayerState();
 	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+
+	if (CurrentPlayerState)
+	{
+		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(CurrentPlayerState);
+		if (InTeamPlayerState)
+		{
+			PlayerName += FString::Printf(TEXT(" (Team %d)"), InTeamPlayerState->GetTeamId());
+		}
+	}
+	
 	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
-	DrawDebugString(GetWorld(), FVector(0, 0, 100), DebugString, this, FColor::White, 0);
+	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
 }
 
 void AHoverTank::DebugDrawSphereAsCrosshair() const

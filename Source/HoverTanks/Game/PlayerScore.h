@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 
-#include "DeathMatchPlayerScore.generated.h"
+#include "PlayerScore.generated.h"
 
 USTRUCT()
-struct FDeathMatchPlayerScore
+struct FPlayerScore
 {
 	GENERATED_BODY()
 
@@ -14,4 +14,7 @@ struct FDeathMatchPlayerScore
 
 	UPROPERTY()
 	int32 Score;
+
+	UPROPERTY()
+	int8 TeamId;
 };

@@ -11,8 +11,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
-#include "Game/DeathMatchGameMode.h"
-#include "UI/HUD/DeathMatchHUD.h"
+#include "Components/HealthComponent.h"
+#include "Game/InTeamPlayerState.h"
+#include "Game/GameModes/TeamDeathMatchGameState.h"
+#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
+#include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController():
 	InGameMenu(nullptr),
@@ -57,13 +60,27 @@ AHoverTankPlayerController::AHoverTankPlayerController():
 
 void AHoverTankPlayerController::ClientOnScoresChanged_Implementation()
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	// AInGameHUD* HUD = Cast<AInGameHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+	
 	HUD->RefreshPlayerScores();
 }
 
 void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	// AInGameHUD* HUD = Cast<AInGameHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+
 	HUD->ForceOpenScoreBoard();
 }
 
@@ -72,12 +89,107 @@ void AHoverTankPlayerController::OnRep_Pawn()
 	Super::OnRep_Pawn();
 }
 
+void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
+{
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState)
+	{
+		// get player state
+		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+		if (TeamPlayerState == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));
+			return;
+		}
+
+		if (GetPawn() != nullptr)
+		{
+			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
+			{
+				PossessedHoverTank->GetHealthComponent()->OnAnyDamage(PossessedHoverTank, 999.f, nullptr, this, nullptr);
+			}
+		}
+		
+		GameState->AssignPlayerToTeam(TeamPlayerState, TeamId);
+	}
+}
+
+void AHoverTankPlayerController::ApplyTeamColorToPawn(int8 NewTeamId)
+{
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ApplyTeamColorToPawn, role %s, team id: %d"), *RoleString, NewTeamId);
+
+	// do we have a possessed pawn?
+	if (GetPawn() == nullptr)
+	{
+		return;
+	}
+
+	// pawn has team colors?
+	IHasTeamColors* TeamColorPawn = Cast<IHasTeamColors>(GetPawn());
+	if (TeamColorPawn == nullptr)
+	{
+		return;
+	}
+
+	// get the teams data asset todo: TeamGameStateInterface
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState == nullptr)
+	{
+		return;
+	}
+
+	TeamColorPawn->ApplyTeamColors(GameState->GetTeamDataAsset(NewTeamId));
+}
+
+void AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
+{
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation, role %s, team id: %d"), *RoleString, NewTeamId);
+	
+	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	if (GameState == nullptr)
+	{
+		return;
+	}
+
+	GameState->InitializeNewPlayerScore(this);
+}
+
 void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	// todo: respawn able game mode interface?
 	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
+
+	FString RoleString;
+	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	/**
+	 * Listen to team changes on a team game.
+	 */
+	AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+	if (!TeamPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, no team player state"), *RoleString);
+		return;
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
+	
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard);
+	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
+	ServerRefreshMeOnTheScoreBoard(TeamPlayerState->GetTeamId());
 }
 
 void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -162,7 +274,13 @@ void AHoverTankPlayerController::OpenInGameMenu()
 
 void AHoverTankPlayerController::OpenScoreBoard()
 {
-	ADeathMatchHUD* HUD = Cast<ADeathMatchHUD>(GetHUD());
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+
+	if (!ensure(HUD != nullptr))
+	{
+		return;
+	}
+	
 	HUD->ToggleScoreBoard();
 }
 
