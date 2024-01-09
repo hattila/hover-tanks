@@ -6,9 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "HoverTankMovementComponent.generated.h"
 
-class ARocketLauncher;
-class UBoxComponent;
-
 USTRUCT()
 struct FHoverTankMove
 {
@@ -66,15 +63,13 @@ class HOVERTANKS_API UHoverTankMovementComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UHoverTankMovementComponent();
 
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetThrottle(float InThrottle) { Throttle = InThrottle; }
-	void SetSteering(float InSteering) { Steering = InSteering; }
-	void SetIsEBraking(bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
+	void SetThrottle(const float InThrottle) { Throttle = InThrottle; }
+	void SetSteering(const float InSteering) { Steering = InSteering; }
+	void SetIsEBraking(const bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 
 	void JumpTriggered();
 	void JumpCompleted();
@@ -83,29 +78,29 @@ public:
 	void BoostCompleted();
 	
 	void SimulateMove(FHoverTankMove Move);
-	FHoverTankMove GetLastMove() { return LastMove; }
+	FHoverTankMove GetLastMove() const { return LastMove; }
 
-	FVector GetVelocity() { return Velocity; }
-	void SetVelocity(FVector InVelocity) { Velocity = InVelocity; }
+	FVector GetVelocity() const { return Velocity; }
+	void SetVelocity(const FVector& InVelocity) { Velocity = InVelocity; }
 
-	void SetLookUp(float InLookUp) { LookUp = InLookUp; }
-	void SetLookRight(float InLookRight) { LookRight = InLookRight; }
+	void SetLookUp(const float InLookUp) { LookUp = InLookUp; }
+	void SetLookRight(const float InLookRight) { LookRight = InLookRight; }
 
 	void SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate);
-	FHoverTankCannonRotate GetLastCannonRotate() { return LastCannonRotate; }
+	FHoverTankCannonRotate GetLastCannonRotate() const { return LastCannonRotate; }
 
-	UStaticMeshComponent* GetTankCannonMesh() { return TankCannonMesh; }
-	UStaticMeshComponent* GetTankBarrelMesh() { return TankBarrelMesh; }
+	UStaticMeshComponent* GetTankCannonMesh() const { return TankCannonMesh; }
+	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
-	/** In Newtons. The max driving force */
+	/** In Newtons. The driving force when accelerating */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float MaxThrottle = 30000;
 
+	/** In Newtons. The max driving force when boosting */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float BoostThrottle = 60000;
 
@@ -134,14 +129,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float HoveringPowerUsageMultiplier = 1;
 	
-	float Throttle;
-	float Steering;
+	float Throttle = 0;
+	float Steering = 0;
 	bool bIsEBraking = false;
 	bool bIsJumping = false;
 	bool bIsBoosting = false;
 
-	float LookUp;
-	float LookRight;
+	float LookUp = 0;
+	float LookRight = 0;
 	
 	FVector Velocity;
 
@@ -152,14 +147,12 @@ private:
 	FHoverTankMove LastMove;
 	FHoverTankMove CreateMove(float DeltaTime);
 
-	UPROPERTY()
-	USceneComponent* GroundTraceLocation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* GroundTraceLocation = nullptr;
 
-	/**
-	 * The amount of offset from the center off mass toward the ground, where the ground trace should start.
-	 * Is set in the HoverTank, and gets copied here. todo: should be here only.
-	 */
-	FVector GroundTraceLocationOffset;
+	// The amount of offset from the center off mass toward the ground, where the ground trace should start.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	FVector GroundTraceLocationOffset = FVector(0.f, 0.f, -75.f);
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float GroundTraceLocationOffsetMaxMagnitude = 500;
@@ -168,18 +161,13 @@ private:
 	 * Tank Cannon and Barrel Rotations
 	 */
 	UPROPERTY()
-	UStaticMeshComponent* TankCannonMesh;
+	UStaticMeshComponent* TankCannonMesh = nullptr;
 
 	UPROPERTY()
-	UStaticMeshComponent* TankBarrelMesh;
+	UStaticMeshComponent* TankBarrelMesh = nullptr;
 
 	FHoverTankCannonRotate LastCannonRotate;
 	FHoverTankCannonRotate CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation);
-
-	// /**
-	//  * Experiment
-	//  */
-	// ARocketLauncher* RocketLauncher = nullptr;
 
 	/**
 	 * Helper Functions

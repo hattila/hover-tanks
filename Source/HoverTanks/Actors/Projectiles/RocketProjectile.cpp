@@ -126,7 +126,7 @@ void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 			UDamageType::StaticClass()
 		);
 
-		DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
+		// DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
 		DelayedDestroy();
 	}
 }

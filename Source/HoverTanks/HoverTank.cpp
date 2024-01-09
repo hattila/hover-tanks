@@ -8,7 +8,6 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "NiagaraComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/HoverTankEffectsComponent.h"
 #include "Components/RectLightComponent.h"
@@ -19,7 +18,7 @@
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
-// Sets default values
+
 AHoverTank::AHoverTank()
 {
 	/**
@@ -54,10 +53,6 @@ AHoverTank::AHoverTank()
 	 */
 	ColliderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Collider"));
 	RootComponent = ColliderMesh;
-
-	GroundTraceLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Ground Trace Start"));
-	GroundTraceLocation->SetupAttachment(ColliderMesh);
-	GroundTraceLocation->SetRelativeLocation(GroundTraceLocationOffset);
 
 	TankBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Base Mesh"));
 	TankBaseMesh->SetupAttachment(ColliderMesh);
@@ -135,14 +130,27 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 }
 
-void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AHoverTank::BeginPlay()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	Super::BeginPlay();
 
-	DOREPLIFETIME(AHoverTank, bIsInputEnabled);
+	SetReplicateMovement(false);
+	
+	if (HasAuthority())
+	{
+		// NetUpdateFrequency = 1;
+	}
+	
+	//Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
 }
 
-// Called every frame
 void AHoverTank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -153,6 +161,13 @@ void AHoverTank::Tick(float DeltaTime)
 	{
 		DebugDrawPlayerTitle();	
 	}
+}
+
+void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AHoverTank, bIsInputEnabled);
 }
 
 void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -215,9 +230,8 @@ void AHoverTank::OnDeath()
 		return;
 	}
 	
-	// get current player controller
+	// do not do anything if this is an uncontrolled tank
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
-
 	if (PlayerController == nullptr)
 	{
 		return;
@@ -293,28 +307,6 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 	}
 
 	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
-}
-
-// Called when the game starts or when spawned
-void AHoverTank::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SetReplicateMovement(false);
-	
-	if (HasAuthority())
-	{
-		// NetUpdateFrequency = 1;
-	}
-	
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
 }
 
 void AHoverTank::PossessedBy(AController* NewController)
@@ -515,7 +507,7 @@ void AHoverTank::ShowDebugActionStarted()
 	}
 }
 
-void AHoverTank::HandleCameraZoom(float DeltaTime)
+void AHoverTank::HandleCameraZoom(const float DeltaTime) const
 {
 	if (bIsZoomedIn)
 	{

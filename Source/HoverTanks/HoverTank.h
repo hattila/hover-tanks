@@ -9,16 +9,14 @@
 #include "Pawns/HasTeamColors.h"
 #include "HoverTank.generated.h"
 
-
-class URectLightComponent;
 class UHoverTankEffectsComponent;
-class UNiagaraComponent;
-class UHoverTankHUDWidget;
-class USphereComponent;
-class UHealthComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
+class UHealthComponent;
 
+class URectLightComponent;
+class UNiagaraComponent;
+class USphereComponent;
 struct FInputActionValue;
 class UBoxComponent;
 class USpringArmComponent;
@@ -35,8 +33,7 @@ class HOVERTANKS_API AHoverTank : public APawn, public IHasTeamColors
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:
 	AHoverTank();
 	
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
@@ -48,23 +45,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnWeaponSwitched OnWeaponSwitched;
 
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	// create definition of the standard input binding method
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void OnRep_PlayerState() override;
-	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintPure)
 	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
-
-	UFUNCTION(BlueprintPure)
-	USceneComponent* GetGroundTraceLocation() const { return GroundTraceLocation; }
-
-	FVector GetGroundTraceLocationOffset() const { return GroundTraceLocationOffset; }
 
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBaseMesh() const { return TankBaseMesh; }
@@ -131,12 +121,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USceneComponent* GroundTraceLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	FVector GroundTraceLocationOffset = FVector(0.f, 0.f, -75.f);
 	
 	// create a static mesh component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -236,7 +220,7 @@ private:
 
 	float DefaultCameraZoomFOV = 90;
 	float ZoomedInCameraZoomFOV = 60;
-	void HandleCameraZoom(float DeltaTime);
+	void HandleCameraZoom(float DeltaTime) const;
 
 	void NextWeaponActionStarted(const FInputActionValue& Value);
 	void PrevWeaponActionStarted(const FInputActionValue& Value);

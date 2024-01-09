@@ -7,18 +7,14 @@
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
-UHoverTankMovementComponent::UHoverTankMovementComponent(): Throttle(0), Steering(0), LookUp(0), LookRight(0),
-                                                            LastMove(),
-															GroundTraceLocation(nullptr),
-                                                            TankCannonMesh(nullptr),
-                                                            TankBarrelMesh(nullptr),
-                                                            LastCannonRotate()
+UHoverTankMovementComponent::UHoverTankMovementComponent(): LastMove(), LastCannonRotate()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	GroundTraceLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Ground Trace Start"));
+	GroundTraceLocation->SetRelativeLocation(GroundTraceLocationOffset);
 }
 
-
-// Called when the game starts
 void UHoverTankMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,11 +22,13 @@ void UHoverTankMovementComponent::BeginPlay()
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
-		GroundTraceLocation = HoverTank->GetGroundTraceLocation();
-		GroundTraceLocationOffset = HoverTank->GetGroundTraceLocationOffset();
+		// GroundTraceLocation = HoverTank->GetGroundTraceLocation();
+		// GroundTraceLocationOffset = HoverTank->GetGroundTraceLocationOffset();
 
 		TankCannonMesh = HoverTank->GetTankCannonMesh();
 		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
+
+		GroundTraceLocation->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	
 }
