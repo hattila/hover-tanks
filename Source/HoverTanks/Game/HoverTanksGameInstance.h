@@ -40,12 +40,16 @@ public:
 	void RefreshServerList();
 	void JoinAvailableGame(uint32 Index);
 
+	void AddToastMessage(const FString& String, const bool bShowLoading = false);
+
 private:
 	/**
 	 * Menu System
 	 */
 
 	TSubclassOf<UUserWidget> MainMenuClass;
+
+	TSubclassOf<UUserWidget> ToasterWidgetClass;
 
 	UMainMenu* MainMenu;
 	

@@ -8,6 +8,7 @@
 #include "OnlineSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/MenuSystem/MainMenu.h"
+#include "HoverTanks/UI/ToasterWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
@@ -20,6 +21,15 @@ UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& Objec
 	}
 
 	MainMenuClass = MainMenuBPClass.Class;
+
+	// load ToasterWidgetClass
+	static ConstructorHelpers::FClassFinder<UUserWidget> ToasterWidgetBPClass(TEXT("/Game/HoverTanks/UI/WBP_ToasterWidget"));
+	if (!ensure(ToasterWidgetBPClass.Class != nullptr))
+	{
+		return;
+	}
+
+	ToasterWidgetClass = ToasterWidgetBPClass.Class;
 }
 
 void UHoverTanksGameInstance::Init()
@@ -110,6 +120,8 @@ void UHoverTanksGameInstance::RefreshServerList()
 			MainMenu->ShowSessionSearchInProgress();
 		}
 	}
+
+	AddToastMessage(TEXT("Finding Servers"), true);
 }
 
 void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
@@ -137,6 +149,21 @@ void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
 	}
 
 	SessionInterface->JoinSession(0, GHover_Tanks_Session_Name, SessionSearch->SearchResults[Index]);
+
+	AddToastMessage(FString::Printf(TEXT("Joining game of %s"), *SessionSearch->SearchResults[Index].Session.OwningUserName));
+}
+
+void UHoverTanksGameInstance::AddToastMessage(const FString& String, const bool bShowLoading)
+{
+	UToasterWidget* ToasterWidget = CreateWidget<UToasterWidget>(this, ToasterWidgetClass);
+	if (ToasterWidget)
+	{
+		ToasterWidget->SetAnchorsInViewport(FAnchors(0.1f, 0.85f, 0.9f, 0.9f));
+		ToasterWidget->SetMessage(String);
+		ToasterWidget->ShowLoadingInProgress(bShowLoading);
+		
+		ToasterWidget->AddToViewport();
+	}
 }
 
 void UHoverTanksGameInstance::StartCreateSession()
