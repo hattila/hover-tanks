@@ -3,7 +3,7 @@
 
 #include "ScoreBoardWidget.h"
 
-#include "DeathMatchPlayerScoreWidget.h"
+#include "PlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 

@@ -25,7 +25,7 @@ ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
 	}
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchScoreBoardClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchScoreBoardWidget"));
+		TEXT("/Game/HoverTanks/UI/Scoreboard/WBP_DeathMatchScoreBoardWidget"));
 	if (DeathMatchScoreBoardClassFinder.Succeeded())
 	{
 		DeathMatchScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;

@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ScoreBoardWidget.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "HoverTanks/Game/PlayerScore.h"
 #include "DeathMatchScoreBoardWidget.generated.h"
 

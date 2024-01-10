@@ -3,21 +3,18 @@
 
 #include "TeamDeathMatchScoreBoardWidget.h"
 
-#include "DeathMatchPlayerScoreWidget.h"
+#include "PlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Components/Spacer.h"
 #include "HoverTanks/HoverTankPlayerController.h"
-#include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
-// #include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
 
 UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// initialize the player score class
 	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchPlayerScoreWidget"));
+		TEXT("/Game/HoverTanks/UI/Scoreboard/WBP_PlayerScoreWidget"));
 	if (!ensure(PlayerScoreClassFinder.Class != nullptr))
 	{
 		return;
@@ -61,7 +58,7 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 	int32 i = 1;
 	for (FPlayerScore PlayerScore : InPlayerScores)
 	{
-		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)
 		{
 			return;

@@ -4,7 +4,7 @@
 #include "DeathMatchScoreBoardWidget.h"
 
 #include "Components/ScrollBox.h"
-#include "DeathMatchPlayerScoreWidget.h"
+#include "PlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Spacer.h"
 
@@ -12,7 +12,7 @@ UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitialize
 {
 	// initialize the player score class
 	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_DeathMatchPlayerScoreWidget"));
+		TEXT("/Game/HoverTanks/UI/Scoreboard/WBP_PlayerScoreWidget"));
 	if (!ensure(PlayerScoreClassFinder.Class != nullptr))
 	{
 		return;
@@ -32,7 +32,7 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>
 	int32 i = 1;
 	for (FPlayerScore PlayerScore : InPlayerScores)
 	{
-		UDeathMatchPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UDeathMatchPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)
 		{
 			return;

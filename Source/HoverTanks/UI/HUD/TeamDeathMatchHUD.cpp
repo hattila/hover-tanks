@@ -24,7 +24,7 @@ ATeamDeathMatchHUD::ATeamDeathMatchHUD():
 	}
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> ScoreBoardClassFinder(
-		TEXT("/Game/HoverTanks/UI/WBP_TeamDeathMatchScoreBoardWidget"));
+		TEXT("/Game/HoverTanks/UI/Scoreboard/WBP_TeamDeathMatchScoreBoardWidget"));
 	if (ScoreBoardClassFinder.Succeeded())
 	{
 		ScoreBoardClass = ScoreBoardClassFinder.Class;
