@@ -197,7 +197,7 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;
 
-	const FString MapName = HostGameSettings.MapName != "" ? HostGameSettings.MapName : "DesertRampsMap";
+	const FString MapName = HostGameSettings.MapName != "" ? HostGameSettings.MapName.Append(TEXT("Map")) : "DesertRampsMap";
 	FString ServerTravelURL = FString::Printf(TEXT("/Game/HoverTanks/Maps/%s?listen"), *MapName);
 
 	/**

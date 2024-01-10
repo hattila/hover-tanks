@@ -22,9 +22,9 @@ bool UHostGameMenu::Initialize()
 		return false;	
 	}
 
-	MapSelection->AddOption(TEXT("PrototypeMap"));
-	MapSelection->AddOption(TEXT("RaceTrackMap"));
-	MapSelection->AddOption(TEXT("DesertRampsMap"));
+	MapSelection->AddOption(TEXT("Prototype"));
+	MapSelection->AddOption(TEXT("SnowValley"));
+	MapSelection->AddOption(TEXT("DesertRamps"));
 	MapSelection->SetSelectedIndex(2);
 
 	MapSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnMapSelectionChanged);
