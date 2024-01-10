@@ -150,7 +150,7 @@ void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
 
 	SessionInterface->JoinSession(0, GHover_Tanks_Session_Name, SessionSearch->SearchResults[Index]);
 
-	AddToastMessage(FString::Printf(TEXT("Joining game of %s"), *SessionSearch->SearchResults[Index].Session.OwningUserName));
+	AddToastMessage(FString::Printf(TEXT("Joining game of %s"), *SessionSearch->SearchResults[Index].Session.OwningUserName), true);
 }
 
 void UHoverTanksGameInstance::AddToastMessage(const FString& String, const bool bShowLoading)
