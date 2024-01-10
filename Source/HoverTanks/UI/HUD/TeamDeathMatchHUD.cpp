@@ -20,7 +20,7 @@ ATeamDeathMatchHUD::ATeamDeathMatchHUD():
 		TEXT("/Game/HoverTanks/UI/HUD/WBP_DeathMatchPlayerHUDWidget"));
 	if (DeathMatchPlayerHUDWidgetClassFinder.Succeeded())
 	{
-		DeathMatchPlayerHUDWidgetClass = DeathMatchPlayerHUDWidgetClassFinder.Class;
+		PlayerHUDWidgetClass = DeathMatchPlayerHUDWidgetClassFinder.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> ScoreBoardClassFinder(
@@ -63,7 +63,7 @@ void ATeamDeathMatchHUD::ToggleScoreBoard()
 	{
 		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
 		ScoreBoardWidget->SetInputModeGameOnly();
-		DeathMatchPlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
+		PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
 	
@@ -77,7 +77,7 @@ void ATeamDeathMatchHUD::ToggleScoreBoard()
 	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
 	ScoreBoardWidget->SetupInputModeGameAndUi();
 
-	DeathMatchPlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ATeamDeathMatchHUD::ForceOpenScoreBoard()
@@ -94,7 +94,7 @@ void ATeamDeathMatchHUD::ForceOpenScoreBoard()
 	}
 
 	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
-	DeathMatchPlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ATeamDeathMatchHUD::RefreshPlayerScores()
@@ -111,17 +111,17 @@ void ATeamDeathMatchHUD::BeginPlay()
 
 	DeathMatchGameStateRef = GetWorld()->GetGameState<ADeathMatchGameState>(); // a GS with scores, and timer
 	
-	if (DeathMatchPlayerHUDWidgetClass == nullptr)
+	if (PlayerHUDWidgetClass == nullptr)
 	{
 		return;
 	}
 
-	DeathMatchPlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), DeathMatchPlayerHUDWidgetClass);
-	DeathMatchPlayerHUDWidget->Setup();
+	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
+	PlayerHUDWidget->Setup();
 
-	if (DeathMatchGameStateRef && DeathMatchPlayerHUDWidget)
+	if (DeathMatchGameStateRef && PlayerHUDWidget)
 	{
-		DeathMatchPlayerHUDWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
+		PlayerHUDWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
 	}
 
 	if (!ensure(ScoreBoardClass != nullptr))
@@ -146,9 +146,9 @@ void ATeamDeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (DeathMatchPlayerHUDWidget)
+	if (PlayerHUDWidget)
 	{
-		DeathMatchPlayerHUDWidget->Teardown();
+		PlayerHUDWidget->Teardown();
 	}
 
 	if (ScoreBoardWidget)
@@ -206,6 +206,11 @@ void ATeamDeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* Ne
 	{
 		HoverTankHUDWidget->AddToViewport();
 	}
+
+	if (PlayerHUDWidget != nullptr)
+	{
+		PlayerHUDWidget->ShowRespawnTextBorder(false);	
+	}
 }
 
 void ATeamDeathMatchHUD::OnTankDeathHandler()
@@ -215,5 +220,10 @@ void ATeamDeathMatchHUD::OnTankDeathHandler()
 	if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
 	{
 		HoverTankHUDWidget->RemoveFromParent();
+	}
+
+	if (PlayerHUDWidget && PlayerHUDWidget->IsInViewport())
+	{
+		PlayerHUDWidget->ShowRespawnTextBorder();
 	}
 }

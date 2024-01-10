@@ -44,8 +44,8 @@ protected:
 
 	ADeathMatchGameState* DeathMatchGameStateRef;
 
-	TSubclassOf<UUserWidget> DeathMatchPlayerHUDWidgetClass; // timer, score, etc
-	UDeathMatchPlayerHUDWidget* DeathMatchPlayerHUDWidget;
+	TSubclassOf<UUserWidget> PlayerHUDWidgetClass; // timer, score, etc
+	UDeathMatchPlayerHUDWidget* PlayerHUDWidget;
 
 private:
 	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
