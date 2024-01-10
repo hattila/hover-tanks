@@ -43,7 +43,7 @@ void UInGameMenu::Teardown()
 	bIsOpen = false;
 }
 
-bool UInGameMenu::IsEveryElementInitialized()
+bool UInGameMenu::IsEveryElementInitialized() const
 {
 	if (!ensure(ResumeGameButton != nullptr))
 	{

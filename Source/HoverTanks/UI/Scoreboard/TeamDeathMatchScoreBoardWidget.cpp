@@ -95,7 +95,7 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 	Team2Score->SetText(FText::FromString(FString::FromInt(Team2ScoreValue)));
 }
 
-bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized()
+bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized() const
 {
 	if (PlayerScoresBoxTeam1 == nullptr)
 	{

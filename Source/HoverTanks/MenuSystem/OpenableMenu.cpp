@@ -66,7 +66,7 @@ void UOpenableMenu::SetInputModeGameOnly() const
 	PlayerController->bShowMouseCursor = false;
 }
 
-bool UOpenableMenu::IsEveryElementInitialized()
+bool UOpenableMenu::IsEveryElementInitialized() const
 {
 	return true;
 }

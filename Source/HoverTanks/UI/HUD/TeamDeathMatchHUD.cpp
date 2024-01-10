@@ -3,7 +3,7 @@
 #include "TeamDeathMatchHUD.h"
 
 #include "HoverTankHUDWidget.h"
-#include "HoverTanks/UI/ScoreBoardWidget.h"
+#include "HoverTanks/UI/ScoreBoard/ScoreBoardWidget.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 

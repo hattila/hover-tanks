@@ -33,7 +33,7 @@ private:
 
 	bool bIsOpen = false;
 
-	virtual bool IsEveryElementInitialized() override;
+	virtual bool IsEveryElementInitialized() const override;
 
 	UFUNCTION()
 	void ResumeGame();

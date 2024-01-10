@@ -4,7 +4,7 @@
 
 #include "HoverTankHUDWidget.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
-#include "HoverTanks/UI/DeathMatchScoreBoardWidget.h"
+#include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 
 #include "Blueprint/UserWidget.h"

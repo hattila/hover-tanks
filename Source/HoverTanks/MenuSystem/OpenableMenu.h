@@ -25,5 +25,5 @@ public:
 	void SetInputModeGameOnly() const;
 
 protected:
-	virtual bool IsEveryElementInitialized();
+	virtual bool IsEveryElementInitialized() const;
 };

@@ -39,6 +39,9 @@ public:
 	void ShowSessionSearchInProgress() const;
 	void HideSessionSearchInProgress() const;
 
+protected:
+	virtual bool IsEveryElementInitialized() const override;
+	
 private:
 	IMultiplayerGameControls* MultiplayerGameControls;
 	
@@ -87,6 +90,5 @@ private:
 	UFUNCTION()
 	void QuitGame();
 
-	bool IsEveryElementInitialized() const;
 	void SetupHostGameMenu() const;
 };

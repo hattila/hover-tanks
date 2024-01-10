@@ -27,7 +27,7 @@ public:
 	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
 
 protected:
-	virtual bool IsEveryElementInitialized() override;
+	virtual bool IsEveryElementInitialized() const override;
 	
 private:
 	UPROPERTY(meta = (BindWidget))
