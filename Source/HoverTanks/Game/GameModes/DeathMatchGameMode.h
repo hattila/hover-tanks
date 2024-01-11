@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CanRequestRespawnGameModeInterface.h"
+#include "HandlesTankDeathGameModeInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "DeathMatchGameMode.generated.h"
 
@@ -13,7 +14,7 @@ class APlayerStart;
 UENUM()
 enum EMatchState
 {
-	WaitingToStart,
+	WaitingToStart, // soon tm
 	InProgress,
 	GameOver
 };
@@ -22,14 +23,19 @@ enum EMatchState
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchGameMode : public AGameModeBase, public ICanRequestRespawnGameModeInterface
+class HOVERTANKS_API ADeathMatchGameMode :
+	public AGameModeBase,
+	public ICanRequestRespawnGameModeInterface,
+	public IHandlesTankDeathGameModeInterface
 {
 	GENERATED_BODY()
 
 public:
 	ADeathMatchGameMode();
 
-	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser);
+	// ~IHandlesTankDeathGameModeInterface
+	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
+	// ~IHandlesTankDeathGameModeInterface
 
 	// ~ICanRequestRespawnGameModeInterface
 	virtual void RequestRespawn(APlayerController* InPlayerController) override;
@@ -40,25 +46,23 @@ protected:
 
 	int32 MatchTimeInSeconds = 180;
 
-	EMatchState MatchState = EMatchState::InProgress; // todo change to WaitingToStart
+	EMatchState MatchState = EMatchState::InProgress;
 	
 	virtual void BeginPlay() override;
 	void OnOneSecondElapsed();
-
 	void GameOver();
 	virtual void ResetLevel() override;
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
 	
-	
 	APlayerStart* FindRandomSpawnPoint();
 	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
-	
+
+	void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
+
 private:
 	FTimerHandle GameTimerHandle;
-
 	FTimerHandle OnLogoutScoreRefreshTimerHandle;
-	void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
-	
+
 };

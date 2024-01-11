@@ -17,7 +17,9 @@ class HOVERTANKS_API ATeamDeathMatchGameMode : public ADeathMatchGameMode
 public:
 	ATeamDeathMatchGameMode();
 
+	// ~IHandlesTankDeathGameModeInterface
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
+	// ~IHandlesTankDeathGameModeInterface
 
 	// ~ICanRequestRespawnGameModeInterface
 	virtual void RequestRespawn(APlayerController* InPlayerController) override;

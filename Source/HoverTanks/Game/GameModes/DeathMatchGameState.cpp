@@ -4,8 +4,9 @@
 #include "DeathMatchGameState.h"
 
 #include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/HasScoreBoardController.h"
+
 #include "GameFramework/PlayerState.h"
-#include "HoverTanks/HasScoreBoard.h"
 #include "Net/UnrealNetwork.h"
 
 void ADeathMatchGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -83,7 +84,7 @@ void ADeathMatchGameState::OnRep_PlayerScores()
 		
 		// UE_LOG(LogTemp, Warning, TEXT("OnScoresChanged is going to be called on, %s"), *PlayerName);
 
-		if (IHasScoreBoard* ControllerWithScoreBoard = Cast<IHasScoreBoard>(PlayerController))
+		if (IHasScoreBoardController* ControllerWithScoreBoard = Cast<IHasScoreBoardController>(PlayerController))
 		{
 			ControllerWithScoreBoard->ClientOnScoresChanged();
 		}

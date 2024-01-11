@@ -4,12 +4,12 @@
 #include "TeamDeathMatchGameMode.h"
 
 #include "TeamDeathMatchGameState.h"
-#include "GameFramework/PlayerStart.h"
 #include "HoverTanks/HoverTank.h"
 #include "HoverTanks/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 #include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
+
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
@@ -20,24 +20,17 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	// set the default PlayerController to be HoverTankPlayerController
 	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
 	
 	TArray<AActor*> SpawnPointsInWorld;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPointsInWorld);
-
 	for (AActor* SpawnPoint : SpawnPointsInWorld)
 	{
 		SpawnPoints.Add(Cast<APlayerStart>(SpawnPoint));
 	}
 
-	// set the default PlayerState class to be InTeamPlayerState
 	PlayerStateClass = AInTeamPlayerState::StaticClass();
-
-	// set the default game state class to be TeamDeathMatchGameState
 	GameStateClass = ATeamDeathMatchGameState::StaticClass();
-
-	// use the TeamDeathMatchHUD as default HUD
 	HUDClass = ATeamDeathMatchHUD::StaticClass();
 }
 
@@ -112,18 +105,12 @@ void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerControll
 void ATeamDeathMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UE_LOG(LogTemp, Warning, TEXT("Team Death Match Begin Play"));
 
-	// create teams
-	// sort players to teams
-
-	// get the TeamDeathMatchGameState
-	ATeamDeathMatchGameState* TeamDeathMatchGameState = Cast<ATeamDeathMatchGameState>(GameState);
-	if (TeamDeathMatchGameState)
+	ATeamDeathMatchGameState* TeamGameState = Cast<ATeamDeathMatchGameState>(GameState);
+	if (TeamGameState)
 	{
-		TeamDeathMatchGameState->CreateTeams();
-		TeamDeathMatchGameState->AssignPlayersToTeams();
+		TeamGameState->CreateTeams();
+		TeamGameState->AssignPlayersToTeams();
 	}
 	
 }
@@ -134,12 +121,12 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 
 	AInTeamPlayerState* PlayerState = NewPlayer->GetPlayerState<AInTeamPlayerState>();
 
-	ATeamDeathMatchGameState* TeamDeathMatchGameState = Cast<ATeamDeathMatchGameState>(GameState);
-	if (TeamDeathMatchGameState)
+	ATeamDeathMatchGameState* TeamGameState = Cast<ATeamDeathMatchGameState>(GameState);
+	if (TeamGameState)
 	{
-		const bool bIsAssigned = TeamDeathMatchGameState->AssignPlayerToLeastPopulatedTeam(PlayerState);
-		FString IsAssigned = bIsAssigned ? TEXT("") : TEXT("NOT");
-		UE_LOG(LogTemp, Warning, TEXT("Player %s was %s assigned to team %d"), *PlayerState->GetPlayerName(), *IsAssigned, PlayerState->GetTeamId());
+		const bool bIsAssigned = TeamGameState->AssignPlayerToLeastPopulatedTeam(PlayerState);
+		// FString IsAssigned = bIsAssigned ? TEXT("") : TEXT("NOT");
+		// UE_LOG(LogTemp, Warning, TEXT("Player %s was %s assigned to team %d"), *PlayerState->GetPlayerName(), *IsAssigned, PlayerState->GetTeamId());
 	}
 }
 

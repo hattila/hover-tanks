@@ -8,7 +8,7 @@
 #include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
-#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
+#include "HoverTanks/Game/GameModes/CanRequestRespawnGameModeInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 
 #include "InputAction.h"

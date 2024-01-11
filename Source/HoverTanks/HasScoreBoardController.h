@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "HasScoreBoard.generated.h"
+#include "HasScoreBoardController.generated.h"
 
-// This class does not need to be modified.
 UINTERFACE()
-class UHasScoreBoard : public UInterface
+class UHasScoreBoardController : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,11 +15,14 @@ class UHasScoreBoard : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IHasScoreBoard
+class HOVERTANKS_API IHasScoreBoardController
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(Client, Unreliable)
 	virtual void ClientOnScoresChanged() = 0;
+
+	UFUNCTION(Client, Reliable)
+	virtual void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds) = 0;
 };

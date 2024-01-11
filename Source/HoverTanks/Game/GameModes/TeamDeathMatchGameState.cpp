@@ -33,8 +33,7 @@ void ATeamDeathMatchGameState::InitializeNewPlayerScore(const APlayerController*
 		Super::InitializeNewPlayerScore(NewPlayer);
 		return;
 	}
-	
-	// return if the player is already in the array
+
 	for (int32 i = 0; i < PlayerScores.Num(); i++)
 	{
 		if (PlayerScores[i].PlayerName == InTeamPlayerState->GetPlayerName())
@@ -89,19 +88,15 @@ void ATeamDeathMatchGameState::CreateTeams()
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Creating Teams"));
+	// UE_LOG(LogTemp, Warning, TEXT("Creating Teams"));
 
-	// iterate over TeamsToCreate
 	for (const auto& TeamToCreate : TeamsToCreate)
 	{
-		// create a new team
 		ATeam* NewTeam = GetWorld()->SpawnActor<ATeam>(ATeam::StaticClass());
-		// set the team name
 		NewTeam->SetTeamId(TeamToCreate.Key);
 		NewTeam->SetTeamDataAsset(TeamToCreate.Value);
 
 		TeamMap.Add(TeamToCreate.Key, NewTeam);
-		// Teams.Add(NewTeam);
 	}
 }
 
@@ -150,8 +145,8 @@ bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayer
 
 bool ATeamDeathMatchGameState::AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2)
 {
-	AInTeamPlayerState* PlayerState1 = PlayerController1->GetPlayerState<AInTeamPlayerState>();
-	AInTeamPlayerState* PlayerState2 = PlayerController2->GetPlayerState<AInTeamPlayerState>();
+	const AInTeamPlayerState* PlayerState1 = PlayerController1->GetPlayerState<AInTeamPlayerState>();
+	const AInTeamPlayerState* PlayerState2 = PlayerController2->GetPlayerState<AInTeamPlayerState>();
 
 	if (PlayerState1 && PlayerState2)
 	{
@@ -228,8 +223,6 @@ int8 ATeamDeathMatchGameState::GetLeastPopulatedTeamId() const
 			}
 		}
 	}
-
-	// return INDEX_NONE;
 
 	// now sort by lowest team population, then by team ID
 	int8 BestTeamId = INDEX_NONE;

@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/HoverTankPlayerController.h"
 #include "HoverTanks/UI/HUD/DeathMatchHUD.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -21,11 +22,9 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	}
 
 	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
-	
-	// find all players starts in the map and add them to the spawn points array
+
 	TArray<AActor*> SpawnPointsInWorld;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPointsInWorld);
-
 	for (AActor* SpawnPoint : SpawnPointsInWorld)
 	{
 		SpawnPoints.Add(Cast<APlayerStart>(SpawnPoint));
@@ -139,25 +138,31 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
 	// UE_LOG(LogTemp, Warning, TEXT("One second elapsed in %s state"), *UEnum::GetValueAsString(MatchState));
 }
 
+/**
+ * GameOver is called when the match time runs out.
+ *
+ * Restarts the GameTimer, it now acts as a countdown to level restart.
+ * Disable every players tank, force open the scoreboard for everyone.
+ */
 void ADeathMatchGameMode::GameOver()
 {
 	// clear the timer
 	GetWorldTimerManager().ClearTimer(GameTimerHandle);
 	MatchState = EMatchState::GameOver;
+	const float GameRestartDelay = 10.f;
 
-	UE_LOG(LogTemp, Warning, TEXT("GameOver!"));
+	// UE_LOG(LogTemp, Warning, TEXT("GameOver!"));
 
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
 	{
-		DeathMatchGameState->SetTimeRemaining(10);
+		DeathMatchGameState->SetTimeRemaining(GameRestartDelay);
 	}
 	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
 	
 	FTimerHandle GameRestartTimerHandle;
-	GetWorldTimerManager().SetTimer(GameRestartTimerHandle, this, &ADeathMatchGameMode::ResetLevel, 10.f, true);
+	GetWorldTimerManager().SetTimer(GameRestartTimerHandle, this, &ADeathMatchGameMode::ResetLevel, GameRestartDelay, true);
 
-	// get every connected palyer controller, find their possesed pawns and destroy them
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PlayerController = It->Get();
@@ -165,16 +170,15 @@ void ADeathMatchGameMode::GameOver()
 		{
 			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
 
-			// Disable all tanks and open the scoreboard
 			if (PossessedHoverTank)
 			{
 				PossessedHoverTank->SetInputEnabled(false);
 			}
 
-			AHoverTankPlayerController* HoverTankPlayerController = Cast<AHoverTankPlayerController>(PlayerController);
+			IHasScoreBoardController* HoverTankPlayerController = Cast<IHasScoreBoardController>(PlayerController);
 			if (HoverTankPlayerController)
 			{
-				HoverTankPlayerController->ClientForceOpenScoreBoard(10); // clients!
+				HoverTankPlayerController->ClientForceOpenScoreBoard(GameRestartDelay);
 			}
 		}
 	}
@@ -184,7 +188,7 @@ void ADeathMatchGameMode::ResetLevel()
 {
 	GetWorldTimerManager().ClearTimer(GameTimerHandle);
 
-	UE_LOG(LogTemp, Warning, TEXT("ResetLevel with ?Restart"));
+	// UE_LOG(LogTemp, Warning, TEXT("ResetLevel with ?Restart"));
 	// Super::ResetLevel();
 
 	GetWorld()->ServerTravel("?Restart",false);
@@ -194,7 +198,6 @@ void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	// Add a new entry to PlayerScores array in DeathMatchGameState for the newly logged in player
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
 	{
@@ -231,7 +234,7 @@ void ADeathMatchGameMode::Logout(AController* Exiting)
 
 APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()
 {
-	int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
+	const int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
 	APlayerStart* RandomSpawnPoint = SpawnPoints[RandomIndex];
 
 	return RandomSpawnPoint;

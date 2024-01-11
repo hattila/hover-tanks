@@ -3,19 +3,18 @@
 
 #include "HealthComponent.h"
 
-#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
 #include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
+#include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
+#include "HoverTanks/Game/GameModes/TeamDeathMatchGameMode.h"
+
 #include "Net/UnrealNetwork.h"
 
-// Sets default values for this component's properties
-UHealthComponent::UHealthComponent(): GameModeRef(nullptr)
+UHealthComponent::UHealthComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-// define the GetLifetimeReplicatedProps function
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -23,7 +22,6 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UHealthComponent, Health);
 }
 
-// Called when the game starts
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -35,19 +33,6 @@ void UHealthComponent::BeginPlay()
 	{
 		Owner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::OnAnyDamage);
 	}
-
-	// todo: respawn able game mode interface?
-	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
-}
-
-
-// Called every frame
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                     FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UHealthComponent::OnAnyDamage(
@@ -58,32 +43,35 @@ void UHealthComponent::OnAnyDamage(
 	AActor* DamageCauser
 )
 {
-	if (GetOwner()->HasAuthority())
+	if (!GetOwner()->HasAuthority())
 	{
-		if (Health <= 0)
-		{
-			return;
-		}
-		
-		Health -= Damage;
-		// UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
-
-		AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
-		if (HoverTank == nullptr)
-		{
-			return;
-		}
-		
-		if (Health <= 0 && GameModeRef)
-		{
-			GameModeRef->TankDies(HoverTank, InstigatedBy);
-		}
-
-		OnRep_Health();
+		return;
 	}
+
+	if (Health <= 0)
+	{
+		return;
+	}
+	
+	Health -= Damage;
+	// UE_LOG(LogTemp, Warning, TEXT("DamageTaken! Damage: %f, Health left: %f, Actor: %s"), Damage, Health, *DamagedActor->GetName());
+
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	IHandlesTankDeathGameModeInterface* HandlesTankDeathGameMode = Cast<IHandlesTankDeathGameModeInterface>(GetWorld()->GetAuthGameMode());
+	if (Health <= 0 && HandlesTankDeathGameMode)
+	{
+		HandlesTankDeathGameMode->TankDies(HoverTank, InstigatedBy);
+	}
+
+	OnRep_Health();
 }
 
-void UHealthComponent::Heal(float HealAmount)
+void UHealthComponent::Heal(const float HealAmount)
 {
 	Health = FMath::Clamp(Health + HealAmount, 0.f, MaxHealth);
 	OnRep_Health();
@@ -98,15 +86,4 @@ void UHealthComponent::OnRep_Health()
 	}
 
 	HoverTank->OnTankHealthChange.Broadcast(Health, MaxHealth);
-}
-
-bool UHealthComponent::IsOwningHoverTankDead()
-{
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
-	if (HoverTank)
-	{
-		return HoverTank->IsDead();
-	}
-
-	return false;
 }
