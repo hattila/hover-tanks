@@ -53,6 +53,7 @@ private:
 
 	uint32 Index;
 
+	UPROPERTY()
 	UMainMenu* MainMenu;
 
 	UFUNCTION()

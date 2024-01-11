@@ -17,6 +17,7 @@ class HOVERTANKS_API UOpenableMenu : public UUserWidget
 public:
 	UFUNCTION()
 	virtual bool Initialize() override;
+
 	virtual void Setup();
 	virtual void Teardown();
 

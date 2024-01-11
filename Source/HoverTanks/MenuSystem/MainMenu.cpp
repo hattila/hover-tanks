@@ -4,26 +4,16 @@
 
 #include "HostGameMenu.h"
 #include "ServerRow.h"
+#include "HoverTanks/Game/HoverTanksGameInstance.h"
+
 #include "UObject/ConstructorHelpers.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "Components/PanelWidget.h"
 #include "Components/Throbber.h"
-#include "HoverTanks/Game/HoverTanksGameInstance.h"
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
-	: UOpenableMenu(ObjectInitializer),
-	  MultiplayerGameControls(nullptr),
-	  HostButton(nullptr),
-	  FindButton(nullptr),
-      OptionsButton(nullptr),
-	  QuitButton(nullptr),
-	  SubmenuSwitcher(nullptr),
-	  HostGameMenuPanel(nullptr),
-	  AvailableGamesMenuPanel(nullptr),
-      OptionsMenuPanel(nullptr),
-	  SessionSearchInProgress(nullptr),
-	  AvailableGamesList(nullptr)
+	: UOpenableMenu(ObjectInitializer)
 {
 	// Super::Construct();
 

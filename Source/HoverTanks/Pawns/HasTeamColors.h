@@ -7,7 +7,7 @@
 #include "HasTeamColors.generated.h"
 
 class UTeamDataAsset;
-// This class does not need to be modified.
+
 UINTERFACE()
 class UHasTeamColors : public UInterface
 {

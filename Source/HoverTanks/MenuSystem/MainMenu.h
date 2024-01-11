@@ -43,37 +43,37 @@ protected:
 	virtual bool IsEveryElementInitialized() const override;
 	
 private:
-	IMultiplayerGameControls* MultiplayerGameControls;
+	IMultiplayerGameControls* MultiplayerGameControls = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UButton* HostButton;
+	UButton* HostButton = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UButton* FindButton;
+	UButton* FindButton = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* OptionsButton;
+	UButton* OptionsButton = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UButton* QuitButton;
+	UButton* QuitButton = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UWidgetSwitcher* SubmenuSwitcher;
+	UWidgetSwitcher* SubmenuSwitcher = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* HostGameMenuPanel;
+	UPanelWidget* HostGameMenuPanel = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* AvailableGamesMenuPanel;
+	UPanelWidget* AvailableGamesMenuPanel = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* OptionsMenuPanel;
+	UPanelWidget* OptionsMenuPanel = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UThrobber* SessionSearchInProgress;
+	UThrobber* SessionSearchInProgress = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UPanelWidget* AvailableGamesList;
+	UPanelWidget* AvailableGamesList = nullptr;
 
 	TSubclassOf<UUserWidget> ServerRowClass;
 	TSubclassOf<UUserWidget> HostGameMenuClass;

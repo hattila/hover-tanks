@@ -21,6 +21,7 @@ public:
 	virtual bool Initialize() override;
 	
 private:
+	UPROPERTY()
 	UGameUserSettings* GameUserSettings;
 
 	UPROPERTY(meta = (BindWidget))

@@ -7,7 +7,7 @@
 
 bool UInGameMenu::Initialize()
 {
-	bool Success = Super::Initialize();
+	const bool Success = Super::Initialize();
 
 	bIsFocusable = true;
 	
