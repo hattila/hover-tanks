@@ -43,8 +43,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FCollisionProfileName CollisionProfile;
-	
-	// create a static mesh component
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ProjectileMesh;
 
@@ -69,7 +68,9 @@ private:
 	FTimerHandle DelayedHomingTargetTimerHandle;
 	void SetHomingTargetDelayed();
 
+	UPROPERTY()
 	UNiagaraSystem* ExplosionFX = nullptr;
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastSpawnExplosionFX(FVector Location, FRotator Rotation);
 };

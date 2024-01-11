@@ -1,14 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PickupSpawner.h"
 
-
-// Sets default values
-APickupSpawner::APickupSpawner(): BoxCollider(nullptr), BaseMesh(nullptr)
+APickupSpawner::APickupSpawner()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// initialize the box collider
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
@@ -37,13 +33,6 @@ APickupSpawner::APickupSpawner(): BoxCollider(nullptr), BaseMesh(nullptr)
 	
 }
 
-// Called every frame
-void APickupSpawner::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-// Called when the game starts or when spawned
 void APickupSpawner::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,7 +50,6 @@ void APickupSpawner::BeginPlay()
 void APickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// if the OtherActor is a HealthPickup
 	if (OtherActor->IsA(AHealthPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = true;
@@ -72,14 +60,11 @@ void APickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AA
 void APickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	// if the OtherActor was a HealthPickup
 	if (OtherActor->IsA(AHealthPickup::StaticClass()))
 	{
-		// set bCurrentlyHasPickup to false
 		bCurrentlyHasPickup = false;
 		// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) now does not have a pickup, starting timer"));
 
-		// set a timer to respawn the pickup
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &APickupSpawner::SpawnPickup, ItemRespawnTime, false, ItemRespawnTime);
 	}
 

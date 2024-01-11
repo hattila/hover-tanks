@@ -72,3 +72,4 @@ Code usage examples
 - Start a session find by clicking on join, host a server before it finishes: crash.
 - Burning FX is multicast only, late joiners cannot see dead tanks burning.
 - Headlights are replicated, but late joiners cannot see the material change, only the light.
+- Clients do not see the HealthPickups spawn in animation.

@@ -14,7 +14,7 @@ class HOVERTANKS_API AHealthPickup : public AActor
 
 public:
 	AHealthPickup();
-	// replicateion
+
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -42,6 +42,7 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bIsSpawningIn = false;
+
 	void SpawnInComplete();
 
 	void SpawnInAnimation(float DeltaTime) const;

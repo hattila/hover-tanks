@@ -41,12 +41,13 @@ private:
 	int MaxBurstFireCount = 3;
 	int CurrentFireCount = 0;
 
-
 	void BurstFire();
 	void SpawnProjectile(const FHitResult& InTargetHitResult) const;
 
 	FVector RocketTargetLocation = FVector::ZeroVector;
 	
 	FHitResult& RocketTargetHitResult = *(new FHitResult());
+
+	UPROPERTY()
 	USceneComponent* RocketTargetLocationComponent = nullptr;
 };

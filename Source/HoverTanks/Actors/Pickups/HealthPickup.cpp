@@ -5,12 +5,11 @@
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Components/HealthComponent.h"
-#include "Net/UnrealNetwork.h"
 
+#include "Net/UnrealNetwork.h"
 
 AHealthPickup::AHealthPickup()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
@@ -30,8 +29,6 @@ AHealthPickup::AHealthPickup()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
 	UStaticMesh* ProjectileMeshObject = MeshAsset.Object;
 	PickupMesh->SetStaticMesh(ProjectileMeshObject);
-
-	// Set the mesh transform scale to .5
 	PickupMesh->SetWorldScale3D(FVector(1.5, 1.5, 1.5));
 
 	// find the material instance MI_EmissiveHealthPickup
@@ -40,12 +37,33 @@ AHealthPickup::AHealthPickup()
 	PickupMesh->SetMaterial(0, EmissiveHealthPickupMaterialObject);
 }
 
+void AHealthPickup::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitialZ = PickupMesh->GetComponentLocation().Z;
+
+	if (HasAuthority())
+	{
+		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHealthPickup::OnOverlapBegin);
+
+		bIsSpawningIn = true;
+
+		FVector Height = PickupMesh->GetComponentLocation();
+		Height.Z = InitialZ + 400.0f;
+		PickupMesh->SetWorldLocation(Height);
+
+		FTimerHandle SpawnInTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(SpawnInTimerHandle, this, &AHealthPickup::SpawnInComplete, 1.0f, false);
+	}
+}
+
 void AHealthPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// replicate bIsPickedUp
 	DOREPLIFETIME(AHealthPickup, bIsPickedUp);
+	DOREPLIFETIME(AHealthPickup, bIsSpawningIn);
 }
 
 void AHealthPickup::Tick(float DeltaTime)
@@ -69,34 +87,12 @@ void AHealthPickup::Tick(float DeltaTime)
 	
 }
 
-void AHealthPickup::BeginPlay()
-{
-	Super::BeginPlay();
-
-	InitialZ = PickupMesh->GetComponentLocation().Z;
-
-	if (HasAuthority())
-	{
-		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHealthPickup::OnOverlapBegin);
-
-		bIsSpawningIn = true;
-		PickupMesh->SetWorldScale3D(FVector(0.1f, 0.1f, 0.1f));
-
-		FVector Height = PickupMesh->GetComponentLocation();
-		Height.Z = InitialZ + 400.0f;
-		PickupMesh->SetWorldLocation(Height);
-
-		FTimerHandle SpawnInTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(SpawnInTimerHandle, this, &AHealthPickup::SpawnInComplete, 1.0f, false);
-	}
-}
-
 void AHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (HasAuthority())
 	{
-		// todo: canUsePickup interface
+		// todo: canUsePickup, CanPickup interface
 		AHoverTank* HoverTank = Cast<AHoverTank>(OtherActor);
 		if (HoverTank)
 		{
@@ -142,13 +138,13 @@ void AHealthPickup::SpawnInAnimation(const float DeltaTime) const
 void AHealthPickup::FloatingAnimation(const float DeltaTime) const
 {
 	FVector NewLocation = PickupMesh->GetComponentLocation();
-	NewLocation.Z = InitialZ + FMath::Sin(GetGameTimeSinceCreation() * 2) * 50.0f; // Adjust the amplitude as needed
+	NewLocation.Z = InitialZ + FMath::Sin(GetGameTimeSinceCreation() * 2) * 50.0f;
 	PickupMesh->SetWorldLocation(NewLocation);
 
 	// rotate the mesh constantly
-	FRotator NewRotation = PickupMesh->GetComponentRotation();
-	NewRotation.Yaw += DeltaTime * 100.0f;
-	PickupMesh->SetWorldRotation(NewRotation);	
+	// FRotator NewRotation = PickupMesh->GetComponentRotation();
+	// NewRotation.Yaw += DeltaTime * 100.0f;
+	// PickupMesh->SetWorldRotation(NewRotation);	
 }
 
 void AHealthPickup::DeSpawnAnimation(const float DeltaTime) const

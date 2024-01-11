@@ -11,7 +11,7 @@
 // Sets default values
 ACannonProjectile::ACannonProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
@@ -21,27 +21,23 @@ ACannonProjectile::ACannonProjectile()
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
 	RootComponent = SphereCollider;
 
+	SphereCollider->SetCollisionProfileName(TEXT("Projectile"), true);
+
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
+	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
+	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
+	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
+	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 	ProjectileMovementComponent->InitialSpeed = 20000.f;
 	ProjectileMovementComponent->MaxSpeed = 40000.f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = true;
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
-	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
-	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
-
-	// CollisionProfile.Name = "Projectile"
-	SphereCollider->SetCollisionProfileName(TEXT("Projectile"), true);
-
-	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
-	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	// Set the mesh transform scale to .5
-	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
 
 	/**
 	 * Material
@@ -69,7 +65,6 @@ void ACannonProjectile::BeginPlay()
 	}
 }
 
-// Called every frame
 void ACannonProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -87,7 +82,7 @@ void ACannonProjectile::OnHit(
 	
 	BounceCount++;
 	
-	if (BounceCount > 1)
+	if (BounceCount > MaxBounceCount)
 	{
 		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
 		DelayedDestroy();
@@ -112,8 +107,7 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
-		
-		// apply damage to the OtherActor
+
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
 			Damage,
@@ -150,8 +144,6 @@ void ACannonProjectile::MulticastDeactivateProjectile_Implementation()
 
 void ACannonProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ACannonProjectile::MulticastSpawnExplosionFX_Implementation()"));
-
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 		GetWorld(),
 		ExplosionFX,

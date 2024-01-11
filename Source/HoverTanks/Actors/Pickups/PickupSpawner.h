@@ -17,7 +17,6 @@ class HOVERTANKS_API APickupSpawner : public AActor
 public:
 	APickupSpawner();
 
-	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,10 +29,10 @@ protected:
 private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* BoxCollider;
+	UBoxComponent* BoxCollider = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* BaseMesh;
+	UStaticMeshComponent* BaseMesh = nullptr;
 	
 	TSubclassOf<AHealthPickup> HealthPickupClass;
 

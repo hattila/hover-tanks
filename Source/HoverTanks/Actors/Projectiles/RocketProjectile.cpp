@@ -3,16 +3,17 @@
 
 #include "RocketProjectile.h"
 
-#include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "HoverTanks/Pawns/HoverTank.h"
+
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 ARocketProjectile::ARocketProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
@@ -71,11 +72,6 @@ ARocketProjectile::ARocketProjectile()
 	
 }
 
-void ARocketProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void ARocketProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -92,6 +88,11 @@ void ARocketProjectile::BeginPlay()
 
 		GetWorld()->GetTimerManager().SetTimer(DelayedHomingTargetTimerHandle, IncreaseSpeedTimerDelegate,1,false, 1.f);
 	}
+}
+
+void ARocketProjectile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ARocketProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -114,10 +115,8 @@ void ARocketProjectile::OnOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
-		// Create the Niagara System Explosion FX in at the hit location
 		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
-		
-		// apply damage to the OtherActor
+
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
 			Damage,
@@ -152,7 +151,7 @@ void ARocketProjectile::SetHomingTargetDelayed()
 
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 
-	// should be targetable interface
+	// should be a targetable interface
 	if (AHoverTank* HoverTank = Cast<AHoverTank>(RocketTargetHitResult.GetActor()))
 	{
 		ProjectileMovementComponent->HomingTargetComponent = HoverTank->GetRootComponent();
@@ -168,21 +167,16 @@ void ARocketProjectile::SetHomingTargetDelayed()
 
 void ARocketProjectile::MulticastDeactivateRocket_Implementation()
 {
-	// turn off collision
 	SphereCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SphereCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
-	// hide the mesh
 	ProjectileMesh->SetVisibility(false, true);
 
-	// turn off the emitter
 	SmokeTrailFX->Deactivate();
 }
 
 void ARocketProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ARocketProjectile::MulticastSpawnExplosionFX_Implementation()"));
-	
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 		GetWorld(),
 		ExplosionFX,
