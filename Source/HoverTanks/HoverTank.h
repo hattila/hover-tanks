@@ -89,7 +89,6 @@ public:
 	//~ End of IHasTeamColors interface
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
@@ -121,8 +120,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ColliderMesh;
-	
-	// create a static mesh component
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* TankBaseMesh;
 
@@ -131,8 +129,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* TankBarrelMesh;
-	
-	// create a spring arm component
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* SpringArm;
 
@@ -141,17 +138,16 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true", ClampMin = "0.0", ClampMax = "1000.0"))
 	float SpringArmZOffset = 200.f;
-	
-	// create a camera component
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	URectLightComponent* TankLights = nullptr;
 
-    /**
-     * Input mapping
-     */
+	/**
+	 * Input mapping
+	 */
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -187,7 +183,7 @@ private:
 	UInputAction* PrevWeaponAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-    UInputAction* ToggleLightsAction;
+	UInputAction* ToggleLightsAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;

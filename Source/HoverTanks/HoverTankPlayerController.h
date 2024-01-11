@@ -24,28 +24,29 @@ class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, publ
 public:
 	AHoverTankPlayerController();
 
+	// ~IHasScoreBoard interface
 	UFUNCTION(Client, Unreliable)
 	virtual void ClientOnScoresChanged() override;
+	// ~IHasScoreBoard interface
 
 	UFUNCTION(Client, Reliable)
 	void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds);
 	
 	virtual void OnRep_Pawn() override; // Controller.cpp
-	// virtual void OnRep_PlayerState() override; // Controller.cpp
 
 	UFUNCTION(Server, Reliable)
 	void ServerAttemptToJoinTeam(int8 TeamId);
 
 protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void SetupInputComponent() override;
+	
 	UFUNCTION()
 	void ApplyTeamColorToPawn(int8 NewTeamId);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRefreshMeOnTheScoreBoard(int8 NewTeamId);
-	
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	virtual void SetupInputComponent() override;
 	
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
@@ -64,13 +65,16 @@ private:
 	UInputAction* RequestRespawnAction;
 	
 	TSubclassOf<UUserWidget> InGameMenuClass;
-	UInGameMenu* InGameMenu;
 
-	ADeathMatchGameMode* GameModeRef; // todo: respawn able game mode interface?
+	UPROPERTY()
+	UInGameMenu* InGameMenu = nullptr;
+
+	UPROPERTY()
+	ADeathMatchGameMode* GameModeRef = nullptr; // todo: respawn able game mode interface?
 	
-	void OpenInGameMenu();
-	void OpenScoreBoard();
-	void RequestRespawn();
+	void OpenInGameMenuActionStarted();
+	void OpenScoreBoardActionStarted();
+	void RequestRespawnActionStarted();
 
 	UFUNCTION(Server, Reliable)
 	void ServerRequestRespawn();

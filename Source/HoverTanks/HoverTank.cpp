@@ -5,14 +5,14 @@
 #include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
+#include "HoverTanks/Components/HoverTankEffectsComponent.h"
+#include "HoverTanks/Components/WeaponsComponent.h"
+#include "HoverTanks/Game/InTeamPlayerState.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
-#include "Components/HoverTankEffectsComponent.h"
 #include "Components/RectLightComponent.h"
-#include "Components/WeaponsComponent.h"
-#include "Game/InTeamPlayerState.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -22,8 +22,8 @@ class UNiagaraSystem;
 AHoverTank::AHoverTank()
 {
 	/**
-	  * Actor setup
-	  */
+	 * Actor setup
+	 */
 	PrimaryActorTick.bCanEverTick = true;
 
 	SetReplicates(true);
@@ -250,7 +250,7 @@ void AHoverTank::OnDeath()
 		HoverTankEffectsComponent->OnDeath();
 	}
 	
-	// changed the mesh to a wreckage
+	// change the mesh to a wreckage
 }
 
 bool AHoverTank::IsDead() const
@@ -278,13 +278,6 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
 
 	// line trace with the custom FindTarget channel
 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_GameTraceChannel2, Params);
-
-	// UE_LOG(LogTemp, Warning, TEXT("Hit component: %s, compoent type is %s \n Hit Actor: %s, actor type is %s"),
-	// 	Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetName() : TEXT("null"),
-	// 	Hit.IsValidBlockingHit() ? *Hit.GetComponent()->GetClass()->GetName() : TEXT("null"),
-	// 	Hit.IsValidBlockingHit() ? *Hit.GetActor()->GetName() : TEXT("null"),
-	// 	Hit.IsValidBlockingHit() ? *Hit.GetActor()->GetClass()->GetName() : TEXT("null")
-	// );
 	
 	return Hit;
 }
@@ -467,8 +460,7 @@ void AHoverTank::ShootStarted()
 	
 	if (WeaponsComponent)
 	{
-		// FVector LocationUnderTheCrosshair = FindTargetLocationAtCrosshair();
-		FHitResult Hit = FindTargetAtCrosshair();
+		const FHitResult Hit = FindTargetAtCrosshair();
 		WeaponsComponent->AttemptToShoot(Hit);
 	}
 }
