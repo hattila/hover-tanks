@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HoverTankPlayerController.generated.h"
 
+class ICanRequestRespawnGameModeInterface;
 class ADeathMatchGameMode;
 class UDeathMatchScoreBoardWidget;
 class UInGameMenu;
@@ -68,9 +69,6 @@ private:
 
 	UPROPERTY()
 	UInGameMenu* InGameMenu = nullptr;
-
-	UPROPERTY()
-	ADeathMatchGameMode* GameModeRef = nullptr; // todo: respawn able game mode interface?
 	
 	void OpenInGameMenuActionStarted();
 	void OpenScoreBoardActionStarted();

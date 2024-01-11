@@ -20,14 +20,6 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	// find the BP_HoverTankController blueprint class
-	// static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(TEXT("/Game/HoverTanks/Controllers/BP_HoverTankController"));
-	// if (PlayerControllerBPClass.Class != NULL)
-	// {
-	// 	PlayerControllerClass = PlayerControllerBPClass.Class;
-	// }
-
-	// set the default PlayerController to be HoverTankPlayerController
 	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
 	
 	// find all players starts in the map and add them to the spawn points array
@@ -41,10 +33,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	// Custom GameInstance should be set in DefaultEngine.ini
 
-	// use the UDeathMatchGameState as default GameState
 	GameStateClass = ADeathMatchGameState::StaticClass();
-
-	// use the DeathMatchHUD as default HUD
 	HUDClass = ADeathMatchHUD::StaticClass();
 
 	bUseSeamlessTravel = false;
@@ -176,7 +165,7 @@ void ADeathMatchGameMode::GameOver()
 		{
 			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
 
-			// kill all tanks and open the scoreboard
+			// Disable all tanks and open the scoreboard
 			if (PossessedHoverTank)
 			{
 				PossessedHoverTank->SetInputEnabled(false);

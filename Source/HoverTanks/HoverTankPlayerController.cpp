@@ -53,9 +53,6 @@ AHoverTankPlayerController::AHoverTankPlayerController()
 void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// todo: respawn able game mode interface?
-	GameModeRef = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode());
 
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
@@ -279,15 +276,22 @@ void AHoverTankPlayerController::RequestRespawnActionStarted()
 
 void AHoverTankPlayerController::ServerRequestRespawn_Implementation()
 {
+	ICanRequestRespawnGameModeInterface* GameModeInterface =  Cast<ICanRequestRespawnGameModeInterface>(GetWorld()->GetAuthGameMode());
+
+	if (GameModeInterface == nullptr)
+	{
+		return;
+	}
+	
 	if (GetPawn() == nullptr)
 	{
-		GameModeRef->RequestRespawn(this);
+		GameModeInterface->RequestRespawn(this);
 		return;
 	}
 	
 	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
-	if (PossessedHoverTank && PossessedHoverTank->IsDead() && GameModeRef != nullptr)
+	if (PossessedHoverTank && PossessedHoverTank->IsDead())
 	{
-		GameModeRef->RequestRespawn(this);
+		GameModeInterface->RequestRespawn(this);
 	}
 }

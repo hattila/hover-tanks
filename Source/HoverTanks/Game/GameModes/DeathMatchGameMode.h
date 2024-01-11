@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CanRequestRespawnGameModeInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "DeathMatchGameMode.generated.h"
 
@@ -12,7 +13,6 @@ class APlayerStart;
 UENUM()
 enum EMatchState
 {
-	// add states like WaitingToStart, InProgress, GameOver
 	WaitingToStart,
 	InProgress,
 	GameOver
@@ -22,7 +22,7 @@ enum EMatchState
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchGameMode : public AGameModeBase
+class HOVERTANKS_API ADeathMatchGameMode : public AGameModeBase, public ICanRequestRespawnGameModeInterface
 {
 	GENERATED_BODY()
 
@@ -30,7 +30,10 @@ public:
 	ADeathMatchGameMode();
 
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser);
-	virtual void RequestRespawn(APlayerController* InPlayerController);
+
+	// ~ICanRequestRespawnGameModeInterface
+	virtual void RequestRespawn(APlayerController* InPlayerController) override;
+	// ~ICanRequestRespawnGameModeInterface
 
 protected:
 	TArray<APlayerStart*> SpawnPoints;
