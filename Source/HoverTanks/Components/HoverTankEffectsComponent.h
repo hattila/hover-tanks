@@ -18,7 +18,6 @@ class HOVERTANKS_API UHoverTankEffectsComponent : public UActorComponent // USce
 public:
 	UHoverTankEffectsComponent();
 
-	// replication
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -37,8 +36,10 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY()
 	UMovementReplicatorComponent* MovementReplicatorComponent = nullptr;
 
+	UPROPERTY()
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

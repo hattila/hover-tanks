@@ -3,7 +3,7 @@
 
 #include "HealthPickup.h"
 
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Components/HealthComponent.h"
 #include "Net/UnrealNetwork.h"
 

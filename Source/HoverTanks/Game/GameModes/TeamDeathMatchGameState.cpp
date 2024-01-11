@@ -66,7 +66,7 @@ void ATeamDeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerC
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is InTeamPlayerState, finding player and adding teamID"));
+	// UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is InTeamPlayerState, finding player and adding teamID"));
 	
 	for (int32 i = 0; i < PlayerScores.Num(); i++)
 	{
@@ -102,7 +102,7 @@ void ATeamDeathMatchGameState::CreateTeams()
 
 void ATeamDeathMatchGameState::AssignPlayersToTeams()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AssignPlayersToTeams"));
+	// UE_LOG(LogTemp, Warning, TEXT("AssignPlayersToTeams"));
 	
 	// for each connected player, cast their player state to InTeamPlayerState, and assign them to a team
 	for (APlayerState* PS : PlayerArray)

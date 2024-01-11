@@ -3,7 +3,7 @@
 
 #include "HealthComponent.h"
 
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
 #include "HoverTanks/Game/GameModes/DeathMatchGameMode.h"
 #include "HoverTanks/Game/GameModes/TeamDeathMatchGameMode.h"

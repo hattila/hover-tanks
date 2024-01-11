@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "HoverTankMovementComponent.h"
+
+#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MovementReplicatorComponent.generated.h"
 
@@ -64,18 +65,16 @@ public:
 	// Sets default values for this component's properties
 	UMovementReplicatorComponent();
 
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FHoverTankMoveState GetHoverTankMoveState() const { return ServerMoveState; }
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY()
-	UHoverTankMovementComponent* HoverTankMovementComponent;
+	UHoverTankMovementComponent* HoverTankMovementComponent = nullptr;
 
 	void ClientTick(float DeltaTime);
 	

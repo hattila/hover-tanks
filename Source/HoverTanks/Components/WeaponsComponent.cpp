@@ -3,24 +3,46 @@
 
 #include "WeaponsComponent.h"
 
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/CannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
-#include "Net/UnrealNetwork.h"
 
-// Sets default values for this component's properties
 UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
 	ProjectileClass = ACannonProjectile::StaticClass();
 }
 
+void UWeaponsComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		TankCannonMesh = HoverTank->GetTankCannonMesh();
+		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
+
+		CreateAndAttachRocketLauncher();
+	}
+	
+}
+
 void UWeaponsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (ClientRocketLauncherTarget.IsValidBlockingHit())
+	{
+		ShowRocketTarget(ClientRocketLauncherTarget);
+	}
+
 }
 
 void UWeaponsComponent::SwitchToNextWeapon()
@@ -71,37 +93,6 @@ void UWeaponsComponent::MulticastDestroyAttachedWeapons_Implementation()
 	}
 }
 
-// Called when the game starts
-void UWeaponsComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
-	if (HoverTank)
-	{
-		TankCannonMesh = HoverTank->GetTankCannonMesh();
-		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
-
-		CreateAndAttachRocketLauncher();
-	}
-	
-}
-
-// Called every frame
-void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-
-	if (ClientRocketLauncherTarget.IsValidBlockingHit())
-	{
-		ShowRocketTarget(ClientRocketLauncherTarget);
-	}
-
-	// ...
-}
-
-// void UWeaponsComponent::AttemptToShoot(const FVector& LocationUnderTheCrosshair)
 void UWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
 {
 	APawn* Owner = Cast<APawn>(GetOwner());
@@ -113,15 +104,11 @@ void UWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
 				ServerAttemptToShoot();
 				break;
 			case EAvailableWeapons::RocketLauncher:
-				// ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
 				ServerAttemptToShootRocketLauncher(Hit);
 				break;
 			default:
 			return;
 		}
-		
-		// ServerAttemptToShoot();
-		// ServerAttemptToShootRocketLauncher(LocationUnderTheCrosshair);
 	}
 }
 
@@ -179,7 +166,7 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	SpawnParameters.Owner = GetOwner();
 	SpawnParameters.Instigator = GetOwner()->GetInstigator();
 
-	// create a RocketLauncher Actor, and attach it to teh TankCannonMesh, LeftMount socket
+	// create a RocketLauncher Actor, and attach it to the TankCannonMesh, LeftMount socket
 	RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
 	RocketLauncher->AttachToComponent(TankCannonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LeftMount"));
 	RocketLauncher->SetActorRotation(LeftMountRotation);
@@ -221,7 +208,7 @@ void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 	{
 		FVector HitLocation;
 		
-		if (AHoverTank* HoverTank = Cast<AHoverTank>(Hit.GetActor()))
+		if (const AHoverTank* HoverTank = Cast<AHoverTank>(Hit.GetActor()))
 		{
 			HitLocation = HoverTank->GetActorLocation();
 		}
@@ -230,9 +217,7 @@ void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 			HitLocation = Hit.Location;
 		}
 
-		// show the debug sphere to the owning client only
-		// ShowTargetIndicator(HitLocation);
-		DrawDebugSphere(GetWorld(), HitLocation,200,12, FColor::Red,false,0);
+		DrawDebugSphere(GetWorld(), HitLocation,150,12, FColor::Red,false,0);
 	}
 }
 

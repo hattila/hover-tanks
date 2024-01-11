@@ -5,17 +5,15 @@
 
 #include "HoverTankMovementComponent.h"
 #include "MovementReplicatorComponent.h"
+#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Game/Teams/TeamDataAsset.h"
+
 #include "NiagaraComponent.h"
 #include "Components/RectLightComponent.h"
-#include "HoverTanks/HoverTank.h"
-#include "HoverTanks/Game/Teams/TeamDataAsset.h"
 #include "Net/UnrealNetwork.h"
-
 
 UHoverTankEffectsComponent::UHoverTankEffectsComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TankBurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Burning FX"));
@@ -130,14 +128,12 @@ void UHoverTankEffectsComponent::BeginPlay()
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
-		// TankBurningFX = HoverTank->GetBurningFXComponent();
 		TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
-	// log out the TeamColorEmissiveStrength value
-	FString RoleString;
-	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
 }
 
 // void UHoverTankEffectsComponent::OnRep_IsBurningFxActive()
@@ -161,7 +157,7 @@ void UHoverTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 {
 	if (TankLightsDynamicMaterialInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamColorEmissiveStrength, strength %f"), TeamColorEmissiveStrength);
+		// UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamColorEmissiveStrength, strength %f"), TeamColorEmissiveStrength);
 		TankLightsDynamicMaterialInstance->SetScalarParameterValue(TeamColorMaterialParamStrengthName, TeamColorEmissiveStrength);
 	}
 }
@@ -185,7 +181,7 @@ void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset
 
 void UHoverTankEffectsComponent::OnRep_TeamDataAsset()
 {
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamDataAsset, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamDataAsset, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
 	TeamDataAsset->ApplyToActor(GetOwner());
 }
 

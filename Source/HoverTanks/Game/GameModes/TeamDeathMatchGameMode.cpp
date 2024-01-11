@@ -4,8 +4,8 @@
 #include "TeamDeathMatchGameMode.h"
 
 #include "TeamDeathMatchGameState.h"
-#include "HoverTanks/HoverTank.h"
-#include "HoverTanks/HoverTankPlayerController.h"
+#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
 
@@ -14,7 +14,7 @@
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/HoverTank/BP_HoverTank"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;

@@ -2,13 +2,12 @@
 
 #pragma once
 
-#include "Components/WeaponsComponent.h"
-
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Pawns/HasTeamColors.h"
+#include "HasTeamColors.h"
 #include "HoverTank.generated.h"
 
+class UWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;

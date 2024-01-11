@@ -4,7 +4,7 @@
 #include "DeathMatchGameState.h"
 
 #include "HoverTanks/Game/PlayerScore.h"
-#include "HoverTanks/HasScoreBoardController.h"
+#include "HoverTanks/Controllers/HasScoreBoardController.h"
 
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
@@ -54,7 +54,7 @@ void ADeathMatchGameState::RemovePlayersScore(const FString& PlayerName)
 
 void ADeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer, %s, %d"), *PlayerController->PlayerState->GetPlayerName(), ScoreToAdd);
+	// UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer, %s, %d"), *PlayerController->PlayerState->GetPlayerName(), ScoreToAdd);
 	
 	// find the player in PlayerScores and add the score.
 	for (int32 i = 0; i < PlayerScores.Num(); i++)

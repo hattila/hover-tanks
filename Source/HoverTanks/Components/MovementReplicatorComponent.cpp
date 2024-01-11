@@ -5,17 +5,15 @@
 
 #include "Net/UnrealNetwork.h"
 
-// Sets default values for this component's properties
-UMovementReplicatorComponent::UMovementReplicatorComponent()
+UMovementReplicatorComponent::UMovementReplicatorComponent(): ServerMoveState(),
+                                                              ClientTimeSinceUpdate(0),
+                                                              ClientTimeBetweenLastUpdates(0),
+                                                              ServerCannonRotateState()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	// SetIsReplicated(true); // it is set in the parent actors constructor	
 }
 
-
-// Called when the game starts
 void UMovementReplicatorComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -31,7 +29,6 @@ void UMovementReplicatorComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 	DOREPLIFETIME(UMovementReplicatorComponent, ServerCannonRotateState);
 }
 
-// Called every frame
 void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -82,8 +79,6 @@ void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	if (GetOwnerRole() == ROLE_SimulatedProxy)
 	{
 		ClientTick(DeltaTime);
-		// HoverTankMovementComponent->SimulateMove(ServerState.LastMove);
-		// HoverTankMovementComponent->SimulateCannonRotate(ServerCannonRotateState.LastCannonRotate);
 	}
 	
 }
@@ -298,7 +293,7 @@ void UMovementReplicatorComponent::AutonomousProxy_OnRep_ServerCannonRotateState
 	}
 
 	/**
-	 * Does not need to corrected by the server. Directly controlled by mouse input, so it is always correct.
+	 * Does not need to be corrected by the server. Directly controlled by mouse input, so it is always correct.
 	 */
 	
 	// HoverTankMovementComponent->SimulateCannonRotate(ServerCannonRotateState.LastCannonRotate);

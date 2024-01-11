@@ -3,7 +3,7 @@
 
 #include "HoverTankPlayerController.h"
 
-#include "HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
 #include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"

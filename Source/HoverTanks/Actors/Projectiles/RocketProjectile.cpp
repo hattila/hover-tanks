@@ -5,7 +5,7 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 

@@ -34,7 +34,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	// void AttemptToShoot(const FVector& LocationUnderTheCrosshair);
 	void AttemptToShoot(const FHitResult& Hit);
 	
 	void SwitchToNextWeapon();
@@ -44,7 +43,6 @@ public:
 	void MulticastDestroyAttachedWeapons();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
@@ -73,6 +71,8 @@ private:
 	 * Rocket Launcher
 	 */
 	void CreateAndAttachRocketLauncher();
+
+	UPROPERTY()
 	ARocketLauncher* RocketLauncher = nullptr;
 
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -91,9 +91,9 @@ private:
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastShowRocketTarget(const FHitResult& Hit);
+
 	void ShowRocketTarget(const FHitResult& Hit) const;
 
-	// FTimerHandle RocketTargetTimerHandle;
 	void ClearRocketTarget();
 
 	UFUNCTION(Client, Unreliable)

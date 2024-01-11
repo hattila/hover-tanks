@@ -3,7 +3,8 @@
 
 #include "HoverTankMovementComponent.h"
 
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
+
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -22,9 +23,6 @@ void UHoverTankMovementComponent::BeginPlay()
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
 	{
-		// GroundTraceLocation = HoverTank->GetGroundTraceLocation();
-		// GroundTraceLocationOffset = HoverTank->GetGroundTraceLocationOffset();
-
 		TankCannonMesh = HoverTank->GetTankCannonMesh();
 		TankBarrelMesh = HoverTank->GetTankBarrelMesh();
 

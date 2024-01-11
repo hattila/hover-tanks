@@ -8,7 +8,7 @@
 #include "HoverTanks/Components/WeaponsComponent.h"
 
 #include "Blueprint/UserWidget.h"
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Game/GameModes/DeathMatchGameState.h"
 
 ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),

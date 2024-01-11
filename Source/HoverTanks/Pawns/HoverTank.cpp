@@ -63,19 +63,19 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTankCollision"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTankCollision"));
 	UStaticMesh* ColliderMeshAssetObject = ColliderMeshAsset.Object;
 	ColliderMesh->SetStaticMesh(ColliderMeshAssetObject);
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankBase"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankBase"));
 	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
 	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannon"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannon"));
 	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
 	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/HoverTank/HoverTank_TankCannonBarrel"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannonBarrel"));
 	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
 	

@@ -4,10 +4,10 @@
 #include "DeathMatchGameMode.h"
 
 #include "DeathMatchGameState.h"
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
-#include "HoverTanks/HoverTankPlayerController.h"
+#include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/UI/HUD/DeathMatchHUD.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -15,7 +15,7 @@
 
 ADeathMatchGameMode::ADeathMatchGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/HoverTank/BP_HoverTank"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;

@@ -3,7 +3,7 @@
 
 #include "RocketLauncher.h"
 
-#include "HoverTanks/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/RocketProjectile.h"
 
 
@@ -17,7 +17,7 @@ ARocketLauncher::ARocketLauncher()
 	RootComponent = BaseMesh;
 
 	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/HoverTank/TankRocketLauncher"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/TankRocketLauncher"));
 	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
 	BaseMesh->SetStaticMesh(BaseMeshObject);
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
