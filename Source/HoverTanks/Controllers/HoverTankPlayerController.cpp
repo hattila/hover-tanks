@@ -7,7 +7,7 @@
 #include "HoverTanks/MenuSystem/InGameMenu.h"
 #include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/Game/GameModes/TeamDeathMatchGameState.h"
+#include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Game/GameModes/CanRequestRespawnGameModeInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 

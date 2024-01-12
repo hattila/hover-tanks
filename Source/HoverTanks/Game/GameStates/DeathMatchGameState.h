@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "HoverTanks/Game/PlayerScore.h"
+
+#include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "DeathMatchGameState.generated.h"
 

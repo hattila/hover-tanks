@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "DeathMatchGameState.h"
+
+#include "CoreMinimal.h"
 #include "TeamDeathMatchGameState.generated.h"
 
 class AInTeamPlayerState;

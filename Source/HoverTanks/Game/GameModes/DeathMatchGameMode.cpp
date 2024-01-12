@@ -3,7 +3,7 @@
 
 #include "DeathMatchGameMode.h"
 
-#include "DeathMatchGameState.h"
+#include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"

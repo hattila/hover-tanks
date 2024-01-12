@@ -3,7 +3,7 @@
 
 #include "TeamDeathMatchGameMode.h"
 
-#include "TeamDeathMatchGameState.h"
+#include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"

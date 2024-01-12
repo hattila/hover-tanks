@@ -6,10 +6,10 @@
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
+#include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
 
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Game/GameModes/DeathMatchGameState.h"
 
 ADeathMatchHUD::ADeathMatchHUD()
 {
