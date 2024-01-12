@@ -188,7 +188,7 @@ void ADeathMatchHUD::AddKillIndicator(const FString& KillerName, const FString& 
 		return;
 	}
 
-	PlayerHUDWidget->AddKillIndicator(KillerName, VictimName);
+	PlayerHUDWidget->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
 }
 
 void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)

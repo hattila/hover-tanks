@@ -163,13 +163,16 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 	}
 }
 
-void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FString& KillerName, const FString& VictimName)
+void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
 {
+	// log out the colors
+	// UE_LOG(LogTemp, Warning, TEXT("KillerColor: %s, VictimColor: %s"), *KillerColor.ToString(), *VictimColor.ToString());
+	
 	// get the hud
 	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
 	if (HUD)
 	{
-		HUD->AddKillIndicator(KillerName, VictimName);
+		HUD->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
 	}
 }
 

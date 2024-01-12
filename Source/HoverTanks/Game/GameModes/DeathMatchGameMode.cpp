@@ -45,22 +45,7 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 	APlayerController* DeadPlayerController = Cast<APlayerController>(DeadHoverTank->GetController());
 	if (DeadPlayerController)
 	{
-		// Kill indicator
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			3.f,
-			FColor::Green,
-			FString::Printf(
-				TEXT("%s died!"),
-				*DeadPlayerController->PlayerState->GetPlayerName()
-			)
-		);
-
-		SomeoneKilledSomeone(
-			*DeathCauser->PlayerState->GetPlayerName(),
-			*DeadPlayerController->PlayerState->GetPlayerName()
-		);
-		
+		SomeoneKilledSomeone(DeathCauser, DeadPlayerController);
 
 		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
 		
@@ -269,8 +254,11 @@ void ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout(const FString Playe
 	}
 }
 
-void ADeathMatchGameMode::SomeoneKilledSomeone(const FString& KillerName, const FString& VictimName)
+void ADeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
 {
+	const FString KillerName = KillerController->PlayerState->GetPlayerName();
+	const FString VictimName = VictimController->PlayerState->GetPlayerName();
+
 	// iterate over every joined player, cast their PlayerControllers to AHoverTankPlayerController and call ClientAddKillIndicator
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{

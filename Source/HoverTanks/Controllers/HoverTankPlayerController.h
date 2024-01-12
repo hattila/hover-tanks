@@ -38,7 +38,12 @@ public:
 	void ServerAttemptToJoinTeam(int8 TeamId);
 
 	UFUNCTION(Client, Unreliable)
-	void ClientAddKillIndicator(const FString& KillerName, const FString& VictimName);
+	void ClientAddKillIndicator(
+		const FString& KillerName,
+		const FString& VictimName,
+		FLinearColor KillerColor = FLinearColor(1,1,1,1),
+		FLinearColor VictimColor = FLinearColor(1,1,1,1)
+	);
 
 protected:
 	virtual void BeginPlay() override;

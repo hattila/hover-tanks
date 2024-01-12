@@ -49,8 +49,8 @@ protected:
 	EMatchState MatchState = EMatchState::InProgress;
 	
 	virtual void BeginPlay() override;
-	void OnOneSecondElapsed();
-	void GameOver();
+	virtual void OnOneSecondElapsed();
+	virtual void GameOver();
 	virtual void ResetLevel() override;
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override;
@@ -59,9 +59,9 @@ protected:
 	APlayerStart* FindRandomSpawnPoint();
 	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
 
-	void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
+	virtual void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
 
-	void SomeoneKilledSomeone(const FString& KillerName, const FString& VictimName);
+	virtual void SomeoneKilledSomeone(AController* KillerController, AController* VictimController);
 
 private:
 	FTimerHandle GameTimerHandle;

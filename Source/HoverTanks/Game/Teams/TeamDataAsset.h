@@ -25,6 +25,8 @@ public:
 	void ApplyToActor(AActor* TargetActor, bool bIncludeChildActors = true);
 
 	FLinearColor GetTeamColor() const { return ColorParameters[TEXT("TeamColor")]; }
+	FLinearColor GetTextColor() const { return ColorParameters[TEXT("TextColor")]; }
+
 	FText GetTeamShortName() const { return TeamShortName; }
 	
 private:

@@ -10,6 +10,7 @@
 #include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
+#include "HoverTanks/Game/Teams/TeamDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
@@ -41,16 +42,7 @@ void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* D
 	APlayerController* DeadPlayerController = Cast<APlayerController>(DeadHoverTank->GetController());
 	if (DeadPlayerController)
 	{
-		// Kill indicator
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			3.f,
-			FColor::Green,
-			FString::Printf(
-				TEXT("%s died!"),
-				*DeadPlayerController->PlayerState->GetPlayerName()
-			)
-		);
+		SomeoneKilledSomeone(DeathCauser,DeadPlayerController);
 
 		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
 		
@@ -135,3 +127,32 @@ void ATeamDeathMatchGameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 }
 
+void ATeamDeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
+{
+	const FString KillerName = KillerController->PlayerState->GetPlayerName();
+	const FString VictimName = VictimController->PlayerState->GetPlayerName();
+
+	FLinearColor KillerTeamColor;
+	FLinearColor VictimTeamColor;
+	
+	// find the team colors
+	const AInTeamPlayerState* KillerTeamPlayerState = Cast<AInTeamPlayerState>(KillerController->PlayerState);
+	const AInTeamPlayerState* VictimTeamPlayerState = Cast<AInTeamPlayerState>(VictimController->PlayerState);
+	const ATeamDeathMatchGameState* TeamDeathMatchGameState = GetGameState<ATeamDeathMatchGameState>();
+
+	if (KillerTeamPlayerState && VictimTeamPlayerState && TeamDeathMatchGameState)
+	{
+		KillerTeamColor = TeamDeathMatchGameState->GetTeamDataAsset(KillerTeamPlayerState->GetTeamId())->GetTextColor();
+		VictimTeamColor = TeamDeathMatchGameState->GetTeamDataAsset(VictimTeamPlayerState->GetTeamId())->GetTextColor();	
+	}
+
+	// iterate over every joined player, cast their PlayerControllers to AHoverTankPlayerController and call ClientAddKillIndicator
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(It->Get());
+		if (PlayerController)
+		{
+			PlayerController->ClientAddKillIndicator(KillerName, VictimName, KillerTeamColor, VictimTeamColor);
+		}
+	}
+}
