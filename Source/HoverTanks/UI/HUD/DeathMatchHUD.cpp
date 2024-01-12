@@ -120,6 +120,7 @@ void ADeathMatchHUD::ToggleScoreBoard()
 		ScoreBoardWidget->SetInputModeGameOnly();
 
 		PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
+		HoverTankHUDWidget->SetVisibility(ESlateVisibility::Visible);
 		return;
 	}
 	
@@ -139,6 +140,7 @@ void ADeathMatchHUD::ToggleScoreBoard()
 	ScoreBoardWidget->SetupInputModeGameAndUi();
 
 	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	HoverTankHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ADeathMatchHUD::ForceOpenScoreBoard()
@@ -162,6 +164,7 @@ void ADeathMatchHUD::ForceOpenScoreBoard()
 
 	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
 	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	HoverTankHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ADeathMatchHUD::RefreshPlayerScores()
