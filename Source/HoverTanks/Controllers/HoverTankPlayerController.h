@@ -37,6 +37,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerAttemptToJoinTeam(int8 TeamId);
 
+	UFUNCTION(Client, Unreliable)
+	void ClientAddKillIndicator(const FString& KillerName, const FString& VictimName);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

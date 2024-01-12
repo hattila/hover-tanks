@@ -56,6 +56,12 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 			)
 		);
 
+		SomeoneKilledSomeone(
+			*DeathCauser->PlayerState->GetPlayerName(),
+			*DeadPlayerController->PlayerState->GetPlayerName()
+		);
+		
+
 		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
 		
 		ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
@@ -260,5 +266,18 @@ void ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout(const FString Playe
 	if (DeathMatchGameState)
 	{
 		DeathMatchGameState->RemovePlayersScore(PlayerName);
+	}
+}
+
+void ADeathMatchGameMode::SomeoneKilledSomeone(const FString& KillerName, const FString& VictimName)
+{
+	// iterate over every joined player, cast their PlayerControllers to AHoverTankPlayerController and call ClientAddKillIndicator
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(It->Get());
+		if (PlayerController)
+		{
+			PlayerController->ClientAddKillIndicator(KillerName, VictimName);
+		}
 	}
 }

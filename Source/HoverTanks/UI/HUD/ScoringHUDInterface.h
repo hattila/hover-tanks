@@ -25,4 +25,12 @@ public:
 	virtual void ToggleScoreBoard() = 0;
 	virtual void ForceOpenScoreBoard() = 0;
 	virtual void RefreshPlayerScores() = 0;
+
+	// separate interface?
+	virtual void AddKillIndicator(
+		const FString& KillerName,
+		const FString& VictimName,
+		FLinearColor KillerColor = FLinearColor(1,1,1,1),
+		FLinearColor VictimColor = FLinearColor(1,1,1,1)
+	) = 0;
 };

@@ -31,6 +31,13 @@ public:
 	virtual void ToggleScoreBoard() override;
 	virtual void ForceOpenScoreBoard() override;
 	virtual void RefreshPlayerScores() override;
+
+	virtual void AddKillIndicator(
+		const FString& KillerName,
+		const FString& VictimName,
+		FLinearColor KillerColor = FLinearColor(1,1,1,1),
+		FLinearColor VictimColor = FLinearColor(1,1,1,1)
+	) override;
 	// ~IScoringHUDInterface
 	
 	UFUNCTION()

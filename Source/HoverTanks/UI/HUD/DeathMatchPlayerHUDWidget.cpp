@@ -64,8 +64,4 @@ void UDeathMatchPlayerHUDWidget::AddKillIndicator(const FString& KillerName, con
 
 	KillIndicatorWidget->Setup(KillerName, VictimName, KillerColor, VictimColor);
 	KillEventsVerticalBox->AddChild(KillIndicatorWidget);
-
-	UKillIndicatorWidget* KillIndicatorWidget2 = CreateWidget<UKillIndicatorWidget>(GetOwningPlayer(), KillIndicatorWidgetClass);
-	KillIndicatorWidget2->Setup(KillerName, VictimName, KillerColor, VictimColor);
-	KillEventsVerticalBox->AddChild(KillIndicatorWidget2);
 }

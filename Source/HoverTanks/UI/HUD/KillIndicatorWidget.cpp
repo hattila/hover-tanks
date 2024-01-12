@@ -23,7 +23,7 @@ void UKillIndicatorWidget::Setup(const FString& KillerName, const FString& Victi
 
 	// create a timer to remove the widget after a few seconds
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UKillIndicatorWidget::HideDelayed, 3.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UKillIndicatorWidget::HideDelayed, 5.0f, false);
 }
 
 void UKillIndicatorWidget::HideDelayed()

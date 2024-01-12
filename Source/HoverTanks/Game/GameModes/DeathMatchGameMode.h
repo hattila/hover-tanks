@@ -61,6 +61,8 @@ protected:
 
 	void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
 
+	void SomeoneKilledSomeone(const FString& KillerName, const FString& VictimName);
+
 private:
 	FTimerHandle GameTimerHandle;
 	FTimerHandle OnLogoutScoreRefreshTimerHandle;

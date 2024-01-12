@@ -181,6 +181,16 @@ void ADeathMatchHUD::RefreshPlayerScores()
 	}
 }
 
+void ADeathMatchHUD::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+{
+	if (PlayerHUDWidget == nullptr)
+	{
+		return;
+	}
+
+	PlayerHUDWidget->AddKillIndicator(KillerName, VictimName);
+}
+
 void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler, OldPawn: %s, NewPawn: %s"), OldPawn ? *OldPawn->GetName() : TEXT("null"), NewPawn ? *NewPawn->GetName() : TEXT("null"));
@@ -196,12 +206,6 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 		if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
 		{
 			HoverTankHUDWidget->RemoveFromParent();
-		}
-
-		// testing
-		if (PlayerHUDWidget)
-		{
-			PlayerHUDWidget->AddKillIndicator(TEXT("Sanyi"), TEXT("Béla"));
 		}
 
 		return;

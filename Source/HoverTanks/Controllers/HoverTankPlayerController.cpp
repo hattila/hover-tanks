@@ -163,6 +163,16 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 	}
 }
 
+void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FString& KillerName, const FString& VictimName)
+{
+	// get the hud
+	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+	if (HUD)
+	{
+		HUD->AddKillIndicator(KillerName, VictimName);
+	}
+}
+
 /**
  * If there is a possessed pawn that has team colors, and it is a team game, apply the team color to the pawn.
  */
