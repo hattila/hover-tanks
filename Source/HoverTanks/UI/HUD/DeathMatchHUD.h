@@ -7,10 +7,10 @@
 #include "GameFramework/HUD.h"
 #include "DeathMatchHUD.generated.h"
 
+class UScoreBoardWidget;
 class AHoverTankPlayerController;
 class UHoverTankHUDWidget;
 class ADeathMatchGameState;
-class UDeathMatchScoreBoardWidget;
 class UDeathMatchPlayerHUDWidget;
 /**
  * 
@@ -42,15 +42,23 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	ADeathMatchGameState* DeathMatchGameStateRef;
+	UPROPERTY()
+	ADeathMatchGameState* DeathMatchGameStateRef = nullptr;
 
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass; // timer, score, etc
-	UDeathMatchPlayerHUDWidget* PlayerHUDWidget;
+
+	UPROPERTY()
+	UDeathMatchPlayerHUDWidget* PlayerHUDWidget = nullptr;
+	
+	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
+
+	UPROPERTY()
+	UHoverTankHUDWidget* HoverTankHUDWidget = nullptr;
+
+	TSubclassOf<UUserWidget> ScoreBoardClass;
+
+	UPROPERTY()
+	UScoreBoardWidget* ScoreBoardWidget = nullptr;
 
 private:
-	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
-	UHoverTankHUDWidget* HoverTankHUDWidget;
-
-	TSubclassOf<UUserWidget> DeathMatchScoreBoardClass; // TODO: change to ScoreBoardClass, which will have DM and TDM children
-	UDeathMatchScoreBoardWidget* DeathMatchScoreBoardWidget;
 };

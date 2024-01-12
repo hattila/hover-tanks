@@ -11,10 +11,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Game/GameModes/DeathMatchGameState.h"
 
-ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
-                                  PlayerHUDWidget(nullptr),
-                                  HoverTankHUDWidget(nullptr),
-                                  DeathMatchScoreBoardWidget(nullptr)
+ADeathMatchHUD::ADeathMatchHUD()
 {
 	// get hold of the blueprint versions of the widgets
 	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchPlayerHUDWidgetClassFinder(
@@ -28,7 +25,7 @@ ADeathMatchHUD::ADeathMatchHUD(): DeathMatchGameStateRef(nullptr),
 		TEXT("/Game/HoverTanks/UI/Scoreboard/WBP_DeathMatchScoreBoardWidget"));
 	if (DeathMatchScoreBoardClassFinder.Succeeded())
 	{
-		DeathMatchScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;
+		ScoreBoardClass = DeathMatchScoreBoardClassFinder.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> HoverTankHUDWidgetClassFinder(
@@ -55,15 +52,15 @@ void ADeathMatchHUD::ToggleScoreBoard()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::ToggleScoreBoard"));
 	
-	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
+	if (!ensure(ScoreBoardWidget != nullptr))
 	{
 		return;
 	}
 
-	if (DeathMatchScoreBoardWidget->GetVisibility() == ESlateVisibility::Visible)
+	if (ScoreBoardWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
-		DeathMatchScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
-		DeathMatchScoreBoardWidget->SetInputModeGameOnly();
+		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
+		ScoreBoardWidget->SetInputModeGameOnly();
 
 		PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
 		return;
@@ -72,30 +69,30 @@ void ADeathMatchHUD::ToggleScoreBoard()
 	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
 	{
-		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
-		DeathMatchScoreBoardWidget->RefreshPlayerScores(DeathMatchGameState->GetPlayerScores());
+		ScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
+		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameState->GetPlayerScores());
 	}
 
-	DeathMatchScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
-	DeathMatchScoreBoardWidget->SetupInputModeGameAndUi();
+	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
+	ScoreBoardWidget->SetupInputModeGameAndUi();
 
 	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void ADeathMatchHUD::ForceOpenScoreBoard()
 {
-	if (!ensure(DeathMatchScoreBoardWidget != nullptr))
+	if (!ensure(ScoreBoardWidget != nullptr))
 	{
 		return;
 	}
 
 	if (DeathMatchGameStateRef)
 	{
-		DeathMatchScoreBoardWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
-		DeathMatchScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
+		ScoreBoardWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
+		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
 	}
 
-	DeathMatchScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
+	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
 	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -103,7 +100,7 @@ void ADeathMatchHUD::RefreshPlayerScores()
 {
 	if (DeathMatchGameStateRef != nullptr)
 	{
-		DeathMatchScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
+		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
 	}
 }
 
@@ -126,16 +123,16 @@ void ADeathMatchHUD::BeginPlay()
 		PlayerHUDWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
 	}
 
-	if (!ensure(DeathMatchScoreBoardClass != nullptr))
+	if (!ensure(ScoreBoardClass != nullptr))
 	{
 		return;
 	}
 
-	if (DeathMatchScoreBoardWidget == nullptr)
+	if (ScoreBoardWidget == nullptr)
 	{
-		DeathMatchScoreBoardWidget = CreateWidget<UDeathMatchScoreBoardWidget>(GetOwningPlayerController(), DeathMatchScoreBoardClass);
-		DeathMatchScoreBoardWidget->Setup();
-		DeathMatchScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
+		ScoreBoardWidget = CreateWidget<UScoreBoardWidget>(GetOwningPlayerController(), ScoreBoardClass);
+		ScoreBoardWidget->Setup();
+		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	if (HoverTankHUDWidgetClass == nullptr)
@@ -153,9 +150,9 @@ void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		PlayerHUDWidget->Teardown();
 	}
 
-	if (DeathMatchScoreBoardWidget)
+	if (ScoreBoardWidget)
 	{
-		DeathMatchScoreBoardWidget->Teardown();
+		ScoreBoardWidget->Teardown();
 	}
 
 	if (HoverTankHUDWidget)
