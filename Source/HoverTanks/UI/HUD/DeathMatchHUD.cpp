@@ -36,79 +36,10 @@ ADeathMatchHUD::ADeathMatchHUD()
 	}
 }
 
-void ADeathMatchHUD::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
-	if (PlayerController)
-	{
-		// Broadcast in Controller.cpp OnRep_Pawn
-		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
-	}
-}
-
-void ADeathMatchHUD::ToggleScoreBoard()
-{
-	UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::ToggleScoreBoard"));
-	
-	if (!ensure(ScoreBoardWidget != nullptr))
-	{
-		return;
-	}
-
-	if (ScoreBoardWidget->GetVisibility() == ESlateVisibility::Visible)
-	{
-		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
-		ScoreBoardWidget->SetInputModeGameOnly();
-
-		PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
-		return;
-	}
-	
-	ADeathMatchGameState* DeathMatchGameState = GetWorld()->GetGameState<ADeathMatchGameState>();
-	if (DeathMatchGameState)
-	{
-		ScoreBoardWidget->SetTimeLeft(DeathMatchGameState->GetTimeRemaining());
-		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameState->GetPlayerScores());
-	}
-
-	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
-	ScoreBoardWidget->SetupInputModeGameAndUi();
-
-	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
-}
-
-void ADeathMatchHUD::ForceOpenScoreBoard()
-{
-	if (!ensure(ScoreBoardWidget != nullptr))
-	{
-		return;
-	}
-
-	if (DeathMatchGameStateRef)
-	{
-		ScoreBoardWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
-		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
-	}
-
-	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
-	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
-}
-
-void ADeathMatchHUD::RefreshPlayerScores()
-{
-	if (DeathMatchGameStateRef != nullptr)
-	{
-		ScoreBoardWidget->RefreshPlayerScores(DeathMatchGameStateRef->GetPlayerScores());
-	}
-}
 
 void ADeathMatchHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	DeathMatchGameStateRef = GetWorld()->GetGameState<ADeathMatchGameState>(); // a GS with scores, and timer
 	
 	if (PlayerHUDWidgetClass == nullptr)
 	{
@@ -118,9 +49,10 @@ void ADeathMatchHUD::BeginPlay()
 	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
 	PlayerHUDWidget->Setup();
 
-	if (DeathMatchGameStateRef && PlayerHUDWidget)
+	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	if (TimerGameState && PlayerHUDWidget)
 	{
-		PlayerHUDWidget->SetTimeLeft(DeathMatchGameStateRef->GetTimeRemaining());
+		PlayerHUDWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
 	}
 
 	if (!ensure(ScoreBoardClass != nullptr))
@@ -158,6 +90,91 @@ void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (HoverTankHUDWidget)
 	{
 		HoverTankHUDWidget->RemoveFromParent();
+	}
+}
+
+void ADeathMatchHUD::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
+	if (PlayerController)
+	{
+		// Broadcast in Controller.cpp OnRep_Pawn
+		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
+	}
+}
+
+void ADeathMatchHUD::ToggleScoreBoard()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::ToggleScoreBoard"));
+	
+	if (!ensure(ScoreBoardWidget != nullptr))
+	{
+		return;
+	}
+
+	if (ScoreBoardWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
+		ScoreBoardWidget->SetInputModeGameOnly();
+
+		PlayerHUDWidget->SetVisibility(ESlateVisibility::Visible);
+		return;
+	}
+	
+	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	if (TimerGameState)
+	{
+		ScoreBoardWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
+	}
+
+	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	if (ScoringGameState)
+	{
+		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());
+	}
+
+	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
+	ScoreBoardWidget->SetupInputModeGameAndUi();
+
+	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ADeathMatchHUD::ForceOpenScoreBoard()
+{
+	if (!ensure(ScoreBoardWidget != nullptr))
+	{
+		return;
+	}
+
+	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	if (TimerGameState)
+	{
+		ScoreBoardWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
+	}
+
+	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	if (ScoringGameState)
+	{
+		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());
+	}
+
+	ScoreBoardWidget->SetVisibility(ESlateVisibility::Visible);
+	PlayerHUDWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void ADeathMatchHUD::RefreshPlayerScores()
+{
+	if (ScoreBoardWidget == nullptr)
+	{
+		return;
+	}
+
+	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	if (ScoringGameState)
+	{
+		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());
 	}
 }
 
@@ -225,4 +242,14 @@ void ADeathMatchHUD::OnTankDeathHandler()
 	{
 		PlayerHUDWidget->ShowRespawnTextBorder();
 	}
+}
+
+AGameStateBase* ADeathMatchHUD::GetSafeGameState() const
+{
+	if (!GetWorld())
+	{
+		return nullptr;
+	}
+
+	return GetWorld()->GetGameState<AGameStateBase>();
 }

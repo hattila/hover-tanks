@@ -21,8 +21,10 @@ class HOVERTANKS_API ATeamDeathMatchGameState : public ADeathMatchGameState
 public:
 	ATeamDeathMatchGameState();
 
+	// ~IScoringGameStateInterface
 	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) override;
 	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd) override;
+	// ~IScoringGameStateInterface
 	
 	void CreateTeams();
 	void AssignPlayersToTeams();
