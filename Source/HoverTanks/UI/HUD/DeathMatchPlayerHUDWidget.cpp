@@ -3,7 +3,15 @@
 
 #include "DeathMatchPlayerHUDWidget.h"
 
+#include "KillIndicatorWidget.h"
 #include "Components/TextBlock.h"
+
+UDeathMatchPlayerHUDWidget::UDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> KillIndicatorWidgetClassFinder(
+		TEXT("/Game/HoverTanks/UI/HUD/WBP_KillIndicatorWidget"));
+	KillIndicatorWidgetClass = KillIndicatorWidgetClassFinder.Class;
+}
 
 void UDeathMatchPlayerHUDWidget::Setup()
 {
@@ -21,7 +29,7 @@ void UDeathMatchPlayerHUDWidget::Teardown()
 }
 
 /**
- * Exact copy of DeathMatchScoreBoardWidget's timer refresh function
+ * Exact copy of ScoreBoardWidget's timer refresh function
  */
 void UDeathMatchPlayerHUDWidget::RefreshTimeLeft()
 {
@@ -44,4 +52,20 @@ void UDeathMatchPlayerHUDWidget::RefreshTimeLeft()
 	TimeLeftText->SetText(FText::FromString(TimeLeftString));
 
 	TimeLeft--;
+}
+
+void UDeathMatchPlayerHUDWidget::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+{
+	UKillIndicatorWidget* KillIndicatorWidget = CreateWidget<UKillIndicatorWidget>(GetOwningPlayer(), KillIndicatorWidgetClass);
+	if (KillIndicatorWidget == nullptr)
+	{
+		return;
+	}
+
+	KillIndicatorWidget->Setup(KillerName, VictimName, KillerColor, VictimColor);
+	KillEventsVerticalBox->AddChild(KillIndicatorWidget);
+
+	UKillIndicatorWidget* KillIndicatorWidget2 = CreateWidget<UKillIndicatorWidget>(GetOwningPlayer(), KillIndicatorWidgetClass);
+	KillIndicatorWidget2->Setup(KillerName, VictimName, KillerColor, VictimColor);
+	KillEventsVerticalBox->AddChild(KillIndicatorWidget2);
 }

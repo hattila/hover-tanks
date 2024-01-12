@@ -198,6 +198,12 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 			HoverTankHUDWidget->RemoveFromParent();
 		}
 
+		// testing
+		if (PlayerHUDWidget)
+		{
+			PlayerHUDWidget->AddKillIndicator(TEXT("Sanyi"), TEXT("Béla"));
+		}
+
 		return;
 	}
 	

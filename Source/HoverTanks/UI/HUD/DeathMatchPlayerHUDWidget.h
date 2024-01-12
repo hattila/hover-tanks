@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Border.h"
+#include "Components/VerticalBox.h"
 #include "DeathMatchPlayerHUDWidget.generated.h"
 
 class UTextBlock;
@@ -16,21 +17,36 @@ class HOVERTANKS_API UDeathMatchPlayerHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
+	// constructor
+	UDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer);
+	
 	void Setup();
 	void Teardown();
 	
 	void SetTimeLeft(int32 InTimeLeft) { TimeLeft = InTimeLeft; }
 	void RefreshTimeLeft();
 
-	void ShowRespawnTextBorder(const bool bShow = true) const { RespawnTextBorder->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden); };
+	void ShowRespawnTextBorder(const bool bShow = true) const { RespawnTextBorder->SetVisibility(bShow ? ESlateVisibility::Visible : ESlateVisibility::Hidden); }
+
+	void AddKillIndicator(
+		const FString& KillerName,
+		const FString& VictimName,
+		FLinearColor KillerColor = FLinearColor(1,1,1,1),
+		FLinearColor VictimColor = FLinearColor(1,1,1,1)
+	);
 	
 private:
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TimeLeftText;
+	UTextBlock* TimeLeftText = nullptr;
 
-	int32 TimeLeft;
+	int32 TimeLeft = 0;
 	FTimerHandle TimeLeftRefreshTimerHandle;
 
 	UPROPERTY(meta = (BindWidget))
-	UBorder* RespawnTextBorder;
+	UBorder* RespawnTextBorder = nullptr;
+
+	UPROPERTY(meta = (BindWidget))
+	UVerticalBox* KillEventsVerticalBox = nullptr;
+
+	TSubclassOf<UUserWidget> KillIndicatorWidgetClass;
 };
