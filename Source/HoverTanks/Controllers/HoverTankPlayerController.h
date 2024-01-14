@@ -45,6 +45,9 @@ public:
 		FLinearColor VictimColor = FLinearColor(1,1,1,1)
 	);
 
+	UFUNCTION(Client, Reliable)
+	void ClientSetInputModeToGameOnly();
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

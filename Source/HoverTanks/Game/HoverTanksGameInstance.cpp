@@ -95,6 +95,46 @@ void UHoverTanksGameInstance::Join(const FString& Address)
 	}
 }
 
+/**
+ * Console command
+ * @param InInputMode - "GameAndUI" or "GameOnly" or "UIOnly"
+ */
+void UHoverTanksGameInstance::InputMode(const FString& InInputMode)
+{
+	APlayerController* PlayerController = GetFirstLocalPlayerController();
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InputMode cmd: PlayerController not found"));
+		return;
+	}
+
+	if (InInputMode == "GameAndUI")
+	{
+		const FInputModeGameAndUI InputModeData;
+		PlayerController->SetInputMode(InputModeData);
+		PlayerController->bShowMouseCursor = true;
+		return;
+	}
+
+	if (InInputMode == "GameOnly")
+	{
+		const FInputModeGameOnly InputModeData;
+		PlayerController->SetInputMode(InputModeData);
+		PlayerController->bShowMouseCursor = false;
+		return;
+	}
+
+	if (InInputMode == "UIOnly")
+	{
+		const FInputModeUIOnly InputModeData;
+		PlayerController->SetInputMode(InputModeData);
+		PlayerController->bShowMouseCursor = true;
+		return;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("InputMode: given input mode does not exist: %s, try GameOnly, GameAndUI or UIOnly"), *InInputMode);
+}
+
 void UHoverTanksGameInstance::HostGame(const FHostGameSettings& InHostGameSettings)
 {
 	HostGameSettings.MapName = InHostGameSettings.MapName;

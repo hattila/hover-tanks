@@ -54,8 +54,7 @@ void AHoverTankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FString RoleString;
-	UEnum::GetValueAsString(GetLocalRole(), RoleString);
+	ClientSetInputModeToGameOnly();
 
 	if (!HasAuthority())
 	{
@@ -68,14 +67,16 @@ void AHoverTankPlayerController::BeginPlay()
 	AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
 	if (!TeamPlayerState)
 	{
+		FString RoleString;
+		UEnum::GetValueAsString(GetLocalRole(), RoleString);
+
 		UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, no team player state"), *RoleString);
 		return;
 	}
 	
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, team id: %d"), *RoleString, TeamPlayerState->GetTeamId());
-	
 	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
 	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard);
+
 	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
 	ServerRefreshMeOnTheScoreBoard(TeamPlayerState->GetTeamId());
 }
@@ -136,6 +137,9 @@ void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 
 void AHoverTankPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
+
+	// log out the role
+	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
 }
 
 void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
@@ -174,6 +178,14 @@ void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FSt
 	{
 		HUD->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
 	}
+}
+
+
+void AHoverTankPlayerController::ClientSetInputModeToGameOnly_Implementation()
+{
+	const FInputModeGameOnly InputModeData;
+	SetInputMode(InputModeData);
+	bShowMouseCursor = false;
 }
 
 /**

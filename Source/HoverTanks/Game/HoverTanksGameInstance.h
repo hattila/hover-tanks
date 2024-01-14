@@ -28,9 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ShowMainMenu();
 
-	/**
-	 * IMultiplayerGameControls
-	 */
+	// ~IMultiplayerGameControls
 	UFUNCTION(Exec)
 	void Host();
 	UFUNCTION(Exec)
@@ -39,6 +37,10 @@ public:
 	void HostGame(const FHostGameSettings& InHostGameSettings);
 	void RefreshServerList();
 	void JoinAvailableGame(uint32 Index);
+	// ~IMultiplayerGameControls
+
+	UFUNCTION(Exec)
+	void InputMode(const FString& InInputMode);
 
 	void AddToastMessage(const FString& String, const bool bShowLoading = false);
 
