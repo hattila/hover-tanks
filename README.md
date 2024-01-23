@@ -2,6 +2,9 @@
 
 Showcase of a multiplayer game using UE5 and Steamworks.
 
+Get it from itch.io:
+https://attilah.itch.io/hover-tanks
+
 ### Features
 
 Main menu system with:
