@@ -90,6 +90,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void InitPlayer();
+	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 

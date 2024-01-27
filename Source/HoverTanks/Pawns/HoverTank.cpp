@@ -221,6 +221,7 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void AHoverTank::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	InitPlayer();
 }
 
 void AHoverTank::OnDeath()
@@ -302,9 +303,23 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
+/**
+ * Is called on Possessed on the server and Onrep_PlayerState on the client
+ */
+void AHoverTank::InitPlayer()
+{
+	// Player State should have the AbilitySystemComponent
+	// this is the place where PlayerState->AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this); should be called.
+
+	// other initializations here as well?
+	// if locally controlled, has auth?
+}
+
 void AHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	InitPlayer();
 }
 
 void AHoverTank::UnPossessed()
