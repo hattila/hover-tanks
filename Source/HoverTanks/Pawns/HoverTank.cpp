@@ -2,6 +2,7 @@
 
 #include "HoverTank.h"
 
+#include "AbilitySystemComponent.h"
 #include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
@@ -15,6 +16,7 @@
 #include "Components/RectLightComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "HoverTanks/Game/HTPlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
@@ -309,6 +311,16 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 void AHoverTank::InitPlayer()
 {
 	// Player State should have the AbilitySystemComponent
+	if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
+		HTPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(HTPlayerState, this);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: HTPlayerState is null"));
+	}
+	
 	// this is the place where PlayerState->AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this); should be called.
 
 	// other initializations here as well?

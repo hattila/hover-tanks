@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
 #include "AbilitySystemComponent.h"
-#include "CharacterAttributeSetBase.generated.h"
+#include "HTAttributeSetBase.generated.h"
 
 // Uses macros from AttributeSet.h
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
@@ -18,7 +18,7 @@
  * 
  */
 UCLASS()
-class HOVERTANKS_API UCharacterAttributeSetBase : public UAttributeSet
+class HOVERTANKS_API UHTAttributeSetBase : public UAttributeSet
 {
 	GENERATED_BODY()
 
@@ -27,25 +27,25 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Health)
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, Health)
 
 	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MaxHealth)
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, MaxHealth)
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_Ammo)
 	FGameplayAttributeData Ammo;
-	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Ammo)
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, Ammo)
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxAmmo)
 	FGameplayAttributeData MaxAmmo;
-	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, MaxAmmo)
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, MaxAmmo)
 
 	// Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into -Health
 	// Temporary value that only exists on the Server. Not replicated.
 	UPROPERTY(BlueprintReadOnly, Category = "Damage")
 	FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UCharacterAttributeSetBase, Damage)
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, Damage)
 
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);

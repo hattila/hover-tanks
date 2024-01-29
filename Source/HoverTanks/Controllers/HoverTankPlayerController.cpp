@@ -139,7 +139,7 @@ void AHoverTankPlayerController::OnRep_Pawn()
 	Super::OnRep_Pawn();
 
 	// log out the role
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
 }
 
 void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)

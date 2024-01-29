@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Game/HTPlayerState.h"
 #include "HoverTanks/UI/HUD/DeathMatchHUD.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -32,6 +33,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	// Custom GameInstance should be set in DefaultEngine.ini
 
+	PlayerStateClass = AHTPlayerState::StaticClass();
 	GameStateClass = ADeathMatchGameState::StaticClass();
 	HUDClass = ADeathMatchHUD::StaticClass();
 
