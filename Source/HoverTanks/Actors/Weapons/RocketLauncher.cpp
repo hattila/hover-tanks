@@ -14,7 +14,7 @@ ARocketLauncher::ARocketLauncher()
 	RootComponent = BaseMesh;
 
 	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/TankRocketLauncher"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/TankRocketLauncher"));
 	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
 	BaseMesh->SetStaticMesh(BaseMeshObject);
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));

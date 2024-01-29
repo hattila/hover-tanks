@@ -7,6 +7,8 @@
 #include "HasTeamColors.h"
 #include "HoverTank.generated.h"
 
+class UHTAbilitySystemComponent;
+class UGameplayEffect;
 class UWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
@@ -94,6 +96,20 @@ protected:
 	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
+
+	/**
+	 * GAS
+	 */
+
+	// This is just a ref here, it lives on the PlayerState for player characters (and on the HoverTank for AI in the future)
+	UPROPERTY()
+	UHTAbilitySystemComponent* AbilitySystemComponent = nullptr;
+
+	// Default attributes for a Tank on spawn, applied as an instant GameplayEffect
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DefaultAttributes;
+
+	virtual void InitializeAttributes();
 
 private:
 	/**

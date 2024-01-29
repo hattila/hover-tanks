@@ -17,6 +17,8 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/GAS/HTAbilitySystemComponent.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
@@ -65,19 +67,19 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTankCollision"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTankCollision"));
 	UStaticMesh* ColliderMeshAssetObject = ColliderMeshAsset.Object;
 	ColliderMesh->SetStaticMesh(ColliderMeshAssetObject);
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankBase"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankBase"));
 	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
 	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannon"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannon"));
 	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
 	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannonBarrel"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannonBarrel"));
 	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
 	
@@ -313,8 +315,12 @@ void AHoverTank::InitPlayer()
 	// Player State should have the AbilitySystemComponent
 	if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
 	{
+		AbilitySystemComponent = Cast<UHTAbilitySystemComponent>(HTPlayerState->GetAbilitySystemComponent());
+		
 		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
-		HTPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(HTPlayerState, this);
+		AbilitySystemComponent->InitAbilityActorInfo(HTPlayerState, this);
+
+		InitializeAttributes();
 	}
 	else
 	{
@@ -342,6 +348,37 @@ void AHoverTank::UnPossessed()
 	}
 	
 	Super::UnPossessed();
+}
+
+void AHoverTank::InitializeAttributes()
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (!DefaultAttributes)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	// apply the default attributes, Tank is lvl 1, no lvl up in this game yet
+	FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 1, EffectContext);
+	if (EffectSpecHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+	
+	// // get the attribute set
+	// UHTAttributeSetBase* AttributeSetBase = HTPlayerState->GetAttributeSetBase();
+	// // initialize health and shield
+	// AttributeSetBase->InitHealth(100);
+	// AttributeSetBase->InitShield(100);
+	
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -427,6 +464,22 @@ void AHoverTank::EBrakeCompleted()
 void AHoverTank::JumpTriggered()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
+
+	// get the Attribute Set from the PlayerState
+	// if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
+	// {
+	// 	UHTAttributeSetBase* AttributeSetBase = HTPlayerState->GetAttributeSetBase();
+	// 	float Shield = AttributeSetBase->GetShield();
+	// 	float MaxShield = AttributeSetBase->GetMaxShield();
+	// 	// float Shield = AttributeSetBase->Shield;
+	//
+	// 	float Health = AttributeSetBase->Health.GetCurrentValue();
+	// 	float MaxHealth = AttributeSetBase->MaxHealth.GetCurrentValue();
+	// 	
+	// 	// log out shield
+	// 	UE_LOG(LogTemp, Warning, TEXT("Shield: %.0f of MaxSield: %.0f\n Health: %f, MaxHealth: %f"), Shield, MaxShield, Health, MaxHealth);
+	// }
+	
 	
 	if (bIsInputEnabled == false)
 	{

@@ -23,13 +23,15 @@ public:
 	AHTPlayerState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	
+
+	UHTAttributeSetBase* GetAttributeSetBase() const { return AttributeSetBase; }
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	UHTAbilitySystemComponent* AbilitySystemComponent;
 
 	UPROPERTY(Transient)
-	UHTAttributeSetBase* AttributeSet;
+	UHTAttributeSetBase* AttributeSetBase;
 	
 };

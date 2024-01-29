@@ -14,7 +14,8 @@ AHTPlayerState::AHTPlayerState()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UHTAttributeSetBase>(TEXT("AttributeSet"));
+	// https://github.com/tranek/GASDocumentation?tab=readme-ov-file#441-attribute-set-definition
+	AttributeSetBase = CreateDefaultSubobject<UHTAttributeSetBase>(TEXT("AttributeSetBase"));
 
 	NetUpdateFrequency = 30.0f;
 }

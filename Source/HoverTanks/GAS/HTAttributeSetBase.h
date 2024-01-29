@@ -33,13 +33,13 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, MaxHealth)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_Ammo)
-	FGameplayAttributeData Ammo;
-	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, Ammo)
+	UPROPERTY(BlueprintReadOnly, Category = "Shield", ReplicatedUsing = OnRep_Shield)
+	FGameplayAttributeData Shield;
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, Shield)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo", ReplicatedUsing = OnRep_MaxAmmo)
-	FGameplayAttributeData MaxAmmo;
-	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, MaxAmmo)
+	UPROPERTY(BlueprintReadOnly, Category = "Shield", ReplicatedUsing = OnRep_MaxShield)
+	FGameplayAttributeData MaxShield;
+	ATTRIBUTE_ACCESSORS(UHTAttributeSetBase, MaxShield)
 
 	// Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into -Health
 	// Temporary value that only exists on the Server. Not replicated.
@@ -53,7 +53,10 @@ public:
 	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 
 	UFUNCTION()
-	virtual void OnRep_Ammo(const FGameplayAttributeData& OldAmmo);
+	virtual void OnRep_Shield(const FGameplayAttributeData& OldShield);
 	UFUNCTION()
-	virtual void OnRep_MaxAmmo(const FGameplayAttributeData& OldMaxAmmo);
+	virtual void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield);
+
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 };
