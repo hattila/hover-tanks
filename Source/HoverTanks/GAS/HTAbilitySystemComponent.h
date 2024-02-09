@@ -6,7 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "HTAbilitySystemComponent.generated.h"
 
-
+/**
+ * 
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class HOVERTANKS_API UHTAbilitySystemComponent : public UAbilitySystemComponent
 {
@@ -20,6 +22,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 
 public:
 	bool bCharacterAbilitiesGiven = false;

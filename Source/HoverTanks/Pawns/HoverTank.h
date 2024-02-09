@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "HasTeamColors.h"
+#include "HoverTanks/GAS/AbilityBindingInterface.h"
 #include "HoverTank.generated.h"
 
+class UAbilityInputBindingComponent;
+class UAsset_GameplayAbility;
+class UHTGameplayAbility;
+class UGameplayAbility;
 class UHTAbilitySystemComponent;
 class UGameplayEffect;
 class UWeaponsComponent;
@@ -30,7 +35,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
-class HOVERTANKS_API AHoverTank : public APawn, public IHasTeamColors
+class HOVERTANKS_API AHoverTank :
+	public APawn,
+	public IAbilityBindingInterface,
+	public IHasTeamColors
 {
 	GENERATED_BODY()
 	
@@ -53,6 +61,11 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void OnRep_PlayerState() override;
+
+	// ~ IAbilityBindingInterface interface
+	virtual void BindAbility(FGameplayAbilitySpec& Spec) const override;
+	virtual void UnbindAbility(FGameplayAbilitySpec& Spec) const override;
+	// ~ IAbilityBindingInterface interface
 
 	UFUNCTION(BlueprintPure)
 	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
@@ -109,7 +122,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DefaultAttributes;
 
+	UPROPERTY()
+	UAbilityInputBindingComponent* AbilityInputBindingComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	UAsset_GameplayAbility* AbilitySet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
+
 	virtual void InitializeAttributes();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* AbilityInputMappingContext;
+	
+	/** Ability Input Action - E */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AbilityOneInputAction;
 
 private:
 	/**
@@ -242,6 +271,11 @@ private:
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();
+
+	/**
+	 * GAS
+	 */
+	void AbilityOneStartedAction();
 	
 	/**
 	 * Debug 

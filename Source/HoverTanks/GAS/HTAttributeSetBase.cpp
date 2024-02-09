@@ -4,6 +4,7 @@
 #include "HTAttributeSetBase.h"
 
 #include "Net/UnrealNetwork.h"
+#include "GameplayEffectExtension.h"
 
 void UHTAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -68,4 +69,28 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 	 * This only triggers after changes to the BaseValue of an Attribute from an instant GameplayEffect.
 	 * This is a valid place to do more Attribute manipulation when they change from a GameplayEffect.
 	 */
+
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		 // Applying the damage is done in the AttributeSets PostGameplayEffectExecute method
+		 // We have the calculated damage value now.
+		 // Application logic can be eg:
+		 // - subtract damage from shields first, calculate overflow of damage to health
+		 // - show damage number for the damage causer
+		 // - if damaged actor (avatar) died, add reward (xp, gold, money etc) to the damage causer
+
+		float LocalDamage = GetDamage();
+		float DamageOverShield = LocalDamage;
+
+		if (GetShield() > 0.f)
+		{
+			// Apply damage to shield first
+			float DamageToShield = FMath::Min(GetShield(), LocalDamage);
+			SetShield(GetShield() - DamageToShield);
+			
+			DamageOverShield = FMath::Abs(GetShield() - LocalDamage);
+		}
+
+		SetHealth(GetHealth() - DamageOverShield);
+	}
 }
