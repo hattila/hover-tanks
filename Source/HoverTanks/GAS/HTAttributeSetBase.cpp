@@ -72,25 +72,31 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		 // Applying the damage is done in the AttributeSets PostGameplayEffectExecute method
-		 // We have the calculated damage value now.
-		 // Application logic can be eg:
-		 // - subtract damage from shields first, calculate overflow of damage to health
-		 // - show damage number for the damage causer
-		 // - if damaged actor (avatar) died, add reward (xp, gold, money etc) to the damage causer
+		// log
+		UE_LOG(LogTemp, Warning, TEXT("UHTAttributeSetBase::PostGameplayEffectExecute: DamageAttribute changed, value %s"), *FString::SanitizeFloat(GetDamage()));
+		
+		// Applying the damage is done in the AttributeSets PostGameplayEffectExecute method
+		// We have the calculated damage value now.
+		// Application logic can be eg:
+		// - subtract damage from shields first, calculate overflow of damage to health
+		// - show damage number for the damage causer
+		// - if damaged actor (avatar) died, add reward (xp, gold, money etc) to the damage causer
 
 		float LocalDamage = GetDamage();
-		float DamageOverShield = LocalDamage;
+		SetDamage(0.f);
 
 		if (GetShield() > 0.f)
 		{
 			// Apply damage to shield first
 			float DamageToShield = FMath::Min(GetShield(), LocalDamage);
 			SetShield(GetShield() - DamageToShield);
-			
-			DamageOverShield = FMath::Abs(GetShield() - LocalDamage);
+
+			LocalDamage = LocalDamage - DamageToShield;
 		}
 
-		SetHealth(GetHealth() - DamageOverShield);
+		if (LocalDamage > 0.f)
+		{
+			SetHealth(GetHealth() - LocalDamage);
+		}
 	}
 }
