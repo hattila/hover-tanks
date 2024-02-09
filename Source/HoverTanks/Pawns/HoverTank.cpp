@@ -278,6 +278,17 @@ void AHoverTank::UnbindAbility(FGameplayAbilitySpec& Spec) const
 	}
 }
 
+UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
+{
+	// get the ability system component from the player state
+	if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
+	{
+		return HTPlayerState->GetAbilitySystemComponent();
+	}
+
+	return nullptr;
+}
+
 void AHoverTank::OnDeath()
 {
 	if (!HasAuthority())

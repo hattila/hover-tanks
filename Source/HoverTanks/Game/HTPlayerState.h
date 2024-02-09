@@ -22,7 +22,9 @@ public:
 	// constructor
 	AHTPlayerState();
 
+	//~ IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~ IAbilitySystemInterface
 
 	UHTAttributeSetBase* GetAttributeSetBase() const { return AttributeSetBase; }
 

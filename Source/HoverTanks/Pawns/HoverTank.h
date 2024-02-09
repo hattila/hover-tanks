@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Actor.h"
 #include "HasTeamColors.h"
 #include "HoverTanks/GAS/AbilityBindingInterface.h"
@@ -38,6 +39,7 @@ UCLASS()
 class HOVERTANKS_API AHoverTank :
 	public APawn,
 	public IAbilityBindingInterface,
+	public IAbilitySystemInterface,
 	public IHasTeamColors
 {
 	GENERATED_BODY()
@@ -67,6 +69,10 @@ public:
 	virtual void UnbindAbility(FGameplayAbilitySpec& Spec) const override;
 	// ~ IAbilityBindingInterface interface
 
+	//~ IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~ IAbilitySystemInterface
+	
 	UFUNCTION(BlueprintPure)
 	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 

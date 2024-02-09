@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "CannonProjectile.generated.h"
 
+class UGameplayEffect;
 class UNiagaraSystem;
 class UProjectileMovementComponent;
 
@@ -44,6 +45,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	/**
+	 * GAS
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float MaxBounceCount = 1;
 

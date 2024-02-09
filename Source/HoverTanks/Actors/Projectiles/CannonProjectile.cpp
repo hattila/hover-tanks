@@ -3,6 +3,8 @@
 
 #include "CannonProjectile.h"
 
+#include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -39,6 +41,11 @@ ACannonProjectile::ACannonProjectile()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = true;
 
+	// GAS
+	// find and initialize the gameplay effect: GE_Damage_CannonProjectile
+	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_CannonProjectile"));
+	DamageEffect = DamageEffectAsset.Class;
+	
 	/**
 	 * Material
 	 */
@@ -108,13 +115,34 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	{
 		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
 
-		UGameplayStatics::ApplyDamage(
-			OtherActor,
-			Damage,
-			GetInstigatorController(),
-			this,
-			UDamageType::StaticClass()
-		);
+		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
+		if (DamageEffect != nullptr && ActorWithAbilitySystem != nullptr)
+		{
+			UAbilitySystemComponent* AbilitySystemComponent = ActorWithAbilitySystem->GetAbilitySystemComponent();
+			
+			if (AbilitySystemComponent != nullptr)
+			{
+				FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+				EffectContext.AddSourceObject(this);
+				EffectContext.AddHitResult(Hit);
+				
+				FGameplayEffectSpecHandle DamageEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
+				if (DamageEffectSpecHandle.IsValid())
+				{
+					AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data.Get(), AbilitySystemComponent);
+				}
+			}
+		}
+		else
+		{
+			UGameplayStatics::ApplyDamage(
+				OtherActor,
+				Damage,
+				GetInstigatorController(),
+				this,
+				UDamageType::StaticClass()
+			);	
+		}
 
 		// DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Purple, false, 5.f, 0, 1.f);
 		DelayedDestroy();
