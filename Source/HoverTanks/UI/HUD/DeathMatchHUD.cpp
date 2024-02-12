@@ -2,6 +2,7 @@
 
 #include "DeathMatchHUD.h"
 
+#include "AbilitySystemComponent.h"
 #include "HoverTankHUDWidget.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
@@ -9,6 +10,7 @@
 #include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
 
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 
 ADeathMatchHUD::ADeathMatchHUD()
@@ -97,12 +99,12 @@ void ADeathMatchHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
-	if (PlayerController)
-	{
-		// Broadcast in Controller.cpp OnRep_Pawn
-		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
-	}
+	// APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
+	// if (PlayerController)
+	// {
+	// 	// Broadcast in Controller.cpp OnRep_Pawn
+	// 	PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
+	// }
 }
 
 void ADeathMatchHUD::ToggleScoreBoard()
@@ -219,15 +221,31 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 	AHoverTank* HoverTank = Cast<AHoverTank>(NewPawn);
 	if (HoverTank && HoverTankHUDWidget)
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding OnTankHealthChange handler"));
-				
-		HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
+		UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding event handlers to HUDWidget."));
+
+		// HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
 		HoverTank->OnTankDeath.AddDynamic(this, &ADeathMatchHUD::OnTankDeathHandler);
 		HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
 
 		if (HoverTank->GetWeaponsComponent() != nullptr)
 		{
 			HoverTank->GetWeaponsComponent()->OnWeaponFire.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponFireHandler);
+		}
+
+		UAbilitySystemComponent* AbilitySystemComponent = HoverTank->GetAbilitySystemComponent();
+		if (AbilitySystemComponent)
+		{
+			// listen for attribute changes on the AbilitySystemComponent
+			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
+				.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
+
+			// log
+			UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler: Added OnHealthAttributeChangeHandler to AbilitySystemComponent"));
+		}
+		else
+		{
+			// log
+			UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler: AbilitySystemComponent is null!"));
 		}
 	}
 

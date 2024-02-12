@@ -22,23 +22,23 @@ void UAbilityInputBindingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* Owner = GetOwner();
-	if (IsValid(Owner))
-	{
-		if (Owner->InputComponent)
-		{
-			InputComponent = CastChecked<UEnhancedInputComponent>(Owner->InputComponent);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner has no InputComponent"));	
-		}
-	}
-	else
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null or has no InputComponent"));
-		UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null"));
-	}
+	// AActor* Owner = GetOwner();
+	// if (IsValid(Owner))
+	// {
+	// 	if (Owner->InputComponent)
+	// 	{
+	// 		InputComponent = CastChecked<UEnhancedInputComponent>(Owner->InputComponent);
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner has no InputComponent"));	
+	// 	}
+	// }
+	// else
+	// {
+	// 	// UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null or has no InputComponent"));
+	// 	UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null"));
+	// }
 }
 
 void UAbilityInputBindingComponent::OnRegister()
@@ -50,26 +50,26 @@ void UAbilityInputBindingComponent::OnRegister()
 	//
 	// if (ensure(MyOwner) && World->IsGameWorld())
 
-	AActor* Owner = GetOwner();
-	if (IsValid(Owner))
-	{
-		if (Owner->InputComponent)
-		{
-			InputComponent = CastChecked<UEnhancedInputComponent>(Owner->InputComponent);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister: Owner has no InputComponent"));	
-		}
-	}
-	else
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null or has no InputComponent"));
-		UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister: Owner is null"));
-	}
-
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister"));
+	// AActor* Owner = GetOwner();
+	// if (IsValid(Owner))
+	// {
+	// 	if (Owner->InputComponent)
+	// 	{
+	// 		InputComponent = CastChecked<UEnhancedInputComponent>(Owner->InputComponent);
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister: Owner has no InputComponent"));	
+	// 	}
+	// }
+	// else
+	// {
+	// 	// UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::BeginPlay: Owner is null or has no InputComponent"));
+	// 	UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister: Owner is null"));
+	// }
+	//
+	// // log
+	// UE_LOG(LogTemp, Warning, TEXT("UAbilityInputBindingComponent::OnRegister"));
 }
 
 void UAbilityInputBindingComponent::SetInputBinding(UInputAction* InputAction, FGameplayAbilitySpec& AbilitySpec)

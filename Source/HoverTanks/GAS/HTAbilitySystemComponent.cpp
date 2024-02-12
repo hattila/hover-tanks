@@ -31,13 +31,13 @@ void UHTAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
 	UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - AbilitySpec.Ability = %s"), *AbilitySpec.Ability->GetName());
 
 	// log out role
-	UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - Role = %d"), GetOwnerRole());
+	// UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - Role = %d"), GetOwnerRole());
 	
-	const IAbilityBindingInterface* ABI = Cast<IAbilityBindingInterface>(GetAvatarActor_Direct());
-	if (ABI)
-	{
-		ABI->BindAbility(AbilitySpec);
-	}
+	// const IAbilityBindingInterface* ABI = Cast<IAbilityBindingInterface>(GetAvatarActor_Direct());
+	// if (ABI)
+	// {
+	// 	ABI->BindAbility(AbilitySpec);
+	// }
 	
 	Super::OnGiveAbility(AbilitySpec);
 }

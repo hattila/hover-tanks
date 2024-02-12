@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "DeathMatchHUD.h"
 #include "WeaponCooldownWidget.h"
+#include "HoverTanks/Components/WeaponsComponent.h"
+
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
-#include "HoverTanks/Components/WeaponsComponent.h"
+#include "GameplayEffectTypes.h"
+
 #include "HoverTankHUDWidget.generated.h"
 
+struct FOnAttributeChangeData;
 class UBorder;
 class UWidgetSwitcher;
 class UTextBlock;
@@ -26,6 +30,9 @@ public:
 	UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer);
 	
 	virtual bool Initialize() override;
+
+	// UFUNCTION() // cannot be a UFUNCTION
+	virtual void OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	
 	UFUNCTION()
 	void OnHealthChangeHandler(float InHealth, float InMaxHealth);

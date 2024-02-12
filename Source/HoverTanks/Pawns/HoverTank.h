@@ -128,11 +128,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DefaultAttributes;
 
-	UPROPERTY()
-	UAbilityInputBindingComponent* AbilityInputBindingComponent = nullptr;
+	// UPROPERTY()
+	// UAbilityInputBindingComponent* AbilityInputBindingComponent = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	UAsset_GameplayAbility* AbilitySet;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	// UAsset_GameplayAbility* AbilitySet;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;

@@ -17,7 +17,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "HoverTanks/Game/HTPlayerState.h"
-#include "HoverTanks/GAS/AbilityInputBindingComponent.h"
+// #include "HoverTanks/GAS/AbilityInputBindingComponent.h"
 #include "HoverTanks/GAS/Asset_GameplayAbility.h"
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
@@ -139,7 +139,7 @@ AHoverTank::AHoverTank()
 	/**
 	 * GAS INPUT
 	 */
-	AbilityInputBindingComponent = CreateDefaultSubobject<UAbilityInputBindingComponent>(TEXT("Ability Input Binding Component"));
+	// AbilityInputBindingComponent = CreateDefaultSubobject<UAbilityInputBindingComponent>(TEXT("Ability Input Binding Component"));
 }
 
 void AHoverTank::BeginPlay()
@@ -247,20 +247,20 @@ void AHoverTank::BindAbility(FGameplayAbilitySpec& Spec) const
 {
 	if (IsLocallyControlled())
 	{
-		AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
-		
-		if (AbilityInputBindingComponent->GetInputComponent() == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent is null, adding it"));
-			
-			// get the player input component
-			UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-			// log out EnhancedInputComponent
-			UE_LOG(LogTemp, Warning, TEXT("InitPlayer: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
-			UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-			
-			AbilityInputBindingComponent->SetInputComponent(EnhancedInputComponent);
-		}
+		// AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
+		//
+		// if (AbilityInputBindingComponent->GetInputComponent() == nullptr)
+		// {
+		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent is null, adding it"));
+		// 	
+		// 	// get the player input component
+		// 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+		// 	// log out EnhancedInputComponent
+		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
+		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
+		// 	
+		// 	AbilityInputBindingComponent->SetInputComponent(EnhancedInputComponent);
+		// }
 		//
 		// AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
 		// // AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
@@ -281,9 +281,15 @@ void AHoverTank::UnbindAbility(FGameplayAbilitySpec& Spec) const
 UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
 {
 	// get the ability system component from the player state
-	if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (HTPlayerState)
 	{
 		return HTPlayerState->GetAbilitySystemComponent();
+	}
+	else
+	{
+		// log
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
 	}
 
 	return nullptr;

@@ -35,5 +35,8 @@ protected:
 
 	UPROPERTY(Transient)
 	UHTAttributeSetBase* AttributeSetBase;
-	
+
+private:
+	UFUNCTION()
+	void OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, APawn* OldPawn);
 };

@@ -3,20 +3,23 @@
 
 #include "HoverTankHUDWidget.h"
 
+#include "AbilitySystemComponent.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
+#include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 
 UHoverTankHUDWidget::UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer),
-	Health(0),
-	MaxHealth(0),
-	HealthText(nullptr),
-	MaxHealthText(nullptr),
-	WeaponIndicatorSwitch(nullptr),
-	CannonIndicator(nullptr),
-	RocketsIndicator(nullptr)
+                                                                                       Health(0),
+                                                                                       MaxHealth(0),
+                                                                                       HealthText(nullptr),
+                                                                                       MaxHealthText(nullptr),
+                                                                                       WeaponIndicatorSwitch(nullptr),
+                                                                                       CannonIndicator(nullptr),
+                                                                                       RocketsIndicator(nullptr)
 {
 	// get the blueprint version of the weapon cooldown widget class
 	static ConstructorHelpers::FClassFinder<UUserWidget> WeaponCooldownWidgetClassFinder(
@@ -59,6 +62,17 @@ bool UHoverTankHUDWidget::Initialize()
 	WeaponCooldownIndicatorsContainer->AddChild(RocketsCooldownWidget);
 	
 	return true;
+}
+
+void UHoverTankHUDWidget::OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
+{
+	// log
+	UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnHealthAttributeChangeHandler, Health: %f, OldHealth: %f"), Data.NewValue, Data.OldValue);
+
+	Health = Data.NewValue;
+	HealthText->SetText(FText::AsNumber(Health));
+	
+	// RefreshHealth();
 }
 
 void UHoverTankHUDWidget::RefreshHealth() const
