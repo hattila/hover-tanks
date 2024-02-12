@@ -9,8 +9,6 @@
 #include "Components/Spacer.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
-#include "HoverTanks/Game/HTPlayerState.h"
-#include "HoverTanks/GAS/HTAttributeSetBase.h"
 
 UHoverTankHUDWidget::UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer),
                                                                                        Health(0),

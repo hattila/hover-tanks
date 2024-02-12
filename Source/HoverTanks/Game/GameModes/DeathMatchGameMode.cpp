@@ -9,7 +9,7 @@
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/HTPlayerState.h"
-#include "HoverTanks/UI/HUD/DeathMatchHUD.h"
+#include "HoverTanks/UI/HUD/HTDeathMatchHUD.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
@@ -35,7 +35,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	PlayerStateClass = AHTPlayerState::StaticClass();
 	GameStateClass = ADeathMatchGameState::StaticClass();
-	HUDClass = ADeathMatchHUD::StaticClass();
+	HUDClass = AHTDeathMatchHUD::StaticClass();
 
 	bUseSeamlessTravel = false;
 }

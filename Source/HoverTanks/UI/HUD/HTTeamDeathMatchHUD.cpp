@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "TeamDeathMatchHUD.h"
+#include "HTTeamDeathMatchHUD.h"
 
 #include "HoverTankHUDWidget.h"
 
 #include "Blueprint/UserWidget.h"
 
-ATeamDeathMatchHUD::ATeamDeathMatchHUD()
+AHTTeamDeathMatchHUD::AHTTeamDeathMatchHUD()
 {
 	// get hold of the blueprint versions of the widgets
 	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchPlayerHUDWidgetClassFinder(

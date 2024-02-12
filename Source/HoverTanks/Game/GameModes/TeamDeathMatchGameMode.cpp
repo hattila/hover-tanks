@@ -7,7 +7,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
+#include "..\..\UI\HUD\HTTeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
@@ -32,7 +32,7 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 
 	PlayerStateClass = AInTeamPlayerState::StaticClass();
 	GameStateClass = ATeamDeathMatchGameState::StaticClass();
-	HUDClass = ATeamDeathMatchHUD::StaticClass();
+	HUDClass = AHTTeamDeathMatchHUD::StaticClass();
 }
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)

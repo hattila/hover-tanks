@@ -8,7 +8,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
-#include "HoverTanks/UI/HUD/DeathMatchHUD.h"
+#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 AHTPlayerState::AHTPlayerState()
 {
@@ -32,7 +32,6 @@ UAbilitySystemComponent* AHTPlayerState::GetAbilitySystemComponent() const
 
 void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, APawn* OldPawn)
 {
-	// get the PlayerController
 	APlayerController* PlayerController = Cast<AHoverTankPlayerController>(GetOwner());
 	if (!PlayerController)
 	{
@@ -41,19 +40,12 @@ void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, AP
 		return;
 	}
 	
-	ADeathMatchHUD* DeathMatchHUD = Cast<ADeathMatchHUD>(PlayerController->GetHUD());
-
-	if (DeathMatchHUD)
+	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(PlayerController->GetHUD());
+	if (!HUD)
 	{
-		// log
-		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged calling DeathMatchHUD->OnPossessedPawnChangedHandler()"));
-		DeathMatchHUD->OnPossessedPawnChangedHandler(OldPawn, NewPawn);
-	}
-	else
-	{
-		//log
 		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged DeathMatchHUD is null"));
+		return;
 	}
-	
-	
+
+	HUD->OnPossessedPawnChangedHandler(OldPawn, NewPawn);
 }

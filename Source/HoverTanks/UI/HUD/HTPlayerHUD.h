@@ -5,25 +5,23 @@
 #include "CoreMinimal.h"
 #include "ScoringHUDInterface.h"
 #include "GameFramework/HUD.h"
-#include "DeathMatchHUD.generated.h"
+#include "HTPlayerHUD.generated.h"
 
-class AGameState;
 class UScoreBoardWidget;
-class AHoverTankPlayerController;
 class UHoverTankHUDWidget;
-class ADeathMatchGameState;
 class UDeathMatchPlayerHUDWidget;
+
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchHUD : public AHUD, public IScoringHUDInterface
+class HOVERTANKS_API AHTPlayerHUD : public AHUD, public IScoringHUDInterface
 {
 	GENERATED_BODY()
 
 public:
-	// create a constructor
-	ADeathMatchHUD();
+	// constructor
+	AHTPlayerHUD();
 
 	virtual void PostInitializeComponents() override;
 
@@ -67,4 +65,5 @@ protected:
 
 private:
 	AGameStateBase* GetSafeGameState() const;
+	
 };

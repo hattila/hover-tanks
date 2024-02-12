@@ -1,19 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeathMatchHUD.h"
 
-#include "AbilitySystemComponent.h"
+#include "HTPlayerHUD.h"
+
 #include "HoverTankHUDWidget.h"
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/WeaponsComponent.h"
 #include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
-
-#include "Blueprint/UserWidget.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 
-ADeathMatchHUD::ADeathMatchHUD()
+#include "AbilitySystemComponent.h"
+#include "Blueprint/UserWidget.h"
+
+AHTPlayerHUD::AHTPlayerHUD()
 {
 	// get hold of the blueprint versions of the widgets
 	static ConstructorHelpers::FClassFinder<UUserWidget> DeathMatchPlayerHUDWidgetClassFinder(
@@ -38,8 +39,7 @@ ADeathMatchHUD::ADeathMatchHUD()
 	}
 }
 
-
-void ADeathMatchHUD::BeginPlay()
+void AHTPlayerHUD::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -75,7 +75,7 @@ void ADeathMatchHUD::BeginPlay()
 	}
 }
 
-void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AHTPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
@@ -95,21 +95,26 @@ void ADeathMatchHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void ADeathMatchHUD::PostInitializeComponents()
+void AHTPlayerHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+	/**
+	 * Instead of here, the PlayerState should be the one to listen for changes in the possessed pawn, bacouse the
+	 * PlayerState is the one that is replicated to the client, and it has the Ability System Component.
+	 */
+	
 	// APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
 	// if (PlayerController)
 	// {
 	// 	// Broadcast in Controller.cpp OnRep_Pawn
-	// 	PlayerController->OnPossessedPawnChanged.AddDynamic(this, &ADeathMatchHUD::OnPossessedPawnChangedHandler);
+	// 	PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
 	// }
 }
 
-void ADeathMatchHUD::ToggleScoreBoard()
+void AHTPlayerHUD::ToggleScoreBoard()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::ToggleScoreBoard"));
+	// UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::ToggleScoreBoard"));
 	
 	if (!ensure(ScoreBoardWidget != nullptr))
 	{
@@ -145,7 +150,7 @@ void ADeathMatchHUD::ToggleScoreBoard()
 	HoverTankHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void ADeathMatchHUD::ForceOpenScoreBoard()
+void AHTPlayerHUD::ForceOpenScoreBoard()
 {
 	if (!ensure(ScoreBoardWidget != nullptr))
 	{
@@ -169,7 +174,7 @@ void ADeathMatchHUD::ForceOpenScoreBoard()
 	HoverTankHUDWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void ADeathMatchHUD::RefreshPlayerScores()
+void AHTPlayerHUD::RefreshPlayerScores()
 {
 	if (ScoreBoardWidget == nullptr)
 	{
@@ -183,7 +188,7 @@ void ADeathMatchHUD::RefreshPlayerScores()
 	}
 }
 
-void ADeathMatchHUD::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+void AHTPlayerHUD::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
 {
 	if (PlayerHUDWidget == nullptr)
 	{
@@ -193,16 +198,8 @@ void ADeathMatchHUD::AddKillIndicator(const FString& KillerName, const FString& 
 	PlayerHUDWidget->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
 }
 
-void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
+void AHTPlayerHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler, OldPawn: %s, NewPawn: %s"), OldPawn ? *OldPawn->GetName() : TEXT("null"), NewPawn ? *NewPawn->GetName() : TEXT("null"));
-	//
-	// const APawn* PossessedPawn = GetOwningPlayerController()->GetPawn();
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPlayerPossessed \n Current pawn is %s"), PossessedPawn ? *PossessedPawn->GetName() : TEXT("null"));
-	
-	// teardown the old pawn's HUDWidget
-	// setup the new pawn's HUDWidget
-
 	if (NewPawn == nullptr)
 	{
 		if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
@@ -221,10 +218,10 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 	AHoverTank* HoverTank = Cast<AHoverTank>(NewPawn);
 	if (HoverTank && HoverTankHUDWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding event handlers to HUDWidget."));
+		// UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding event handlers to HUDWidget."));
 
 		// HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
-		HoverTank->OnTankDeath.AddDynamic(this, &ADeathMatchHUD::OnTankDeathHandler);
+		HoverTank->OnTankDeath.AddDynamic(this, &AHTPlayerHUD::OnTankDeathHandler);
 		HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
 
 		if (HoverTank->GetWeaponsComponent() != nullptr)
@@ -238,14 +235,6 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 			// listen for attribute changes on the AbilitySystemComponent
 			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
 				.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
-
-			// log
-			UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler: Added OnHealthAttributeChangeHandler to AbilitySystemComponent"));
-		}
-		else
-		{
-			// log
-			UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnPossessedPawnChangedHandler: AbilitySystemComponent is null!"));
 		}
 	}
 
@@ -260,10 +249,8 @@ void ADeathMatchHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPaw
 	}
 }
 
-void ADeathMatchHUD::OnTankDeathHandler()
+void AHTPlayerHUD::OnTankDeathHandler()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("ADeathMatchHUD::OnTankDeathHandler"));
-	
 	if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
 	{
 		HoverTankHUDWidget->RemoveFromParent();
@@ -275,7 +262,7 @@ void ADeathMatchHUD::OnTankDeathHandler()
 	}
 }
 
-AGameStateBase* ADeathMatchHUD::GetSafeGameState() const
+AGameStateBase* AHTPlayerHUD::GetSafeGameState() const
 {
 	if (!GetWorld())
 	{

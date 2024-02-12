@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DeathMatchHUD.h"
 #include "WeaponCooldownWidget.h"
-#include "HoverTanks/Components/WeaponsComponent.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
@@ -63,7 +61,11 @@ private:
 	UBorder* RocketsIndicator;
 
 	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
+
+	UPROPERTY()
 	UWeaponCooldownWidget* CannonCooldownWidget = nullptr;
+
+	UPROPERTY()
 	UWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
