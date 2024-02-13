@@ -64,11 +64,9 @@ bool UHoverTankHUDWidget::Initialize()
 
 void UHoverTankHUDWidget::OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
 {
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("UHoverTankHUDWidget::OnHealthAttributeChangeHandler, Health: %f, OldHealth: %f"), Data.NewValue, Data.OldValue);
-
 	Health = Data.NewValue;
 	HealthText->SetText(FText::AsNumber(Health));
+	HealthProgressBar->SetPercent(Health / MaxHealth);
 	
 	// RefreshHealth();
 }
@@ -77,18 +75,21 @@ void UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler(const FOnAttributeCh
 {
 	MaxHealth = Data.NewValue;
 	MaxHealthText->SetText(FText::AsNumber(MaxHealth));
+	HealthProgressBar->SetPercent(Health / MaxHealth);
 }
 
 void UHoverTankHUDWidget::OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data)
 {
 	Shield = Data.NewValue;
 	ShieldText->SetText(FText::AsNumber(Shield));
+	ShieldProgressBar->SetPercent(Shield / MaxShield);
 }
 
 void UHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data)
 {
 	MaxShield = Data.NewValue;
-	MaxShieldText->SetText(FText::AsNumber(MaxShield));	
+	MaxShieldText->SetText(FText::AsNumber(MaxShield));
+	ShieldProgressBar->SetPercent(Shield / MaxShield);
 }
 
 void UHoverTankHUDWidget::RefreshHealth() const

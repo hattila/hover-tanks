@@ -100,16 +100,17 @@ void AHTPlayerHUD::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	/**
-	 * Instead of here, the PlayerState should be the one to listen for changes in the possessed pawn, bacouse the
-	 * PlayerState is the one that is replicated to the client, and it has the Ability System Component.
+	 * For now, both this and the PlayerState should listen for changes in the possessed pawn.
+	 * The server player gets the HUD UI set up properly here,
+	 * and client players HUD UI gets properly set up called from the PlayerState.
 	 */
-	
-	// APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
-	// if (PlayerController)
-	// {
-	// 	// Broadcast in Controller.cpp OnRep_Pawn
-	// 	PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
-	// }
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
+	if (PlayerController)
+	{
+		// Broadcast in Controller.cpp OnRep_Pawn
+		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
+	}
 }
 
 void AHTPlayerHUD::ToggleScoreBoard()
@@ -293,20 +294,20 @@ void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemCompo
 	if (AttributeSet)
 	{
 		FOnAttributeChangeData Data;
-		Data.NewValue = AttributeSet->GetHealth();
-		Data.OldValue = AttributeSet->GetHealth();
-		HoverTankHUDWidget->OnHealthAttributeChangeHandler(Data);
-
 		Data.NewValue = AttributeSet->GetMaxHealth();
 		Data.OldValue = AttributeSet->GetMaxHealth();
 		HoverTankHUDWidget->OnMaxHealthAttributeChangeHandler(Data);
 
-		Data.NewValue = AttributeSet->GetShield();
-		Data.OldValue = AttributeSet->GetShield();
-		HoverTankHUDWidget->OnShieldAttributeChangeHandler(Data);
+		Data.NewValue = AttributeSet->GetHealth();
+		Data.OldValue = AttributeSet->GetHealth();
+		HoverTankHUDWidget->OnHealthAttributeChangeHandler(Data);
 
 		Data.NewValue = AttributeSet->GetMaxShield();
 		Data.OldValue = AttributeSet->GetMaxShield();
 		HoverTankHUDWidget->OnMaxShieldAttributeChangeHandler(Data);
+
+		Data.NewValue = AttributeSet->GetShield();
+		Data.OldValue = AttributeSet->GetShield();
+		HoverTankHUDWidget->OnShieldAttributeChangeHandler(Data);
 	}
 }

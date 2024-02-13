@@ -53,10 +53,16 @@ private:
 	float MaxHealth;
 
 	UPROPERTY(meta=(BindWidget))
+	UProgressBar* ShieldProgressBar;
+	
+	UPROPERTY(meta=(BindWidget))
 	UTextBlock* ShieldText;
 
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* MaxShieldText;
+
+	UPROPERTY(meta=(BindWidget))
+	UProgressBar* HealthProgressBar;
 	
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* HealthText;
