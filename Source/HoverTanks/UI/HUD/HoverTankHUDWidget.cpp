@@ -73,6 +73,24 @@ void UHoverTankHUDWidget::OnHealthAttributeChangeHandler(const FOnAttributeChang
 	// RefreshHealth();
 }
 
+void UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
+{
+	MaxHealth = Data.NewValue;
+	MaxHealthText->SetText(FText::AsNumber(MaxHealth));
+}
+
+void UHoverTankHUDWidget::OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data)
+{
+	Shield = Data.NewValue;
+	ShieldText->SetText(FText::AsNumber(Shield));
+}
+
+void UHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data)
+{
+	MaxShield = Data.NewValue;
+	MaxShieldText->SetText(FText::AsNumber(MaxShield));	
+}
+
 void UHoverTankHUDWidget::RefreshHealth() const
 {
 	HealthText->SetText(FText::AsNumber(Health));

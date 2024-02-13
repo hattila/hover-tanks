@@ -200,6 +200,9 @@ void AHTPlayerHUD::AddKillIndicator(const FString& KillerName, const FString& Vi
 
 void AHTPlayerHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
 {
+	// log
+	UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::OnPossessedPawnChangedHandler"));
+	
 	if (NewPawn == nullptr)
 	{
 		if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
@@ -232,9 +235,7 @@ void AHTPlayerHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
 		UAbilitySystemComponent* AbilitySystemComponent = HoverTank->GetAbilitySystemComponent();
 		if (AbilitySystemComponent)
 		{
-			// listen for attribute changes on the AbilitySystemComponent
-			AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
-				.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
+			SetupAbilitySystemAttributeChangeHandlers(AbilitySystemComponent);
 		}
 	}
 
@@ -270,4 +271,42 @@ AGameStateBase* AHTPlayerHUD::GetSafeGameState() const
 	}
 
 	return GetWorld()->GetGameState<AGameStateBase>();
+}
+
+void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemComponent* AbilitySystemComponent)
+{
+	// listen for attribute changes on the AbilitySystemComponent
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetShieldAttribute())
+		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnShieldAttributeChangeHandler);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetMaxShieldAttribute())
+		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
+		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
+			
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetMaxHealthAttribute())
+		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler);
+
+	// trigger attribute changes, clients don't get the initial default attribute set GE change
+	const UHTAttributeSetBase* AttributeSet = AbilitySystemComponent->GetSet<UHTAttributeSetBase>();
+	if (AttributeSet)
+	{
+		FOnAttributeChangeData Data;
+		Data.NewValue = AttributeSet->GetHealth();
+		Data.OldValue = AttributeSet->GetHealth();
+		HoverTankHUDWidget->OnHealthAttributeChangeHandler(Data);
+
+		Data.NewValue = AttributeSet->GetMaxHealth();
+		Data.OldValue = AttributeSet->GetMaxHealth();
+		HoverTankHUDWidget->OnMaxHealthAttributeChangeHandler(Data);
+
+		Data.NewValue = AttributeSet->GetShield();
+		Data.OldValue = AttributeSet->GetShield();
+		HoverTankHUDWidget->OnShieldAttributeChangeHandler(Data);
+
+		Data.NewValue = AttributeSet->GetMaxShield();
+		Data.OldValue = AttributeSet->GetMaxShield();
+		HoverTankHUDWidget->OnMaxShieldAttributeChangeHandler(Data);
+	}
 }

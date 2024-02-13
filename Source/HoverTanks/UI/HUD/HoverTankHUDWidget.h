@@ -31,6 +31,10 @@ public:
 
 	// UFUNCTION() // cannot be a UFUNCTION
 	virtual void OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data);
+	virtual void OnMaxHealthAttributeChangeHandler(const FOnAttributeChangeData& Data);
+	
+	virtual void OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
+	virtual void OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	
 	UFUNCTION()
 	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
@@ -42,9 +46,18 @@ public:
 	void OnWeaponSwitchedHandler(int32 NewWeapon);
 
 private:
+	float Shield;
+	float MaxShield;
+	
 	float Health;
 	float MaxHealth;
 
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ShieldText;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* MaxShieldText;
+	
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* HealthText;
 

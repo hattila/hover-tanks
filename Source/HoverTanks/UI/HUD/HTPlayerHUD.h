@@ -7,6 +7,7 @@
 #include "GameFramework/HUD.h"
 #include "HTPlayerHUD.generated.h"
 
+class UAbilitySystemComponent;
 class UScoreBoardWidget;
 class UHoverTankHUDWidget;
 class UDeathMatchPlayerHUDWidget;
@@ -65,5 +66,7 @@ protected:
 
 private:
 	AGameStateBase* GetSafeGameState() const;
+
+	void SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemComponent* AbilitySystemComponent);
 	
 };
