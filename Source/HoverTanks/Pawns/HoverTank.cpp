@@ -327,6 +327,12 @@ void AHoverTank::OnDeath()
 
 bool AHoverTank::IsDead() const
 {
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (HTPlayerState)
+	{
+		return HTPlayerState->IsDead();
+	}
+	
 	if (HealthComponent != nullptr)
 	{
 		return HealthComponent->IsDead();	

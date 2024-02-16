@@ -124,6 +124,7 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 			{
 				FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 				EffectContext.AddSourceObject(this);
+				EffectContext.AddInstigator(GetInstigatorController(), this);
 				EffectContext.AddHitResult(Hit);
 				
 				FGameplayEffectSpecHandle DamageEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);

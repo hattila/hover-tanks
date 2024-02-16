@@ -5,6 +5,10 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
+#include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
+#include "HoverTanks/Pawns/HoverTank.h"
 
 void UHTAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -97,6 +101,32 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 		if (LocalDamage > 0.f)
 		{
 			SetHealth(GetHealth() - LocalDamage);
+		}
+
+		if (GetHealth() <= 0.f)
+		{
+			// UE_LOG(LogTemp, Warning, TEXT("UHTAttributeSetBase::PostGameplayEffectExecute: Health is 0, so the actor should die now."));
+			
+			AActor* Instigator = Data.EffectSpec.GetEffectContext().GetInstigator(); // This is a PlayerController
+			AActor* EffectCauser = Data.EffectSpec.GetEffectContext().GetEffectCauser(); // an actor such as a projectile
+			AController* SourceController = Instigator ? Cast<AController>(Instigator) : nullptr;
+
+			// AActor* TargetActor = GetOwningAbilitySystemComponent()->GetOwner();
+			//
+			// UE_LOG(LogTemp, Warning, TEXT("PostGameplayEffectExecute: EffectCauser: %s, \n SourceController %s, TargetActor: %s"),
+			// 	// InstigatorPlayerState ? *InstigatorPlayerState->GetPlayerName() : TEXT("null"),
+			// 	EffectCauser ? *EffectCauser->GetName() : TEXT("null"),
+			// 	SourceController ? *SourceController->GetName() : TEXT("null"),
+			// 	TargetActor ? *TargetActor->GetName() : TEXT("null")
+			// 	);
+
+			if (!SourceController)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("UHTAttributeSetBase::PostGameplayEffectExecute: SourceController could not be detected, no OnOutOfHealth event will be broadcasted."));
+				return;
+			}
+
+			OnOutOfHealth.Broadcast(SourceController, EffectCauser, Data.EffectSpec, Data.EvaluatedData.Magnitude);
 		}
 	}
 }
