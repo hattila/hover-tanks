@@ -316,6 +316,8 @@ void AHoverTank::OnDeath()
 	ClientBroadcastOnTankDeath(); // eg: notify the HUD
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	// ECC_GameTraceChannel1 is the Projectile channel
+	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
 	if (HoverTankEffectsComponent)
 	{
