@@ -128,6 +128,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DefaultAttributes;
 
+	// Effects that are always present on a Tank, like a constant shield recharge
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGameplayEffect>> OngoingEffects;
+
 	// UPROPERTY()
 	// UAbilityInputBindingComponent* AbilityInputBindingComponent = nullptr;
 	
@@ -138,6 +142,8 @@ protected:
 	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
 
 	virtual void InitializeAttributes();
+	virtual void AddOngoingEffects();
+	virtual void AddDefaultAbilities();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* AbilityInputMappingContext;

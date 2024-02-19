@@ -397,20 +397,9 @@ void AHoverTank::InitPlayer()
 
 		InitializeAttributes();
 
-		if (HasAuthority() && !AbilitySystemComponent->bCharacterAbilitiesGiven)
-		{
-			// Give the player every ability in the DefaultAbilities array
-			for (TSubclassOf<UGameplayAbility> Ability : DefaultAbilities)
-			{
-				FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
-					FGameplayAbilitySpec(Ability, 0, -1)
-				);
-			
-				// AbilitySystemComponent->SetInputBinding(AbilityOneInputAction, AbilitySpecHandle);
-			}
+		AddOngoingEffects();
 
-			AbilitySystemComponent->bCharacterAbilitiesGiven = true;
-		}
+		AddDefaultAbilities();
 
 		// if (IsLocallyControlled())
 		// {
@@ -491,13 +480,46 @@ void AHoverTank::InitializeAttributes()
 	{
 		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 	}
-	
-	// // get the attribute set
-	// UHTAttributeSetBase* AttributeSetBase = HTPlayerState->GetAttributeSetBase();
-	// // initialize health and shield
-	// AttributeSetBase->InitHealth(100);
-	// AttributeSetBase->InitShield(100);
-	
+}
+
+void AHoverTank::AddOngoingEffects()
+{
+	if (GetLocalRole() != ROLE_Authority || !IsValid(AbilitySystemComponent) || AbilitySystemComponent->bOngoingEffectsApplied)
+	{
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : OngoingEffects)
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+		if (EffectSpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+	}
+
+	AbilitySystemComponent->bOngoingEffectsApplied = true;
+}
+
+void AHoverTank::AddDefaultAbilities()
+{
+	if (HasAuthority() && !AbilitySystemComponent->bCharacterAbilitiesGiven)
+	{
+		// Give the player every ability in the DefaultAbilities array
+		for (TSubclassOf<UGameplayAbility> Ability : DefaultAbilities)
+		{
+			FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability, 0, -1)
+			);
+			
+			// AbilitySystemComponent->SetInputBinding(AbilityOneInputAction, AbilitySpecHandle);
+		}
+
+		AbilitySystemComponent->bCharacterAbilitiesGiven = true;
+	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)

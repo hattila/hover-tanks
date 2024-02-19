@@ -26,6 +26,6 @@ protected:
 
 public:
 	bool bCharacterAbilitiesGiven = false;
-	bool bStartupEffectsApplied = false;
+	bool bOngoingEffectsApplied = false;
 	
 };
