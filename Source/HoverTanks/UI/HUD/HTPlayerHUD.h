@@ -7,6 +7,7 @@
 #include "GameFramework/HUD.h"
 #include "HTPlayerHUD.generated.h"
 
+class AHoverTank;
 class UAbilitySystemComponent;
 class UScoreBoardWidget;
 class UHoverTankHUDWidget;
@@ -25,7 +26,10 @@ public:
 	AHTPlayerHUD();
 
 	virtual void PostInitializeComponents() override;
-
+	
+	void CreatePlayerHUD();
+	void CreateTankHUD(AHoverTank* HoverTank);
+	
 	// ~IScoringHUDInterface
 	virtual void ToggleScoreBoard() override;
 	virtual void ForceOpenScoreBoard() override;
@@ -40,11 +44,8 @@ public:
 	// ~IScoringHUDInterface
 	
 	UFUNCTION()
-	void OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn);
-	
-	UFUNCTION()
 	void OnTankDeathHandler();
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

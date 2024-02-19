@@ -36,8 +36,8 @@ public:
 	virtual void OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	virtual void OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	
-	UFUNCTION()
-	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
+	// UFUNCTION()
+	// void OnHealthChangeHandler(float InHealth, float InMaxHealth);
 
 	UFUNCTION()
 	void OnWeaponFireHandler(int32 WeaponIndex, float CooldownTime);
@@ -45,39 +45,47 @@ public:
 	UFUNCTION()
 	void OnWeaponSwitchedHandler(int32 NewWeapon);
 
+	// create setters for the float attributes
+	void SetShield(const float InShield) { Shield = InShield; }
+	void SetMaxShield(const float InMaxShield) { MaxShield = InMaxShield; }
+	void SetHealth(const float InHealth) { Health = InHealth; };
+	void SetMaxHealth(const float InMaxHealth) { MaxHealth = InMaxHealth; };
+	
+	void RefreshProgressBars();
+	
 private:
-	float Shield;
-	float MaxShield;
+	float Shield = 0;
+	float MaxShield = 0;
 	
-	float Health;
-	float MaxHealth;
+	float Health = 0;
+	float MaxHealth = 0;
 
 	UPROPERTY(meta=(BindWidget))
-	UProgressBar* ShieldProgressBar;
-	
-	UPROPERTY(meta=(BindWidget))
-	UTextBlock* ShieldText;
-
-	UPROPERTY(meta=(BindWidget))
-	UTextBlock* MaxShieldText;
-
-	UPROPERTY(meta=(BindWidget))
-	UProgressBar* HealthProgressBar;
+	UProgressBar* ShieldProgressBar = nullptr;
 	
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* HealthText;
+	UTextBlock* ShieldText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* MaxHealthText;
+	UTextBlock* MaxShieldText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UWidgetSwitcher* WeaponIndicatorSwitch;
+	UProgressBar* HealthProgressBar	= nullptr;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* HealthText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UBorder* CannonIndicator;
+	UTextBlock* MaxHealthText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UBorder* RocketsIndicator;
+	UWidgetSwitcher* WeaponIndicatorSwitch = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* CannonIndicator = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* RocketsIndicator = nullptr;
 
 	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
 
@@ -89,6 +97,4 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;
-
-	void RefreshHealth() const;
 };

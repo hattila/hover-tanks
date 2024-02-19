@@ -10,14 +10,7 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 
-UHoverTankHUDWidget::UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer),
-                                                                                       Health(0),
-                                                                                       MaxHealth(0),
-                                                                                       HealthText(nullptr),
-                                                                                       MaxHealthText(nullptr),
-                                                                                       WeaponIndicatorSwitch(nullptr),
-                                                                                       CannonIndicator(nullptr),
-                                                                                       RocketsIndicator(nullptr)
+UHoverTankHUDWidget::UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	// get the blueprint version of the weapon cooldown widget class
 	static ConstructorHelpers::FClassFinder<UUserWidget> WeaponCooldownWidgetClassFinder(
@@ -67,8 +60,6 @@ void UHoverTankHUDWidget::OnHealthAttributeChangeHandler(const FOnAttributeChang
 	Health = Data.NewValue;
 	HealthText->SetText(FText::AsNumber(Health));
 	HealthProgressBar->SetPercent(Health / MaxHealth);
-	
-	// RefreshHealth();
 }
 
 void UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
@@ -92,18 +83,10 @@ void UHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler(const FOnAttributeCh
 	ShieldProgressBar->SetPercent(Shield / MaxShield);
 }
 
-void UHoverTankHUDWidget::RefreshHealth() const
+void UHoverTankHUDWidget::RefreshProgressBars()
 {
-	HealthText->SetText(FText::AsNumber(Health));
-	MaxHealthText->SetText(FText::AsNumber(MaxHealth));
-}
-
-void UHoverTankHUDWidget::OnHealthChangeHandler(const float InHealth, const float InMaxHealth)
-{
-	Health = InHealth;
-	MaxHealth = InMaxHealth;
-
-	RefreshHealth();
+	HealthProgressBar->SetPercent(Health / MaxHealth);
+	ShieldProgressBar->SetPercent(Shield / MaxShield);
 }
 
 void UHoverTankHUDWidget::OnWeaponFireHandler(const int32 WeaponIndex, const float CooldownTime)

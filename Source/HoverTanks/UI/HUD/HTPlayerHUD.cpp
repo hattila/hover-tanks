@@ -42,37 +42,6 @@ AHTPlayerHUD::AHTPlayerHUD()
 void AHTPlayerHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (PlayerHUDWidgetClass == nullptr)
-	{
-		return;
-	}
-
-	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
-	PlayerHUDWidget->Setup();
-
-	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
-	if (TimerGameState && PlayerHUDWidget)
-	{
-		PlayerHUDWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
-	}
-
-	if (!ensure(ScoreBoardClass != nullptr))
-	{
-		return;
-	}
-
-	if (ScoreBoardWidget == nullptr)
-	{
-		ScoreBoardWidget = CreateWidget<UScoreBoardWidget>(GetOwningPlayerController(), ScoreBoardClass);
-		ScoreBoardWidget->Setup();
-		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	if (HoverTankHUDWidgetClass == nullptr)
-	{
-		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
-	}
 }
 
 void AHTPlayerHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -99,17 +68,83 @@ void AHTPlayerHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	/**
-	 * For now, both this and the PlayerState should listen for changes in the possessed pawn.
-	 * The server player gets the HUD UI set up properly here,
-	 * and client players HUD UI gets properly set up called from the PlayerState.
-	 */
-
 	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
 	if (PlayerController)
 	{
 		// Broadcast in Controller.cpp OnRep_Pawn
-		PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
+		// PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
+	}
+}
+
+void AHTPlayerHUD::CreatePlayerHUD()
+{
+	if (PlayerHUDWidgetClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::CreatePlayerHUD - PlayerHUDWidgetClass is null"));
+		return;
+	}
+
+	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
+	PlayerHUDWidget->Setup();
+
+	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	if (TimerGameState && PlayerHUDWidget)
+	{
+		PlayerHUDWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
+	}
+
+	if (!ensure(ScoreBoardClass != nullptr))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::CreatePlayerHUD - ScoreBoardClass is null"));
+		return;
+	}
+
+	if (ScoreBoardWidget == nullptr)
+	{
+		ScoreBoardWidget = CreateWidget<UScoreBoardWidget>(GetOwningPlayerController(), ScoreBoardClass);
+		ScoreBoardWidget->Setup();
+		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AHTPlayerHUD::CreateTankHUD(AHoverTank* HoverTank)
+{
+	if (HoverTank == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::CreateTankHUD - HoverTank is null"));
+		return;
+	}
+
+	if (HoverTankHUDWidgetClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::CreateTankHUD - HoverTankHUDWidgetClass is null"));
+		return;
+	}
+
+	HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
+	
+	HoverTank->OnTankDeath.AddDynamic(this, &AHTPlayerHUD::OnTankDeathHandler);
+	HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
+
+	if (HoverTank->GetWeaponsComponent() != nullptr)
+	{
+		HoverTank->GetWeaponsComponent()->OnWeaponFire.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponFireHandler);
+	}
+
+	UAbilitySystemComponent* AbilitySystemComponent = HoverTank->GetAbilitySystemComponent();
+	if (AbilitySystemComponent)
+	{
+		SetupAbilitySystemAttributeChangeHandlers(AbilitySystemComponent);
+	}
+
+	if (HoverTankHUDWidget && !HoverTankHUDWidget->IsInViewport())
+	{
+		HoverTankHUDWidget->AddToViewport();
+	}
+
+	if (PlayerHUDWidget && PlayerHUDWidget->IsInViewport())
+	{
+		PlayerHUDWidget->ShowRespawnTextBorder(false);
 	}
 }
 
@@ -199,58 +234,6 @@ void AHTPlayerHUD::AddKillIndicator(const FString& KillerName, const FString& Vi
 	PlayerHUDWidget->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
 }
 
-void AHTPlayerHUD::OnPossessedPawnChangedHandler(APawn* OldPawn, APawn* NewPawn)
-{
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("AHTPlayerHUD::OnPossessedPawnChangedHandler"));
-	
-	if (NewPawn == nullptr)
-	{
-		if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
-		{
-			HoverTankHUDWidget->RemoveFromParent();
-		}
-
-		return;
-	}
-	
-	if (HoverTankHUDWidgetClass != nullptr)
-	{
-		HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
-	}
-	
-	AHoverTank* HoverTank = Cast<AHoverTank>(NewPawn);
-	if (HoverTank && HoverTankHUDWidget)
-	{
-		// UE_LOG(LogTemp, Warning, TEXT("HoverTank found! Adding event handlers to HUDWidget."));
-
-		// HoverTank->OnTankHealthChange.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthChangeHandler);
-		HoverTank->OnTankDeath.AddDynamic(this, &AHTPlayerHUD::OnTankDeathHandler);
-		HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
-
-		if (HoverTank->GetWeaponsComponent() != nullptr)
-		{
-			HoverTank->GetWeaponsComponent()->OnWeaponFire.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponFireHandler);
-		}
-
-		UAbilitySystemComponent* AbilitySystemComponent = HoverTank->GetAbilitySystemComponent();
-		if (AbilitySystemComponent)
-		{
-			SetupAbilitySystemAttributeChangeHandlers(AbilitySystemComponent);
-		}
-	}
-
-	if (HoverTankHUDWidget && !HoverTankHUDWidget->IsInViewport())
-	{
-		HoverTankHUDWidget->AddToViewport();
-	}
-
-	if (PlayerHUDWidget != nullptr)
-	{
-		PlayerHUDWidget->ShowRespawnTextBorder(false);	
-	}
-}
-
 void AHTPlayerHUD::OnTankDeathHandler()
 {
 	if (HoverTankHUDWidget && HoverTankHUDWidget->IsInViewport())
@@ -276,6 +259,20 @@ AGameStateBase* AHTPlayerHUD::GetSafeGameState() const
 
 void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemComponent* AbilitySystemComponent)
 {
+	const UHTAttributeSetBase* AttributeSet = AbilitySystemComponent->GetSet<UHTAttributeSetBase>();
+	HoverTankHUDWidget->SetHealth(AttributeSet->GetHealth());
+	HoverTankHUDWidget->SetMaxHealth(AttributeSet->GetMaxHealth());
+	HoverTankHUDWidget->SetShield(AttributeSet->GetShield());
+	HoverTankHUDWidget->SetMaxShield(AttributeSet->GetMaxShield());
+
+	// log out every attribute
+	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetHealth(): %f"), AttributeSet->GetHealth());
+	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetMaxHealth(): %f"), AttributeSet->GetMaxHealth());
+	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetShield(): %f"), AttributeSet->GetShield());
+	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetMaxShield(): %f"), AttributeSet->GetMaxShield());
+
+	// HoverTankHUDWidget->RefreshProgressBars();
+
 	// listen for attribute changes on the AbilitySystemComponent
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetShieldAttribute())
 		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnShieldAttributeChangeHandler);
@@ -285,27 +282,26 @@ void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemCompo
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
 		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
-			
+	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetMaxHealthAttribute())
 		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler);
 
 	// trigger attribute changes, clients don't get the initial default attribute set GE change
-	const UHTAttributeSetBase* AttributeSet = AbilitySystemComponent->GetSet<UHTAttributeSetBase>();
 	if (AttributeSet)
 	{
 		FOnAttributeChangeData Data;
 		Data.NewValue = AttributeSet->GetMaxHealth();
 		Data.OldValue = AttributeSet->GetMaxHealth();
 		HoverTankHUDWidget->OnMaxHealthAttributeChangeHandler(Data);
-
+	
 		Data.NewValue = AttributeSet->GetHealth();
 		Data.OldValue = AttributeSet->GetHealth();
 		HoverTankHUDWidget->OnHealthAttributeChangeHandler(Data);
-
+	
 		Data.NewValue = AttributeSet->GetMaxShield();
 		Data.OldValue = AttributeSet->GetMaxShield();
 		HoverTankHUDWidget->OnMaxShieldAttributeChangeHandler(Data);
-
+	
 		Data.NewValue = AttributeSet->GetShield();
 		Data.OldValue = AttributeSet->GetShield();
 		HoverTankHUDWidget->OnShieldAttributeChangeHandler(Data);

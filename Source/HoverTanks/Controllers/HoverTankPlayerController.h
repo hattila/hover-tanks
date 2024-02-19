@@ -48,6 +48,11 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSetInputModeToGameOnly();
 
+	UFUNCTION(Client, Reliable)
+	void ClientCreatePlayerHUD();
+	UFUNCTION(Client, Reliable)
+	void ClientCreateTankHUD(APawn* InPawn);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

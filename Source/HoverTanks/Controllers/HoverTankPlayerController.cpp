@@ -16,6 +16,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController()
 {
@@ -55,6 +56,7 @@ void AHoverTankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ClientSetInputModeToGameOnly();
+	ClientCreatePlayerHUD();
 
 	if (!HasAuthority())
 	{
@@ -88,6 +90,25 @@ void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReaso
 	if (InGameMenu != nullptr)
 	{
 		InGameMenu->Teardown();
+	}
+}
+
+void AHoverTankPlayerController::ClientCreatePlayerHUD_Implementation()
+{
+	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->CreatePlayerHUD();
+	}
+}
+
+void AHoverTankPlayerController::ClientCreateTankHUD_Implementation(APawn* InPawn)
+{
+	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
+	AHoverTank* HoverTank = Cast<AHoverTank>(InPawn);
+	if (HUD && HoverTank)
+	{
+		HUD->CreateTankHUD(HoverTank);
 	}
 }
 
@@ -229,9 +250,13 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	// log
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnPossess, role: %s, possessing a %s"), *UEnum::GetValueAsString(GetLocalRole()), *InPawn->GetName());
+	// ClientCreateTankHUD(InPawn);
+	
 	if (GetLocalRole() == ROLE_Authority)
 	{
-
+		
 	}
 }
 

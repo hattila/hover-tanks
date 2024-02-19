@@ -54,22 +54,17 @@ void AHTPlayerState::BeginPlay()
 
 void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, APawn* OldPawn)
 {
-	APlayerController* PlayerController = Cast<AHoverTankPlayerController>(GetOwner());
+	AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(GetOwner());
 	if (!PlayerController)
 	{
-		// log
 		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged PlayerController is null"));
 		return;
 	}
-	
-	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(PlayerController->GetHUD());
-	if (!HUD)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged DeathMatchHUD is null"));
-		return;
-	}
 
-	HUD->OnPossessedPawnChangedHandler(OldPawn, NewPawn);
+	if (NewPawn != nullptr)
+	{
+		PlayerController->ClientCreateTankHUD(NewPawn);	// or CreatePawnSpecificHUD in the future
+	}
 }
 
 void AHTPlayerState::OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
