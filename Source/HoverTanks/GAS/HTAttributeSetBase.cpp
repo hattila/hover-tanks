@@ -45,7 +45,7 @@ void UHTAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	/**
-	 * This is called before any modification happens. This is the place to clamp attributes or do any other kind of modification.
+	 * This is called before any modification happens.
 	 */
 
 	// If max shield is changed, regenerate shields to full
@@ -128,5 +128,18 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 			OnOutOfHealth.Broadcast(SourceController, EffectCauser, Data.EffectSpec, Data.EvaluatedData.Magnitude);
 		}
+		return;
+	}
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		return;
+	}
+
+	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
+	{
+		SetShield(FMath::Clamp(GetShield(), 0.0f, GetMaxShield()));
+		return;
 	}
 }
