@@ -8,6 +8,7 @@
 #include "NiagaraComponent.h"
 #include "RocketProjectile.generated.h"
 
+class UGameplayEffect;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -50,6 +51,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	/**
+	 * GAS
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+	
 	/**
 	 * Rocket spec
 	 */

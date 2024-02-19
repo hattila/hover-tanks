@@ -42,8 +42,7 @@ ACannonProjectile::ACannonProjectile()
 	ProjectileMovementComponent->bShouldBounce = true;
 
 	// GAS
-	// find and initialize the gameplay effect: GE_Damage_CannonProjectile
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_CannonProjectile"));
+	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_GenericSetMagnitude"));
 	DamageEffect = DamageEffectAsset.Class;
 	
 	/**
@@ -128,11 +127,9 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 				EffectContext.AddHitResult(Hit);
 				
 				FGameplayEffectSpecHandle DamageEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
-				// get the spec from the handle
 				FGameplayEffectSpec* DamageEffectSpec = DamageEffectSpecHandle.Data.Get();
-				DamageEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
 				
-				// DamageEffectSpecHandle.SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
+				DamageEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
 				if (DamageEffectSpecHandle.IsValid())
 				{
 					AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, AbilitySystemComponent);
