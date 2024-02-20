@@ -140,6 +140,8 @@ AHoverTank::AHoverTank()
 	 * GAS INPUT
 	 */
 	// AbilityInputBindingComponent = CreateDefaultSubobject<UAbilityInputBindingComponent>(TEXT("Ability Input Binding Component"));
+
+	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
 void AHoverTank::BeginPlay()
@@ -309,6 +311,15 @@ void AHoverTank::OnDeath()
 		return;
 	}
 	
+	if (DeathEffect != nullptr)
+	{
+		// add DeathEffect, one liner edition
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(DeathEffect->GetDefaultObject()), 1.0f, AbilitySystemComponent->MakeEffectContext());	
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::OnDeath: DeathEffect is null set it in the Blueprint!"));
+	}
+	
 	// disable player input
 	SetInputEnabled(false);
 
@@ -388,18 +399,27 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 void AHoverTank::InitPlayer()
 {
 	// Player State should have the AbilitySystemComponent
-	if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (!HTPlayerState)
 	{
-		AbilitySystemComponent = Cast<UHTAbilitySystemComponent>(HTPlayerState->GetAbilitySystemComponent());
-		
-		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
-		AbilitySystemComponent->InitAbilityActorInfo(HTPlayerState, this);
+		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: HTPlayerState is null"));
+		return;
+	}
+	
+	AbilitySystemComponent = Cast<UHTAbilitySystemComponent>(HTPlayerState->GetAbilitySystemComponent());
+	
+	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
+	AbilitySystemComponent->InitAbilityActorInfo(HTPlayerState, this);
 
-		InitializeAttributes();
+	// if there is an ongoing DeathEffect, remove it
+	if (AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(DeadTag));
+	}
 
-		AddOngoingEffects();
-
-		AddDefaultAbilities();
+	InitializeAttributes();
+	AddOngoingEffects();
+	AddDefaultAbilities();
 
 		// if (IsLocallyControlled())
 		// {
@@ -429,11 +449,6 @@ void AHoverTank::InitPlayer()
 		// 	
 		// 	// AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
 		// }
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: HTPlayerState is null"));
-	}
 	
 	// this is the place where PlayerState->AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this); should be called.
 

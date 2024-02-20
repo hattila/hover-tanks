@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "HasTeamColors.h"
 #include "HoverTanks/GAS/AbilityBindingInterface.h"
@@ -145,12 +146,18 @@ protected:
 	virtual void AddOngoingEffects();
 	virtual void AddDefaultAbilities();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* AbilityInputMappingContext;
 	
 	/** Ability Input Action - E */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbilityOneInputAction;
+
+	// cached tags
+	FGameplayTag DeadTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DeathEffect;
 
 private:
 	/**
