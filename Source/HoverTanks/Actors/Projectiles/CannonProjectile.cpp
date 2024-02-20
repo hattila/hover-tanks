@@ -44,6 +44,9 @@ ACannonProjectile::ACannonProjectile()
 	// GAS
 	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_GenericSetMagnitude"));
 	DamageEffect = DamageEffectAsset.Class;
+
+	static ConstructorHelpers::FClassFinder<UGameplayEffect> RecentlyDamagedEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_RecentlyDamaged"));
+	RecentlyDamagedEffect = RecentlyDamagedEffectAsset.Class;
 	
 	/**
 	 * Material
@@ -117,23 +120,25 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
 		if (DamageEffect != nullptr && ActorWithAbilitySystem != nullptr)
 		{
-			UAbilitySystemComponent* AbilitySystemComponent = ActorWithAbilitySystem->GetAbilitySystemComponent();
+			UAbilitySystemComponent* TargetASC = ActorWithAbilitySystem->GetAbilitySystemComponent();
 			
-			if (AbilitySystemComponent != nullptr)
+			if (TargetASC != nullptr)
 			{
-				FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+				FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
 				EffectContext.AddSourceObject(this);
 				EffectContext.AddInstigator(GetInstigatorController(), this);
 				EffectContext.AddHitResult(Hit);
 				
-				FGameplayEffectSpecHandle DamageEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
+				FGameplayEffectSpecHandle DamageEffectSpecHandle = TargetASC->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
 				FGameplayEffectSpec* DamageEffectSpec = DamageEffectSpecHandle.Data.Get();
 				
 				DamageEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
 				if (DamageEffectSpecHandle.IsValid())
 				{
-					AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, AbilitySystemComponent);
+					TargetASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, TargetASC);
 				}
+				
+				TargetASC->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(RecentlyDamagedEffect->GetDefaultObject()), 1.0f, TargetASC->MakeEffectContext());	
 			}
 		}
 		else
