@@ -7,7 +7,7 @@
 #include "WeaponsComponent.generated.h"
 
 class ARocketLauncher;
-class ACannonProjectile;
+class AHTCannonProjectile;
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRocketLauncherFireDelegate, float, CooldownTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponFireDelegate, int32, WeaponIndex, float, CooldownTime);
@@ -47,7 +47,7 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACannonProjectile> ProjectileClass;
+	TSubclassOf<AHTCannonProjectile> ProjectileClass;
 
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;

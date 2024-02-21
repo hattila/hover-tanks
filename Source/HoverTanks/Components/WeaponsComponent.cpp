@@ -4,14 +4,12 @@
 #include "WeaponsComponent.h"
 
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Actors/Projectiles/CannonProjectile.h"
+#include "HoverTanks/Actors/Projectiles/HTCannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
 
 UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	ProjectileClass = ACannonProjectile::StaticClass();
 }
 
 void UWeaponsComponent::BeginPlay()
@@ -139,17 +137,27 @@ void UWeaponsComponent::ClearMainCannonCooldown()
 
 void UWeaponsComponent::SpawnProjectile()
 {
-	if (TankBarrelMesh)
+	if (ProjectileClass == nullptr)
 	{
-		FVector BarrelEndLocation = TankBarrelMesh->GetSocketLocation(FName("BarrelEnd"));
-		FRotator BarrelEndRotation = TankBarrelMesh->GetSocketRotation(FName("BarrelEnd"));
+		UE_LOG(LogTemp, Warning, TEXT("UWeaponsComponent::SpawnProjectile - ProjectileClass is null"));
+		return;
+	}
 
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
-		SpawnParameters.Instigator = GetOwner()->GetInstigator();
+	if (TankBarrelMesh == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UWeaponsComponent::SpawnProjectile - TankBarrelMesh is null"));
+		return;
+	}
 
-		ACannonProjectile* Projectile = GetWorld()->SpawnActor<ACannonProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
-	}	
+	FVector BarrelEndLocation = TankBarrelMesh->GetSocketLocation(FName("BarrelEnd"));
+	FRotator BarrelEndRotation = TankBarrelMesh->GetSocketRotation(FName("BarrelEnd"));
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Owner = GetOwner();
+	SpawnParameters.Instigator = GetOwner()->GetInstigator();
+
+	AHTCannonProjectile* Projectile = GetWorld()->SpawnActor<AHTCannonProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
+	
 }
 
 void UWeaponsComponent::CreateAndAttachRocketLauncher()

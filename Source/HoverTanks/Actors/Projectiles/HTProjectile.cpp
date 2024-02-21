@@ -1,24 +1,24 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CannonProjectile.h"
+#include "HTProjectile.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
+#include "GameplayEffect.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+
 // Sets default values
-ACannonProjectile::ACannonProjectile()
+AHTProjectile::AHTProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 	SetReplicatingMovement(true);
 	bAlwaysRelevant = true;
-
-	InitialLifeSpan = 3.f;
 
 	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
 	RootComponent = SphereCollider;
@@ -27,78 +27,39 @@ ACannonProjectile::ACannonProjectile()
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ProjectileMeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
-	UStaticMesh* ProjectileMeshObject = ProjectileMeshAsset.Object;
-	ProjectileMesh->SetStaticMesh(ProjectileMeshObject);
 	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ProjectileMesh->SetWorldScale3D(FVector(.5f, .5f, .5f));
-	
+
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
-	ProjectileMovementComponent->InitialSpeed = 20000.f;
-	ProjectileMovementComponent->MaxSpeed = 40000.f;
-	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bShouldBounce = true;
-
-	// GAS
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> DamageEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_GenericSetMagnitude"));
-	DamageEffect = DamageEffectAsset.Class;
-
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> RecentlyDamagedEffectAsset(TEXT("/Game/HoverTanks/GAS/GE_Damage_RecentlyDamaged"));
-	RecentlyDamagedEffect = RecentlyDamagedEffectAsset.Class;
-	
-	/**
-	 * Material
-	 */
-	// find and initialize the material instance: MI_EmissiveCannonProjectile
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveCannonProjectileMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveCannonProjectile"));
-	UMaterialInstance* EmissiveCannonProjectileMaterialObject = EmissiveCannonProjectileMaterialAsset.Object;
-	ProjectileMesh->SetMaterial(0, EmissiveCannonProjectileMaterialObject);
-
-	// setup the explosion FX
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Explosion"));
-	UNiagaraSystem* ExplosionEmitterObject = ExplosionEmitterAsset.Object;
-	ExplosionFX = ExplosionEmitterObject;
+	ProjectileMovementComponent->InitialSpeed = 20000.0; // change on child BPs
+	ProjectileMovementComponent->MaxSpeed = 40000.0; // change on child BPs
 }
 
-// Called when the game starts or when spawned
-void ACannonProjectile::BeginPlay()
+void AHTProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (HasAuthority())
 	{
-		SphereCollider->OnComponentHit.AddDynamic(this, &ACannonProjectile::OnHit);
-		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ACannonProjectile::OnOverlap);
+		if (SphereCollider == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AHTProjectile::BeginPlay SphereCollider is null"));
+			return;
+		}
+		
+		SphereCollider->OnComponentHit.AddDynamic(this, &AHTProjectile::OnHit);
+		SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &AHTProjectile::OnOverlap);
 	}
 }
 
-void ACannonProjectile::Tick(float DeltaTime)
+void AHTProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
 {
-	Super::Tick(DeltaTime);
+	MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
+	DelayedDestroy();
 }
 
-void ACannonProjectile::OnHit(
-	UPrimitiveComponent* HitComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse,
-	const FHitResult& Hit
-)
-{
-	// DrawDebugSphere(GetWorld(), Hit.Location, 25.f, 12, FColor::Red, false, 5.f, 0, 1.f);
-	
-	BounceCount++;
-	
-	if (BounceCount > MaxBounceCount)
-	{
-		MulticastSpawnExplosionFX(Hit.Location, Hit.ImpactNormal.Rotation());
-		DelayedDestroy();
-	}
-}
-
-void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
+void AHTProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex,
@@ -137,8 +98,11 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 				{
 					TargetASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, TargetASC);
 				}
-				
-				TargetASC->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(RecentlyDamagedEffect->GetDefaultObject()), 1.0f, TargetASC->MakeEffectContext());	
+
+				if (RecentlyDamagedEffect != nullptr)
+				{
+					TargetASC->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(RecentlyDamagedEffect->GetDefaultObject()), 1.0f, TargetASC->MakeEffectContext());	
+				}
 			}
 		}
 		else
@@ -157,20 +121,20 @@ void ACannonProjectile::OnOverlap(UPrimitiveComponent* OverlappedComp,
 	}
 }
 
-void ACannonProjectile::DelayedDestroy()
+void AHTProjectile::DelayedDestroy()
 {
 	FTimerHandle DestroyTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this, &ACannonProjectile::DoDestroy,1,false, 1.f);
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this, &AHTProjectile::DoDestroy,1,false, 1.f);
 
 	MulticastDeactivateProjectile();
 }
 
-void ACannonProjectile::DoDestroy()
+void AHTProjectile::DoDestroy()
 {
 	Destroy();
 }
 
-void ACannonProjectile::MulticastDeactivateProjectile_Implementation()
+void AHTProjectile::MulticastDeactivateProjectile_Implementation()
 {
 	SphereCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SphereCollider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -178,8 +142,14 @@ void ACannonProjectile::MulticastDeactivateProjectile_Implementation()
 	ProjectileMesh->SetVisibility(false, true);
 }
 
-void ACannonProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
+void AHTProjectile::MulticastSpawnExplosionFX_Implementation(FVector Location, FRotator Rotation)
 {
+	if (ExplosionFX == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHTProjectile::MulticastSpawnExplosionFX_Implementation ExplosionFX is null"));
+		return;
+	}
+	
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 		GetWorld(),
 		ExplosionFX,
@@ -187,3 +157,6 @@ void ACannonProjectile::MulticastSpawnExplosionFX_Implementation(FVector Locatio
 		Rotation
 	);
 }
+
+
+
