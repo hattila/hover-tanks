@@ -16,7 +16,7 @@ class UHTGameplayAbility;
 class UGameplayAbility;
 class UHTAbilitySystemComponent;
 class UGameplayEffect;
-class UWeaponsComponent;
+class UHTWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
@@ -102,7 +102,7 @@ public:
 
 	FHitResult FindTargetAtCrosshair() const;
 	
-	UWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
+	UHTWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
 	UHoverTankEffectsComponent* GetEffectsComponent() const { return HoverTankEffectsComponent; }
 
 	//~ Begin IHasTeamColors interface
@@ -174,7 +174,7 @@ private:
 	UHealthComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UWeaponsComponent* WeaponsComponent;
+	UHTWeaponsComponent* WeaponsComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;

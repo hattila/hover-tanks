@@ -1,19 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "WeaponsComponent.h"
+#include "HTWeaponsComponent.h"
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/HTCannonProjectile.h"
-#include "HoverTanks/Actors/Weapons/RocketLauncher.h"
+#include "..\Actors\Weapons\HTRocketLauncher.h"
 #include "Kismet/GameplayStatics.h"
 
-UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
+UHTWeaponsComponent::UHTWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UWeaponsComponent::BeginPlay()
+void UHTWeaponsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -28,12 +28,12 @@ void UWeaponsComponent::BeginPlay()
 	
 }
 
-void UWeaponsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UHTWeaponsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHTWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -44,7 +44,7 @@ void UWeaponsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 }
 
-void UWeaponsComponent::SwitchToNextWeapon()
+void UHTWeaponsComponent::SwitchToNextWeapon()
 {
 	if (CurrentWeapon == EAvailableWeapons::Cannon)
 	{
@@ -64,7 +64,7 @@ void UWeaponsComponent::SwitchToNextWeapon()
 	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
-void UWeaponsComponent::SwitchToPrevWeapon()
+void UHTWeaponsComponent::SwitchToPrevWeapon()
 {
 	if (CurrentWeapon == EAvailableWeapons::Cannon)
 	{
@@ -84,7 +84,7 @@ void UWeaponsComponent::SwitchToPrevWeapon()
 	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
-void UWeaponsComponent::MulticastDestroyAttachedWeapons_Implementation()
+void UHTWeaponsComponent::MulticastDestroyAttachedWeapons_Implementation()
 {
 	if (RocketLauncher)
 	{
@@ -92,7 +92,7 @@ void UWeaponsComponent::MulticastDestroyAttachedWeapons_Implementation()
 	}
 }
 
-void UWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
+void UHTWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
 {
 	APawn* Owner = Cast<APawn>(GetOwner());
 	if ((Owner && Owner->IsLocallyControlled()) || GetOwnerRole() == ROLE_AutonomousProxy)
@@ -112,7 +112,7 @@ void UWeaponsComponent::AttemptToShoot(const FHitResult& Hit)
 }
 
 
-void UWeaponsComponent::ServerAttemptToShoot_Implementation()
+void UHTWeaponsComponent::ServerAttemptToShoot_Implementation()
 {
 	if (bIsMainCannonOnCooldown)
 	{
@@ -121,32 +121,32 @@ void UWeaponsComponent::ServerAttemptToShoot_Implementation()
 
 	SpawnProjectile();
 	bIsMainCannonOnCooldown = true;
-	GetWorld()->GetTimerManager().SetTimer(MainCannonCooldownTimerHandle, this, &UWeaponsComponent::ClearMainCannonCooldown, 1.f, false, 1.f);
+	GetWorld()->GetTimerManager().SetTimer(MainCannonCooldownTimerHandle, this, &UHTWeaponsComponent::ClearMainCannonCooldown, 1.f, false, 1.f);
 
 	ClientOnFire(0, 1);
 }
 
-bool UWeaponsComponent::ServerAttemptToShoot_Validate()
+bool UHTWeaponsComponent::ServerAttemptToShoot_Validate()
 {
 	return true;
 }
 
-void UWeaponsComponent::ClearMainCannonCooldown()
+void UHTWeaponsComponent::ClearMainCannonCooldown()
 {
 	bIsMainCannonOnCooldown = false;
 }
 
-void UWeaponsComponent::SpawnProjectile()
+void UHTWeaponsComponent::SpawnProjectile()
 {
 	if (CannonProjectileClass == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UWeaponsComponent::SpawnProjectile - ProjectileClass is null"));
+		UE_LOG(LogTemp, Warning, TEXT("UHTWeaponsComponent::SpawnProjectile - ProjectileClass is null"));
 		return;
 	}
 
 	if (TankBarrelMesh == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UWeaponsComponent::SpawnProjectile - TankBarrelMesh is null"));
+		UE_LOG(LogTemp, Warning, TEXT("UHTWeaponsComponent::SpawnProjectile - TankBarrelMesh is null"));
 		return;
 	}
 
@@ -161,7 +161,7 @@ void UWeaponsComponent::SpawnProjectile()
 	
 }
 
-void UWeaponsComponent::CreateAndAttachRocketLauncher()
+void UHTWeaponsComponent::CreateAndAttachRocketLauncher()
 {
 	// get the socket location and rotation of LeftMount socket on TankCannonMesh
 	FVector LeftMountLocation = TankCannonMesh->GetSocketLocation(FName("LeftMount"));
@@ -179,7 +179,7 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	// RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
 
 	// @see https://forums.unrealengine.com/t/spawning-an-actor-with-parameters/329151/4
-	RocketLauncher = Cast<ARocketLauncher>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, ARocketLauncher::StaticClass(), FTransform(LeftMountRotation, LeftMountLocation)));
+	RocketLauncher = Cast<AHTRocketLauncher>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, AHTRocketLauncher::StaticClass(), FTransform(LeftMountRotation, LeftMountLocation)));
 	if (RocketLauncher != nullptr)
 	{
 		RocketLauncher->Init(RocketProjectileClass);
@@ -195,7 +195,7 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	
 }
 
-void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const FHitResult& Hit)
+void UHTWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const FHitResult& Hit)
 {
 	if (RocketLauncher == nullptr)
 	{
@@ -211,20 +211,20 @@ void UWeaponsComponent::ServerAttemptToShootRocketLauncher_Implementation(const 
 	}
 }
 
-bool UWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitResult& Hit)
+bool UHTWeaponsComponent::ServerAttemptToShootRocketLauncher_Validate(const FHitResult& Hit)
 {
 	return true;
 }
 
-void UWeaponsComponent::MulticastShowRocketTarget_Implementation(const FHitResult& Hit)
+void UHTWeaponsComponent::MulticastShowRocketTarget_Implementation(const FHitResult& Hit)
 {
 	ClientRocketLauncherTarget = Hit;
 
 	FTimerHandle ClearTargetTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(ClearTargetTimerHandle, this, &UWeaponsComponent::ClearRocketTarget, 2.9f, false, 2.9f);
+	GetWorld()->GetTimerManager().SetTimer(ClearTargetTimerHandle, this, &UHTWeaponsComponent::ClearRocketTarget, 2.9f, false, 2.9f);
 }
 
-void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
+void UHTWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 {
 	if (Hit.IsValidBlockingHit())
 	{
@@ -243,13 +243,13 @@ void UWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 	}
 }
 
-void UWeaponsComponent::ClearRocketTarget()
+void UHTWeaponsComponent::ClearRocketTarget()
 {
 	ClientRocketLauncherTarget = FHitResult();
 }
 
 
-void UWeaponsComponent::ClientOnFire_Implementation(int32 WeaponIndex, float CooldownTime)
+void UHTWeaponsComponent::ClientOnFire_Implementation(int32 WeaponIndex, float CooldownTime)
 {
 	OnWeaponFire.Broadcast(WeaponIndex, CooldownTime);
 }

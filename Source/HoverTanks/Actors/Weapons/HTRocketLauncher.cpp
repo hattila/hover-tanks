@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RocketLauncher.h"
+#include "HTRocketLauncher.h"
 
 #include "HoverTanks/Actors/Projectiles/HTRocketProjectile.h"
 #include "Kismet/GameplayStatics.h"
 
 
-ARocketLauncher::ARocketLauncher()
+AHTRocketLauncher::AHTRocketLauncher()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -29,23 +29,23 @@ ARocketLauncher::ARocketLauncher()
 	BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 }
 
-void ARocketLauncher::Init(TSubclassOf<AHTRocketProjectile> InProjectileClass)
+void AHTRocketLauncher::Init(TSubclassOf<AHTRocketProjectile> InProjectileClass)
 {
 	ProjectileClass = InProjectileClass;
 }
 
-void ARocketLauncher::BeginPlay()
+void AHTRocketLauncher::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-void ARocketLauncher::Tick(float DeltaTime)
+void AHTRocketLauncher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-bool ARocketLauncher::Fire()
+bool AHTRocketLauncher::Fire()
 {
 	if (bIsOnCooldown)
 	{
@@ -54,24 +54,24 @@ bool ARocketLauncher::Fire()
 	
 	FTimerDelegate FireTimerDelegate = FTimerDelegate::CreateUObject(
 		this,
-		&ARocketLauncher::BurstFire
+		&AHTRocketLauncher::BurstFire
 	);
 
 	GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, FireTimerDelegate, TimeBetweenShots, true, 0);
 
 	bIsOnCooldown = true;
-	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &ARocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
+	GetWorld()->GetTimerManager().SetTimer(FireCooldownTimerHandle, this, &AHTRocketLauncher::ClearFireCooldownTimer, FireCooldownTime, false, FireCooldownTime);
 
 	return true;
 }
 
-void ARocketLauncher::ClearFireCooldownTimer()
+void AHTRocketLauncher::ClearFireCooldownTimer()
 {
 	bIsOnCooldown = false;
 	// UE_LOG(LogTemp, Warning, TEXT("ARocketLauncher::ClearFireCooldownTimer()"));
 }
 
-void ARocketLauncher::BurstFire()
+void AHTRocketLauncher::BurstFire()
 {
 	if (CurrentFireCount >= MaxBurstFireCount)
 	{
@@ -89,7 +89,7 @@ void ARocketLauncher::BurstFire()
  * not replicated to Clients. The only way I found around this is to spawn the projectile on the clients as well, and do
  * not replicate the movement component. This is not viable however because of the changed properties on the server.
  */
-void ARocketLauncher::SpawnProjectile(const FHitResult& InTargetHitResult) const
+void AHTRocketLauncher::SpawnProjectile(const FHitResult& InTargetHitResult) const
 {
 	if (!HasAuthority())
 	{

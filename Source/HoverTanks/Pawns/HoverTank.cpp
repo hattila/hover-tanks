@@ -7,7 +7,7 @@
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
 #include "HoverTanks/Components/HoverTankEffectsComponent.h"
-#include "HoverTanks/Components/WeaponsComponent.h"
+#include "..\Components\HTWeaponsComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 
 #include "EnhancedInputComponent.h"
@@ -49,7 +49,7 @@ AHoverTank::AHoverTank()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->SetIsReplicated(true);
 
-	WeaponsComponent = CreateDefaultSubobject<UWeaponsComponent>(TEXT("Weapons Component"));
+	WeaponsComponent = CreateDefaultSubobject<UHTWeaponsComponent>(TEXT("Weapons Component"));
 	WeaponsComponent->SetIsReplicated(true);
 
 	HoverTankEffectsComponent = CreateDefaultSubobject<UHoverTankEffectsComponent>(TEXT("Hover Tank Effects Component"));

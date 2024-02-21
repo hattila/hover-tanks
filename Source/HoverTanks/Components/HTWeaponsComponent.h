@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "WeaponsComponent.generated.h"
+#include "HTWeaponsComponent.generated.h"
 
 class AHTRocketProjectile;
-class ARocketLauncher;
+class AHTRocketLauncher;
 class AHTCannonProjectile;
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRocketLauncherFireDelegate, float, CooldownTime);
@@ -21,14 +21,14 @@ enum EAvailableWeapons
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HOVERTANKS_API UWeaponsComponent : public UActorComponent
+class HOVERTANKS_API UHTWeaponsComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	FOnWeaponFireDelegate OnWeaponFire;
 
-	UWeaponsComponent();
+	UHTWeaponsComponent();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -77,7 +77,7 @@ private:
 	void CreateAndAttachRocketLauncher();
 
 	UPROPERTY()
-	ARocketLauncher* RocketLauncher = nullptr;
+	AHTRocketLauncher* RocketLauncher = nullptr;
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAttemptToShootRocketLauncher(const FHitResult& Hit);

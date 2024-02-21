@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "RocketLauncher.generated.h"
+#include "HTRocketLauncher.generated.h"
 
 class AHTProjectile;
 class AHTRocketProjectile;
 
 UCLASS()
-class HOVERTANKS_API ARocketLauncher : public AActor
+class HOVERTANKS_API AHTRocketLauncher : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	ARocketLauncher();
+	AHTRocketLauncher();
 
 	// define an Init function that takes in a class of type AHTProjectile
 	void Init(TSubclassOf<AHTRocketProjectile> InProjectileClass);
