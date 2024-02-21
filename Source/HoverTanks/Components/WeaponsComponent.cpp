@@ -6,6 +6,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/HTCannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/RocketLauncher.h"
+#include "Kismet/GameplayStatics.h"
 
 UWeaponsComponent::UWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)
 {
@@ -137,7 +138,7 @@ void UWeaponsComponent::ClearMainCannonCooldown()
 
 void UWeaponsComponent::SpawnProjectile()
 {
-	if (ProjectileClass == nullptr)
+	if (CannonProjectileClass == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UWeaponsComponent::SpawnProjectile - ProjectileClass is null"));
 		return;
@@ -156,7 +157,7 @@ void UWeaponsComponent::SpawnProjectile()
 	SpawnParameters.Owner = GetOwner();
 	SpawnParameters.Instigator = GetOwner()->GetInstigator();
 
-	AHTCannonProjectile* Projectile = GetWorld()->SpawnActor<AHTCannonProjectile>(ProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
+	AHTCannonProjectile* Projectile = GetWorld()->SpawnActor<AHTCannonProjectile>(CannonProjectileClass, BarrelEndLocation, BarrelEndRotation, SpawnParameters);
 	
 }
 
@@ -175,7 +176,20 @@ void UWeaponsComponent::CreateAndAttachRocketLauncher()
 	SpawnParameters.Instigator = GetOwner()->GetInstigator();
 
 	// create a RocketLauncher Actor, and attach it to the TankCannonMesh, LeftMount socket
-	RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
+	// RocketLauncher = GetWorld()->SpawnActor<ARocketLauncher>(ARocketLauncher::StaticClass(), LeftMountLocation, LeftMountRotation, SpawnParameters);
+
+	// @see https://forums.unrealengine.com/t/spawning-an-actor-with-parameters/329151/4
+	RocketLauncher = Cast<ARocketLauncher>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, ARocketLauncher::StaticClass(), FTransform(LeftMountRotation, LeftMountLocation)));
+	if (RocketLauncher != nullptr)
+	{
+		RocketLauncher->Init(RocketProjectileClass);
+		UGameplayStatics::FinishSpawningActor(RocketLauncher, FTransform(LeftMountRotation, LeftMountLocation));
+		// set the owner and instigator
+		RocketLauncher->SetOwner(GetOwner());
+		RocketLauncher->SetInstigator(GetOwner()->GetInstigator());
+	}
+	
+	
 	RocketLauncher->AttachToComponent(TankCannonMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("LeftMount"));
 	RocketLauncher->SetActorRotation(LeftMountRotation);
 	

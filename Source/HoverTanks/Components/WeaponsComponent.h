@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WeaponsComponent.generated.h"
 
+class AHTRocketProjectile;
 class ARocketLauncher;
 class AHTCannonProjectile;
 
@@ -47,7 +48,10 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHTCannonProjectile> ProjectileClass;
+	TSubclassOf<AHTCannonProjectile> CannonProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHTRocketProjectile> RocketProjectileClass;
 
 	UPROPERTY()
 	UStaticMeshComponent* TankCannonMesh;

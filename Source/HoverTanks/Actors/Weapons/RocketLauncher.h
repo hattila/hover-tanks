@@ -6,7 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "RocketLauncher.generated.h"
 
-class ARocketProjectile;
+class AHTProjectile;
+class AHTRocketProjectile;
 
 UCLASS()
 class HOVERTANKS_API ARocketLauncher : public AActor
@@ -15,6 +16,10 @@ class HOVERTANKS_API ARocketLauncher : public AActor
 
 public:
 	ARocketLauncher();
+
+	// define an Init function that takes in a class of type AHTProjectile
+	void Init(TSubclassOf<AHTRocketProjectile> InProjectileClass);
+	
 	virtual void Tick(float DeltaTime) override;
 
 	void SetRocketTargetHitResult(const FHitResult& Hit) const { RocketTargetHitResult = Hit; }
@@ -27,6 +32,9 @@ protected:
 private:
 	UPROPERTY()
 	UStaticMeshComponent* BaseMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AHTRocketProjectile> ProjectileClass;
 
 	bool bIsOnCooldown = false;
 	
