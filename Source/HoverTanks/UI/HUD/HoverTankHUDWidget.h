@@ -11,6 +11,7 @@
 
 #include "HoverTankHUDWidget.generated.h"
 
+class AHoverTank;
 struct FOnAttributeChangeData;
 class UBorder;
 class UWidgetSwitcher;
@@ -52,6 +53,15 @@ public:
 	void SetMaxHealth(const float InMaxHealth) { MaxHealth = InMaxHealth; };
 	
 	void RefreshProgressBars();
+
+	// create a blueprint readable getter for the OwningHoverTank
+	UFUNCTION(BlueprintCallable)
+	AHoverTank* GetOwningHoverTank() const { return OwnerHoverTank; }
+	
+	void SetOwningHoverTank(AHoverTank* InHoverTank) { OwnerHoverTank = InHoverTank; OnHoverTankPawnSet(); }
+
+	UFUNCTION(BlueprintImplementableEvent )
+	void OnHoverTankPawnSet();
 	
 private:
 	float Shield = 0;
@@ -97,4 +107,7 @@ private:
 
 	UPROPERTY(meta=(BindWidget))
 	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;
+
+	UPROPERTY()
+	AHoverTank* OwnerHoverTank = nullptr;
 };

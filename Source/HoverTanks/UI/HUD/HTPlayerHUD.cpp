@@ -122,6 +122,7 @@ void AHTPlayerHUD::CreateTankHUD(AHoverTank* HoverTank)
 	}
 
 	HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
+	HoverTankHUDWidget->SetOwningHoverTank(HoverTank);
 	
 	HoverTank->OnTankDeath.AddDynamic(this, &AHTPlayerHUD::OnTankDeathHandler);
 	HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
