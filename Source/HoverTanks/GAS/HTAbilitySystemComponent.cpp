@@ -4,6 +4,7 @@
 #include "HTAbilitySystemComponent.h"
 
 #include "AbilityBindingInterface.h"
+#include "GameplayTagsManager.h"
 
 // Sets default values for this component's properties
 UHTAbilitySystemComponent::UHTAbilitySystemComponent()
@@ -20,6 +21,13 @@ UHTAbilitySystemComponent::UHTAbilitySystemComponent()
 void UHTAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	// listen for adding or removing gameplay tag Ability.SmokeScreen.OnCooldown
+
+	// get the gameplay tag Ability.SmokeScreen.OnCooldown
+	// FGameplayTag SmokeScreenOnCooldownTag = UGameplayTagsManager::Get().RequestGameplayTag(FName("Ability.SmokeScreen.OnCooldown"));
+	// RegisterGameplayTagEvent(SmokeScreenOnCooldownTag, EGameplayTagEventType::NewOrRemoved);
+	
 }
 
 /**

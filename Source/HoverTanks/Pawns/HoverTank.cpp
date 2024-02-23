@@ -832,6 +832,6 @@ void AHoverTank::AbilityOneStartedAction()
 		UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction: AbilitySpec: %s"), *Spec.Ability->GetName());
 
 		// try to activate ability
-		AbilitySystemComponent->TryActivateAbility(Spec.Handle, true);
+		bool bSuccessfulActivation = AbilitySystemComponent->TryActivateAbility(Spec.Handle, true);
 	}
 }
