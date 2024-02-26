@@ -72,7 +72,6 @@ void AHTPlayerState::OnHealthAttributeChangeHandler(const FOnAttributeChangeData
 	// AHoverTank* HoverTank = Cast<AHoverTank>(GetPawn());
 	// if (HoverTank && HoverTank->IsDead() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
 	// {
-	// 	// log
 	// 	UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnHealthAttributeChangeHandler Health: %f, had no dead tag, so it sould die now."), Data.NewValue);
 	// }
 }
@@ -81,11 +80,11 @@ void AHTPlayerState::OnOutOfHealthHandler(AController* InstigatorController, AAc
 	const FGameplayEffectSpec& GameplayEffectSpec, float Magnitude)
 {
 	// log out every parameter
-	UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnOutOfHealthHandler InstigatorController %s, EffectCauser %s, Magnitude %f"),
-		InstigatorController ? *InstigatorController->GetName() : TEXT("null"),
-		EffectCauser ? *EffectCauser->GetName() : TEXT("null"),
-		Magnitude
-	);
+	// UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnOutOfHealthHandler InstigatorController %s, EffectCauser %s, Magnitude %f"),
+	// 	InstigatorController ? *InstigatorController->GetName() : TEXT("null"),
+	// 	EffectCauser ? *EffectCauser->GetName() : TEXT("null"),
+	// 	Magnitude
+	// );
 
 	if (!HasAuthority())
 	{

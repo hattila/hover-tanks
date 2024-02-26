@@ -52,7 +52,7 @@ public:
 	FOnTankDeath OnTankDeath;
 
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
-	FOnTankHealthChange OnTankHealthChange;
+	FOnTankHealthChange OnTankHealthChange; // TODO: remove
 
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnWeaponSwitched OnWeaponSwitched;
@@ -91,10 +91,10 @@ public:
 
 	void OnDeath();
 	bool IsDead() const;
+	void Suicide() const;
+	
 	bool IsInputEnabled() const { return bIsInputEnabled; }
-
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
-
 	bool GetShowDebug() const { return bShowDebug; }
 
 	UFUNCTION(Client, Unreliable)
@@ -158,6 +158,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DeathEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DamageEffect;
 
 private:
 	/**

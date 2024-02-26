@@ -354,6 +354,33 @@ bool AHoverTank::IsDead() const
 	return false;
 }
 
+void AHoverTank::Suicide() const
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (DamageEffect == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::Suicide - No DamageEffect specified")); // tank should be killed anyway
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+	EffectContext.AddInstigator(GetController(), GetController());
+
+	FGameplayEffectSpecHandle DamageEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
+	FGameplayEffectSpec* DamageEffectSpec = DamageEffectSpecHandle.Data.Get();
+
+	DamageEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), 9999);
+	if (DamageEffectSpecHandle.IsValid())
+	{
+		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, GetAbilitySystemComponent());
+	}
+}
+
 void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
 {
 	OnTankDeath.Broadcast();

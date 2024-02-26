@@ -16,6 +16,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController()
@@ -180,7 +181,7 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
 			{
-				PossessedHoverTank->GetHealthComponent()->OnAnyDamage(PossessedHoverTank, 9999.f, nullptr, this, nullptr);
+				PossessedHoverTank->Suicide();
 			}
 		}
 		
