@@ -251,10 +251,6 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	// log
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnPossess, role: %s, possessing a %s"), *UEnum::GetValueAsString(GetLocalRole()), *InPawn->GetName());
-	// ClientCreateTankHUD(InPawn);
-	
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		

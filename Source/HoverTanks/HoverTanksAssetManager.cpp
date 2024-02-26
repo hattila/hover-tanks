@@ -9,7 +9,4 @@ void UHoverTanksAssetManager::StartInitialLoading()
 	Super::StartInitialLoading();
 
 	UAbilitySystemGlobals::Get().InitGlobalData();
-
-	// log hello
-	// UE_LOG(LogTemp, Warning, TEXT("Hello from UHoverTanksAssetManager::StartInitialLoading()"));
 }

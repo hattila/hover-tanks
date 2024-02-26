@@ -127,13 +127,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
-	
-	virtual void InitializeAttributes();
-	virtual void AddOngoingEffects();
-	virtual void AddDefaultAbilities();
-
-	void BindAbilitySystemComponentActions();
-	bool bIsAbilitySystemComponentInputBound = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* AbilityInputMappingContext;
@@ -146,14 +139,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbilityTwoInputAction;
 
-	// cached tags
-	FGameplayTag DeadTag;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DeathEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	// cached tags
+	FGameplayTag DeadTag;
+
+	bool bIsAbilitySystemComponentInputBound = false;
+
+	virtual void InitializeAttributes();
+	virtual void AddOngoingEffects();
+	virtual void AddDefaultAbilities();
+
+	void BindAbilitySystemComponentActions();
 
 private:
 	/**

@@ -76,16 +76,9 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
-		// log
-		UE_LOG(LogTemp, Warning, TEXT("UHTAttributeSetBase::PostGameplayEffectExecute: DamageAttribute changed, value %s"), *FString::SanitizeFloat(GetDamage()));
+		// UE_LOG(LogTemp, Warning, TEXT("UHTAttributeSetBase::PostGameplayEffectExecute: DamageAttribute changed, value %s"), *FString::SanitizeFloat(GetDamage()));
 		
-		// Applying the damage is done in the AttributeSets PostGameplayEffectExecute method
-		// We have the calculated damage value now.
-		// Application logic can be eg:
-		// - subtract damage from shields first, calculate overflow of damage to health
-		// - show damage number for the damage causer
-		// - if damaged actor (avatar) died, add reward (xp, gold, money etc) to the damage causer
-
+		// We have the calculated damage value now, subtract damage from shields first, calculate overflow of damage to health
 		float LocalDamage = GetDamage();
 		SetDamage(0.f);
 
@@ -112,7 +105,7 @@ void UHTAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCall
 			AController* SourceController = Instigator ? Cast<AController>(Instigator) : nullptr;
 
 			// AActor* TargetActor = GetOwningAbilitySystemComponent()->GetOwner();
-			//
+			// //
 			// UE_LOG(LogTemp, Warning, TEXT("PostGameplayEffectExecute: EffectCauser: %s, \n SourceController %s, TargetActor: %s"),
 			// 	// InstigatorPlayerState ? *InstigatorPlayerState->GetPlayerName() : TEXT("null"),
 			// 	EffectCauser ? *EffectCauser->GetName() : TEXT("null"),

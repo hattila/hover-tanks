@@ -7,7 +7,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "..\..\UI\HUD\HTTeamDeathMatchHUD.h"
+#include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"

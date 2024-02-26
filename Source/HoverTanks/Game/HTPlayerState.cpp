@@ -5,12 +5,12 @@
 
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
-
-#include "AbilitySystemComponent.h"
-#include "GameModes/HandlesTankDeathGameModeInterface.h"
+#include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
+
+#include "AbilitySystemComponent.h"
+
 
 AHTPlayerState::AHTPlayerState()
 {
@@ -69,11 +69,7 @@ void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, AP
 
 void AHTPlayerState::OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data)
 {
-	// AHoverTank* HoverTank = Cast<AHoverTank>(GetPawn());
-	// if (HoverTank && HoverTank->IsDead() && !AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnHealthAttributeChangeHandler Health: %f, had no dead tag, so it sould die now."), Data.NewValue);
-	// }
+
 }
 
 void AHTPlayerState::OnOutOfHealthHandler(AController* InstigatorController, AActor* EffectCauser,

@@ -392,7 +392,7 @@ void AHoverTank::InitPlayer()
 	
 	AbilitySystemComponent = Cast<UHTAbilitySystemComponent>(HTPlayerState->GetAbilitySystemComponent());
 	
-	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
+	// UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
 	AbilitySystemComponent->InitAbilityActorInfo(HTPlayerState, this);
 
 	// if there is an ongoing DeathEffect, remove it
@@ -506,14 +506,14 @@ void AHoverTank::BindAbilitySystemComponentActions()
 		return;
 	}
 
-	// log out the InputComponent
-	// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-	//
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
-	EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityTwoStartedAction);
+	if (EnhancedInputComponent)
+	{
+		EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
+		EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityTwoStartedAction);
 	
-	bIsAbilitySystemComponentInputBound = true;
+		bIsAbilitySystemComponentInputBound = true;	
+	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)

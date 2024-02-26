@@ -68,12 +68,12 @@ void AHTPlayerHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
-	if (PlayerController)
-	{
-		// Broadcast in Controller.cpp OnRep_Pawn
-		// PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
-	}
+	// APlayerController* PlayerController = Cast<APlayerController>(GetOwningPlayerController());
+	// if (PlayerController)
+	// {
+	// 	// Broadcast in Controller.cpp OnRep_Pawn
+	// 	// PlayerController->OnPossessedPawnChanged.AddDynamic(this, &AHTPlayerHUD::OnPossessedPawnChangedHandler);
+	// }
 }
 
 void AHTPlayerHUD::CreatePlayerHUD()
@@ -265,14 +265,6 @@ void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemCompo
 	HoverTankHUDWidget->SetMaxHealth(AttributeSet->GetMaxHealth());
 	HoverTankHUDWidget->SetShield(AttributeSet->GetShield());
 	HoverTankHUDWidget->SetMaxShield(AttributeSet->GetMaxShield());
-
-	// log out every attribute
-	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetHealth(): %f"), AttributeSet->GetHealth());
-	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetMaxHealth(): %f"), AttributeSet->GetMaxHealth());
-	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetShield(): %f"), AttributeSet->GetShield());
-	// UE_LOG(LogTemp, Warning, TEXT(" - AttributeSet->GetMaxShield(): %f"), AttributeSet->GetMaxShield());
-
-	// HoverTankHUDWidget->RefreshProgressBars();
 
 	// listen for attribute changes on the AbilitySystemComponent
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetShieldAttribute())

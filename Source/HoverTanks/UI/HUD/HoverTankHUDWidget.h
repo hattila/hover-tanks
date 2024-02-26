@@ -36,9 +36,6 @@ public:
 	
 	virtual void OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	virtual void OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
-	
-	// UFUNCTION()
-	// void OnHealthChangeHandler(float InHealth, float InMaxHealth);
 
 	UFUNCTION()
 	void OnWeaponFireHandler(int32 WeaponIndex, float CooldownTime);

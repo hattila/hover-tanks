@@ -22,7 +22,6 @@ class HOVERTANKS_API AHTPlayerHUD : public AHUD, public IScoringHUDInterface
 	GENERATED_BODY()
 
 public:
-	// constructor
 	AHTPlayerHUD();
 
 	virtual void PostInitializeComponents() override;
