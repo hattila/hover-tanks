@@ -489,20 +489,19 @@ void AHoverTank::BindAbilitySystemComponentActions()
 {
 	if (bIsAbilitySystemComponentInputBound)
 	{
-		// log
-		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent actions are already bound"));
+		// UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent actions are already bound"));
 		return;
 	}
 	
 	if (!IsValid(AbilitySystemComponent))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: AbilitySystemComponent is null"));
+		// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: AbilitySystemComponent is null"));
 		return;
 	}
 
 	if (!IsValid(InputComponent))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent is null"));
+		// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent is null"));
 		return;
 	}
 

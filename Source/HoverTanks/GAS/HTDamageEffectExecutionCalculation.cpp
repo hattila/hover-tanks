@@ -54,7 +54,7 @@ void UHTDamageEffectExecutionCalculation::Execute_Implementation(
 	// Add SetByCaller damage if it exists
 	Damage += FMath::Max<float>(Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), false, -1.0f), 0.0f);
 
-	UE_LOG(LogTemp, Warning, TEXT("UHTDamageEffectExecutionCalculation::Execute_Implementation(), captured damages is %s"), *FString::SanitizeFloat(Damage));
+	// UE_LOG(LogTemp, Warning, TEXT("UHTDamageEffectExecutionCalculation::Execute_Implementation(), captured damages is %s"), *FString::SanitizeFloat(Damage));
 	
 	if (Damage > 0.f)
 	{

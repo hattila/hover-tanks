@@ -57,7 +57,7 @@ void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, AP
 	AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(GetOwner());
 	if (!PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged PlayerController is null"));
+		// UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged PlayerController is null"));
 		return;
 	}
 
