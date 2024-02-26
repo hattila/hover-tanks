@@ -7,8 +7,11 @@
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
 #include "HoverTanks/Components/HoverTankEffectsComponent.h"
-#include "..\Components\HTWeaponsComponent.h"
+#include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/GAS/HTAbilitySystemComponent.h"
+#include "HoverTanks/GAS/HTGameplayAbility.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -16,14 +19,6 @@
 #include "Components/RectLightComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "HoverTanks/Game/HTPlayerState.h"
-// #include "HoverTanks/GAS/AbilityInputBindingComponent.h"
-#include "InputMappingContext.h"
-#include "HoverTanks/GAS/AbilityInputBindingComponent.h"
-#include "HoverTanks/GAS/Asset_GameplayAbility.h"
-#include "HoverTanks/GAS/HTAbilitySystemComponent.h"
-#include "HoverTanks/GAS/HTAttributeSetBase.h"
-#include "HoverTanks/GAS/HTGameplayAbility.h"
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
@@ -138,11 +133,6 @@ AHoverTank::AHoverTank()
 	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 
-	/**
-	 * GAS INPUT
-	 */
-	// AbilityInputBindingComponent = CreateDefaultSubobject<UAbilityInputBindingComponent>(TEXT("Ability Input Binding Component"));
-
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
@@ -237,7 +227,6 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 		BindAbilitySystemComponentActions();
 	}
-
 	
 }
 
@@ -246,41 +235,6 @@ void AHoverTank::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	InitPlayer();
 	BindAbilitySystemComponentActions();
-}
-
-void AHoverTank::BindAbility(FGameplayAbilitySpec& Spec) const
-{
-	if (IsLocallyControlled())
-	{
-		// AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
-		//
-		// if (AbilityInputBindingComponent->GetInputComponent() == nullptr)
-		// {
-		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent is null, adding it"));
-		// 	
-		// 	// get the player input component
-		// 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-		// 	// log out EnhancedInputComponent
-		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
-		// 	UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-		// 	
-		// 	AbilityInputBindingComponent->SetInputComponent(EnhancedInputComponent);
-		// }
-		//
-		// AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
-		// AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
-		//
-		// // log out ROLE
-		// UE_LOG(LogTemp, Warning, TEXT("BindAbility: ROLE: %s"), *UEnum::GetValueAsString(GetLocalRole()));
-	}
-}
-
-void AHoverTank::UnbindAbility(FGameplayAbilitySpec& Spec) const
-{
-	if (IsLocallyControlled())
-	{
-		// AbilitySet->UnbindAbility(AbilityInputBindingComponent, Spec);
-	}
 }
 
 UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
@@ -450,40 +404,6 @@ void AHoverTank::InitPlayer()
 	InitializeAttributes();
 	AddOngoingEffects();
 	AddDefaultAbilities();
-
-		// if (IsLocallyControlled())
-		// {
-		// 	// get all abilities hosted on the ability system
-		// 	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
-		//
-		// 	if (AbilityInputBindingComponent->GetInputComponent() == nullptr)
-		// 	{
-		// 		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent is null, adding it"));
-		// 		
-		// 		// get the player input component
-		// 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-		// 		// log out EnhancedInputComponent
-		// 		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
-		// 		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-		// 		
-		// 		AbilityInputBindingComponent->SetInputComponent(EnhancedInputComponent);
-		// 	}
-		//
-		// 	// log out every AbilitySpec
-		// 	for (FGameplayAbilitySpec Spec : AbilitySpecs)
-		// 	{
-		// 		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: AbilitySpec: %s"), *Spec.Ability->GetName());
-		// 		AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
-		// 		break;
-		// 	}
-		// 	
-		// 	// AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
-		// }
-	
-	// this is the place where PlayerState->AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this); should be called.
-
-	// other initializations here as well?
-	// if locally controlled, has auth?
 }
 
 void AHoverTank::PossessedBy(AController* NewController)
@@ -559,8 +479,6 @@ void AHoverTank::AddDefaultAbilities()
 			FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
 				FGameplayAbilitySpec(Ability, 0, -1)
 			);
-			
-			// AbilitySystemComponent->SetInputBinding(AbilityOneInputAction, AbilitySpecHandle);
 		}
 
 		AbilitySystemComponent->bCharacterAbilitiesGiven = true;
@@ -682,21 +600,6 @@ void AHoverTank::JumpTriggered()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
 
-	// get the Attribute Set from the PlayerState
-	// if (AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>())
-	// {
-	// 	UHTAttributeSetBase* AttributeSetBase = HTPlayerState->GetAttributeSetBase();
-	// 	float Shield = AttributeSetBase->GetShield();
-	// 	float MaxShield = AttributeSetBase->GetMaxShield();
-	// 	// float Shield = AttributeSetBase->Shield;
-	//
-	// 	float Health = AttributeSetBase->Health.GetCurrentValue();
-	// 	float MaxHealth = AttributeSetBase->MaxHealth.GetCurrentValue();
-	// 	
-	// 	// log out shield
-	// 	UE_LOG(LogTemp, Warning, TEXT("Shield: %.0f of MaxSield: %.0f\n Health: %f, MaxHealth: %f"), Shield, MaxShield, Health, MaxHealth);
-	// }
-	
 	if (bIsInputEnabled == false)
 	{
 		return;
@@ -785,13 +688,6 @@ void AHoverTank::ShowDebugActionStarted()
 {
 	bShowDebug = !bShowDebug;
 
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	// log out EnhancedInputComponent
-	UE_LOG(LogTemp, Warning, TEXT("ShowDebugActionStarted: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
-	UE_LOG(LogTemp, Warning, TEXT("ShowDebugActionStarted: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-
-	// InitPlayer();
-	
 	if (bShowDebug)
 	{
 		ColliderMesh->SetVisibility(true);
@@ -892,10 +788,8 @@ void AHoverTank::DebugDrawPlayerTitle()
 
 void AHoverTank::AbilityOneStartedAction()
 {
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction"));
+	// UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction"));
 
-	// get the first activatable ability and try to activate it
 	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
 	if (AbilitySpecs.Num() > 0)
 	{
@@ -906,10 +800,8 @@ void AHoverTank::AbilityOneStartedAction()
 
 void AHoverTank::AbilityTwoStartedAction()
 {
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("AbilityTwoStartedAction"));
+	// UE_LOG(LogTemp, Warning, TEXT("AbilityTwoStartedAction"));
 
-	// get the first activatable ability and try to activate it
 	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
 	if (AbilitySpecs.Num() > 0 && AbilitySpecs.IsValidIndex(1))
 	{

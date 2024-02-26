@@ -3,9 +3,6 @@
 
 #include "HTAbilitySystemComponent.h"
 
-#include "AbilityBindingInterface.h"
-#include "GameplayTagsManager.h"
-
 // Sets default values for this component's properties
 UHTAbilitySystemComponent::UHTAbilitySystemComponent()
 {
@@ -21,13 +18,6 @@ UHTAbilitySystemComponent::UHTAbilitySystemComponent()
 void UHTAbilitySystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// listen for adding or removing gameplay tag Ability.SmokeScreen.OnCooldown
-
-	// get the gameplay tag Ability.SmokeScreen.OnCooldown
-	// FGameplayTag SmokeScreenOnCooldownTag = UGameplayTagsManager::Get().RequestGameplayTag(FName("Ability.SmokeScreen.OnCooldown"));
-	// RegisterGameplayTagEvent(SmokeScreenOnCooldownTag, EGameplayTagEventType::NewOrRemoved);
-	
 }
 
 /**
@@ -35,17 +25,7 @@ void UHTAbilitySystemComponent::BeginPlay()
  */
 void UHTAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
 {
-	// log out the given ability
-	UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - AbilitySpec.Ability = %s"), *AbilitySpec.Ability->GetName());
-
-	// log out role
-	// UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - Role = %d"), GetOwnerRole());
-	
-	// const IAbilityBindingInterface* ABI = Cast<IAbilityBindingInterface>(GetAvatarActor_Direct());
-	// if (ABI)
-	// {
-	// 	ABI->BindAbility(AbilitySpec);
-	// }
+	// UE_LOG(LogTemp, Warning, TEXT("UHTAbilitySystemComponent::OnGiveAbility() - AbilitySpec.Ability = %s"), *AbilitySpec.Ability->GetName());
 	
 	Super::OnGiveAbility(AbilitySpec);
 }

@@ -7,21 +7,18 @@
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "HasTeamColors.h"
-#include "HoverTanks/GAS/AbilityBindingInterface.h"
 #include "HoverTank.generated.h"
 
-class UAbilityInputBindingComponent;
-class UAsset_GameplayAbility;
 class UHTGameplayAbility;
-class UGameplayAbility;
 class UHTAbilitySystemComponent;
-class UGameplayEffect;
 class UHTWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
 class UHealthComponent;
 
+class UGameplayEffect;
+class UGameplayAbility;
 class URectLightComponent;
 class UNiagaraComponent;
 class USphereComponent;
@@ -39,7 +36,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon)
 UCLASS()
 class HOVERTANKS_API AHoverTank :
 	public APawn,
-	public IAbilityBindingInterface,
 	public IAbilitySystemInterface,
 	public IHasTeamColors
 {
@@ -63,11 +59,6 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void OnRep_PlayerState() override;
-
-	// ~ IAbilityBindingInterface interface
-	virtual void BindAbility(FGameplayAbilitySpec& Spec) const override;
-	virtual void UnbindAbility(FGameplayAbilitySpec& Spec) const override;
-	// ~ IAbilityBindingInterface interface
 
 	//~ IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -134,20 +125,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGameplayEffect>> OngoingEffects;
 
-	// UPROPERTY()
-	// UAbilityInputBindingComponent* AbilityInputBindingComponent = nullptr;
-	
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	// UAsset_GameplayAbility* AbilitySet;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
-	// TArray<UInputAction*> AbilityInputActions;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
-
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
-	// TMap<UInputAction, TSubclassOf<UHTGameplayAbility>> ActivatableAbilities;
 	
 	virtual void InitializeAttributes();
 	virtual void AddOngoingEffects();
