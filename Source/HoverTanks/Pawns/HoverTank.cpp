@@ -3,7 +3,6 @@
 #include "HoverTank.h"
 
 #include "AbilitySystemComponent.h"
-#include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
 #include "HoverTanks/Components/HoverTankEffectsComponent.h"
@@ -19,6 +18,7 @@
 #include "Components/RectLightComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
@@ -42,9 +42,6 @@ AHoverTank::AHoverTank()
 
 	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
 	MovementReplicatorComponent->SetIsReplicated(true);
-
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
-	HealthComponent->SetIsReplicated(true);
 
 	WeaponsComponent = CreateDefaultSubobject<UHTWeaponsComponent>(TEXT("Weapons Component"));
 	WeaponsComponent->SetIsReplicated(true);
@@ -301,11 +298,6 @@ bool AHoverTank::IsDead() const
 	if (HTPlayerState)
 	{
 		return HTPlayerState->IsDead();
-	}
-	
-	if (HealthComponent != nullptr)
-	{
-		return HealthComponent->IsDead();	
 	}
 
 	return false;
@@ -769,19 +761,19 @@ void AHoverTank::DebugDrawPlayerTitle()
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
 
-	APlayerState* CurrentPlayerState = GetPlayerState();
-	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	FString PlayerName = HTPlayerState ? HTPlayerState->GetPlayerName() : "No Player State";
 
-	if (CurrentPlayerState)
+	if (HTPlayerState)
 	{
-		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(CurrentPlayerState);
+		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(HTPlayerState);
 		if (InTeamPlayerState)
 		{
 			PlayerName += FString::Printf(TEXT(" (Team %d)"), InTeamPlayerState->GetTeamId());
 		}
 	}
 	
-	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
+	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, SH: %.0f / HP: %.0f"), *PlayerName, *RoleString, HTPlayerState->GetAttributeSetBase()->GetShield(), HTPlayerState->GetAttributeSetBase()->GetHealth());
 	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
 }
 

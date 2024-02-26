@@ -15,7 +15,6 @@ class UHTWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
-class UHealthComponent;
 
 class UGameplayEffect;
 class UGameplayAbility;
@@ -30,7 +29,6 @@ class UInputMappingContext;
 class UInputAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
@@ -48,9 +46,6 @@ public:
 	FOnTankDeath OnTankDeath;
 
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
-	FOnTankHealthChange OnTankHealthChange; // TODO: remove
-
-	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnWeaponSwitched OnWeaponSwitched;
 
 	virtual void Tick(float DeltaTime) override;
@@ -63,9 +58,6 @@ public:
 	//~ IAbilitySystemInterface
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	//~ IAbilitySystemInterface
-	
-	UFUNCTION(BlueprintPure)
-	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBaseMesh() const { return TankBaseMesh; }
@@ -166,9 +158,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	UMovementReplicatorComponent* MovementReplicatorComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UHealthComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UHTWeaponsComponent* WeaponsComponent;

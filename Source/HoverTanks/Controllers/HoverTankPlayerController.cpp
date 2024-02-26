@@ -5,19 +5,17 @@
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
-#include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Game/GameModes/CanRequestRespawnGameModeInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
+#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
-#include "HoverTanks/GAS/HTAttributeSetBase.h"
-#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 AHoverTankPlayerController::AHoverTankPlayerController()
 {

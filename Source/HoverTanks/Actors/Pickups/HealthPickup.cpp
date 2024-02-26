@@ -6,7 +6,6 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Components/HealthComponent.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -99,8 +98,6 @@ void AHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 	if (HasAuthority())
 	{
 		bool bVasValidPickup = false;
-		
-		AHoverTank* HoverTank = Cast<AHoverTank>(OtherActor);
 
 		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
 		if (HealEffect != nullptr && ActorWithAbilitySystem != nullptr)
@@ -124,12 +121,6 @@ void AHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 				bVasValidPickup = true;
 			}
 		}
-		else if (HoverTank)
-		{
-			HoverTank->GetHealthComponent()->Heal(HealAmount);
-			bVasValidPickup = true;
-		}
-
 
 		if (bVasValidPickup)
 		{
