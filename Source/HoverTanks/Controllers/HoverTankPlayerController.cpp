@@ -181,7 +181,7 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
 			{
-				PossessedHoverTank->Suicide();
+				PossessedHoverTank->ServerSuicide();
 			}
 		}
 		

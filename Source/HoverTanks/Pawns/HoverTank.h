@@ -60,7 +60,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void OnRep_PlayerState() override;
@@ -91,7 +90,9 @@ public:
 
 	void OnDeath();
 	bool IsDead() const;
-	void Suicide() const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSuicide();
 	
 	bool IsInputEnabled() const { return bIsInputEnabled; }
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
@@ -255,6 +256,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SuicideAction;
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
@@ -293,6 +297,8 @@ private:
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();
+
+	void SuicideActionStarted();
 
 	/**
 	 * GAS

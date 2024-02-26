@@ -230,6 +230,9 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
 
+		//Suicide
+		EnhancedInputComponent->BindAction(SuicideAction, ETriggerEvent::Started, this, &AHoverTank::SuicideActionStarted);
+
 		// UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
 		// UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
 
@@ -354,7 +357,7 @@ bool AHoverTank::IsDead() const
 	return false;
 }
 
-void AHoverTank::Suicide() const
+void AHoverTank::ServerSuicide_Implementation()
 {
 	if (!HasAuthority())
 	{
@@ -766,6 +769,16 @@ void AHoverTank::ShowDebugActionStarted()
 	{
 		ColliderMesh->SetVisibility(false);
 	}
+}
+
+void AHoverTank::SuicideActionStarted()
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
+	ServerSuicide();
 }
 
 void AHoverTank::HandleCameraZoom(const float DeltaTime) const
