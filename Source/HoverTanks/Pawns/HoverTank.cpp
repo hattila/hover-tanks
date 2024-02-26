@@ -18,6 +18,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "HoverTanks/Game/HTPlayerState.h"
 // #include "HoverTanks/GAS/AbilityInputBindingComponent.h"
+#include "InputMappingContext.h"
+#include "HoverTanks/GAS/AbilityInputBindingComponent.h"
 #include "HoverTanks/GAS/Asset_GameplayAbility.h"
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
@@ -233,10 +235,7 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		//Suicide
 		EnhancedInputComponent->BindAction(SuicideAction, ETriggerEvent::Started, this, &AHoverTank::SuicideActionStarted);
 
-		// UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent: EnhancedInputComponent: %s"), EnhancedInputComponent != nullptr ? *EnhancedInputComponent->GetName() : TEXT("null"));
-		// UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
-
-		EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
+		BindAbilitySystemComponentActions();
 	}
 
 	
@@ -246,6 +245,7 @@ void AHoverTank::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitPlayer();
+	BindAbilitySystemComponentActions();
 }
 
 void AHoverTank::BindAbility(FGameplayAbilitySpec& Spec) const
@@ -268,7 +268,7 @@ void AHoverTank::BindAbility(FGameplayAbilitySpec& Spec) const
 		// }
 		//
 		// AbilityInputBindingComponent->SetInputBinding(AbilityOneInputAction, Spec);
-		// // AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
+		// AbilitySet->BindAbility(AbilityInputBindingComponent, Spec);
 		//
 		// // log out ROLE
 		// UE_LOG(LogTemp, Warning, TEXT("BindAbility: ROLE: %s"), *UEnum::GetValueAsString(GetLocalRole()));
@@ -567,6 +567,37 @@ void AHoverTank::AddDefaultAbilities()
 	}
 }
 
+void AHoverTank::BindAbilitySystemComponentActions()
+{
+	if (bIsAbilitySystemComponentInputBound)
+	{
+		// log
+		UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent actions are already bound"));
+		return;
+	}
+	
+	if (!IsValid(AbilitySystemComponent))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: AbilitySystemComponent is null"));
+		return;
+	}
+
+	if (!IsValid(InputComponent))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent is null"));
+		return;
+	}
+
+	// log out the InputComponent
+	// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent: %s"), InputComponent != nullptr ? *InputComponent->GetName() : TEXT("null"));
+	//
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
+	EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityTwoStartedAction);
+	
+	bIsAbilitySystemComponentInputBound = true;
+}
+
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
@@ -863,15 +894,26 @@ void AHoverTank::AbilityOneStartedAction()
 {
 	// log
 	UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction"));
-	
-	// get available abilities
-	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
-	// loop over them and log their names
-	for (FGameplayAbilitySpec Spec : AbilitySpecs)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction: AbilitySpec: %s"), *Spec.Ability->GetName());
 
-		// try to activate ability
-		bool bSuccessfulActivation = AbilitySystemComponent->TryActivateAbility(Spec.Handle, true);
+	// get the first activatable ability and try to activate it
+	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
+	if (AbilitySpecs.Num() > 0)
+	{
+		// try to activate the first ability
+		AbilitySystemComponent->TryActivateAbility(AbilitySpecs[0].Handle, true);
 	}
+}
+
+void AHoverTank::AbilityTwoStartedAction()
+{
+	// log
+	UE_LOG(LogTemp, Warning, TEXT("AbilityTwoStartedAction"));
+
+	// get the first activatable ability and try to activate it
+	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
+	if (AbilitySpecs.Num() > 0 && AbilitySpecs.IsValidIndex(1))
+	{
+		AbilitySystemComponent->TryActivateAbility(AbilitySpecs[1].Handle, true);
+	}
+	
 }

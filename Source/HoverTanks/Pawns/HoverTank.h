@@ -139,20 +139,33 @@ protected:
 	
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	// UAsset_GameplayAbility* AbilitySet;
+
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	// TArray<UInputAction*> AbilityInputActions;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
 
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
+	// TMap<UInputAction, TSubclassOf<UHTGameplayAbility>> ActivatableAbilities;
+	
 	virtual void InitializeAttributes();
 	virtual void AddOngoingEffects();
 	virtual void AddDefaultAbilities();
 
+	void BindAbilitySystemComponentActions();
+	bool bIsAbilitySystemComponentInputBound = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* AbilityInputMappingContext;
 	
-	/** Ability Input Action - E */
+	/** Ability Input Action - Q */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
 	UInputAction* AbilityOneInputAction;
+
+	/** Ability Input Action - E */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
+	UInputAction* AbilityTwoInputAction;
 
 	// cached tags
 	FGameplayTag DeadTag;
@@ -304,6 +317,7 @@ private:
 	 * GAS
 	 */
 	void AbilityOneStartedAction();
+	void AbilityTwoStartedAction();
 	
 	/**
 	 * Debug 
