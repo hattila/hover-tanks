@@ -67,6 +67,14 @@ Some basic FX
 - Tank projectile impact, explosion
 - Rocket smoke trail
 
+### Gameplay Ability System (GAS)
+
+As a learning exercise some parts of GAS were implemented:
+ - Damage Calculation Execution, Damage Effects of the Cannon and Rockets
+ - Attribute System, which contains Shield and Health, and a meta Damage attribute. Replaced the previous HealthComponents functionality
+ - Shields are regenerative, but will not regenerate for 3 seconds after taking damage (cooldown)
+ - Created a Smoke Screen ability, which throws smoke grenades that create niagara smoke FX. It has 10 second cooldown and a new UI widget to show for it.
+
 Code usage examples
 ...
 

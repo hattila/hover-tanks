@@ -8,14 +8,15 @@
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
-#include "HoverTanks/UI/HUD/DeathMatchHUD.h"
+#include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/UI/HUD/HTDeathMatchHUD.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 ADeathMatchGameMode::ADeathMatchGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/BP_HoverTank"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -32,8 +33,9 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 
 	// Custom GameInstance should be set in DefaultEngine.ini
 
+	PlayerStateClass = AHTPlayerState::StaticClass();
 	GameStateClass = ADeathMatchGameState::StaticClass();
-	HUDClass = ADeathMatchHUD::StaticClass();
+	HUDClass = AHTDeathMatchHUD::StaticClass();
 
 	bUseSeamlessTravel = false;
 }

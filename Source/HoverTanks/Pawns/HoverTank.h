@@ -3,16 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "HasTeamColors.h"
 #include "HoverTank.generated.h"
 
-class UWeaponsComponent;
+class UHTGameplayAbility;
+class UHTAbilitySystemComponent;
+class UHTWeaponsComponent;
 class UHoverTankEffectsComponent;
 class UHoverTankMovementComponent;
 class UMovementReplicatorComponent;
-class UHealthComponent;
 
+class UGameplayEffect;
+class UGameplayAbility;
 class URectLightComponent;
 class UNiagaraComponent;
 class USphereComponent;
@@ -24,11 +29,13 @@ class UInputMappingContext;
 class UInputAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTankHealthChange, float, Health, float, MaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
-class HOVERTANKS_API AHoverTank : public APawn, public IHasTeamColors
+class HOVERTANKS_API AHoverTank :
+	public APawn,
+	public IAbilitySystemInterface,
+	public IHasTeamColors
 {
 	GENERATED_BODY()
 	
@@ -39,21 +46,18 @@ public:
 	FOnTankDeath OnTankDeath;
 
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
-	FOnTankHealthChange OnTankHealthChange;
-
-	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnWeaponSwitched OnWeaponSwitched;
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void OnRep_PlayerState() override;
 
-	UFUNCTION(BlueprintPure)
-	UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+	//~ IAbilitySystemInterface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~ IAbilitySystemInterface
 
 	UFUNCTION(BlueprintPure)
 	UStaticMeshComponent* GetTankBaseMesh() const { return TankBaseMesh; }
@@ -69,10 +73,12 @@ public:
 
 	void OnDeath();
 	bool IsDead() const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSuicide();
+	
 	bool IsInputEnabled() const { return bIsInputEnabled; }
-
 	void SetInputEnabled(const bool bNewInputEnabled) { bIsInputEnabled = bNewInputEnabled; }
-
 	bool GetShowDebug() const { return bShowDebug; }
 
 	UFUNCTION(Client, Unreliable)
@@ -80,7 +86,7 @@ public:
 
 	FHitResult FindTargetAtCrosshair() const;
 	
-	UWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
+	UHTWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
 	UHoverTankEffectsComponent* GetEffectsComponent() const { return HoverTankEffectsComponent; }
 
 	//~ Begin IHasTeamColors interface
@@ -90,8 +96,57 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void InitPlayer();
+	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
+
+	/**
+	 * GAS
+	 */
+
+	// This is just a ref here, it lives on the PlayerState for player characters (and on the HoverTank for AI in the future)
+	UPROPERTY()
+	UHTAbilitySystemComponent* AbilitySystemComponent = nullptr;
+
+	// Default attributes for a Tank on spawn, applied as an instant GameplayEffect
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DefaultAttributes;
+
+	// Effects that are always present on a Tank, like a constant shield recharge
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGameplayEffect>> OngoingEffects;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UHTGameplayAbility>> DefaultAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext* AbilityInputMappingContext;
+	
+	/** Ability Input Action - Q */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
+	UInputAction* AbilityOneInputAction;
+
+	/** Ability Input Action - E */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input|GAS", meta = (AllowPrivateAccess = "true"))
+	UInputAction* AbilityTwoInputAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DeathEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GAS", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	// cached tags
+	FGameplayTag DeadTag;
+
+	bool bIsAbilitySystemComponentInputBound = false;
+
+	virtual void InitializeAttributes();
+	virtual void AddOngoingEffects();
+	virtual void AddDefaultAbilities();
+
+	void BindAbilitySystemComponentActions();
 
 private:
 	/**
@@ -105,10 +160,7 @@ private:
 	UMovementReplicatorComponent* MovementReplicatorComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UHealthComponent* HealthComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UWeaponsComponent* WeaponsComponent;
+	UHTWeaponsComponent* WeaponsComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;
@@ -186,6 +238,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShowDebugAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SuicideAction;
 	
 	UPROPERTY(Replicated)
 	bool bIsInputEnabled = true;
@@ -224,6 +279,14 @@ private:
 	
 	bool bShowDebug = false;
 	void ShowDebugActionStarted();
+
+	void SuicideActionStarted();
+
+	/**
+	 * GAS
+	 */
+	void AbilityOneStartedAction();
+	void AbilityTwoStartedAction();
 	
 	/**
 	 * Debug 

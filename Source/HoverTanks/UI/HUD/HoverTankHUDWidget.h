@@ -3,13 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DeathMatchHUD.h"
 #include "WeaponCooldownWidget.h"
+
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
-#include "HoverTanks/Components/WeaponsComponent.h"
+#include "GameplayEffectTypes.h"
+
 #include "HoverTankHUDWidget.generated.h"
 
+class AHoverTank;
+struct FOnAttributeChangeData;
 class UBorder;
 class UWidgetSwitcher;
 class UTextBlock;
@@ -26,9 +29,13 @@ public:
 	UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer);
 	
 	virtual bool Initialize() override;
+
+	// UFUNCTION() // cannot be a UFUNCTION
+	virtual void OnHealthAttributeChangeHandler(const FOnAttributeChangeData& Data);
+	virtual void OnMaxHealthAttributeChangeHandler(const FOnAttributeChangeData& Data);
 	
-	UFUNCTION()
-	void OnHealthChangeHandler(float InHealth, float InMaxHealth);
+	virtual void OnShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
+	virtual void OnMaxShieldAttributeChangeHandler(const FOnAttributeChangeData& Data);
 
 	UFUNCTION()
 	void OnWeaponFireHandler(int32 WeaponIndex, float CooldownTime);
@@ -36,31 +43,68 @@ public:
 	UFUNCTION()
 	void OnWeaponSwitchedHandler(int32 NewWeapon);
 
+	// create setters for the float attributes
+	void SetShield(const float InShield) { Shield = InShield; }
+	void SetMaxShield(const float InMaxShield) { MaxShield = InMaxShield; }
+	void SetHealth(const float InHealth) { Health = InHealth; };
+	void SetMaxHealth(const float InMaxHealth) { MaxHealth = InMaxHealth; };
+	
+	void RefreshProgressBars();
+
+	// create a blueprint readable getter for the OwningHoverTank
+	UFUNCTION(BlueprintCallable)
+	AHoverTank* GetOwningHoverTank() const { return OwnerHoverTank; }
+	
+	void SetOwningHoverTank(AHoverTank* InHoverTank) { OwnerHoverTank = InHoverTank; OnHoverTankPawnSet(); }
+
+	UFUNCTION(BlueprintImplementableEvent )
+	void OnHoverTankPawnSet();
+	
 private:
-	float Health;
-	float MaxHealth;
+	float Shield = 0;
+	float MaxShield = 0;
+	
+	float Health = 0;
+	float MaxHealth = 0;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* HealthText;
+	UProgressBar* ShieldProgressBar = nullptr;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* ShieldText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UTextBlock* MaxHealthText;
+	UTextBlock* MaxShieldText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UWidgetSwitcher* WeaponIndicatorSwitch;
+	UProgressBar* HealthProgressBar	= nullptr;
+	
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* HealthText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UBorder* CannonIndicator;
+	UTextBlock* MaxHealthText = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
-	UBorder* RocketsIndicator;
+	UWidgetSwitcher* WeaponIndicatorSwitch = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* CannonIndicator = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* RocketsIndicator = nullptr;
 
 	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
+
+	UPROPERTY()
 	UWeaponCooldownWidget* CannonCooldownWidget = nullptr;
+
+	UPROPERTY()
 	UWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
 	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;
 
-	void RefreshHealth() const;
+	UPROPERTY()
+	AHoverTank* OwnerHoverTank = nullptr;
 };

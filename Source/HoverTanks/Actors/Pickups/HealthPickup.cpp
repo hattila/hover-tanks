@@ -3,8 +3,9 @@
 
 #include "HealthPickup.h"
 
+#include "AbilitySystemComponent.h"
+#include "GameplayEffect.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Components/HealthComponent.h"
 
 #include "Net/UnrealNetwork.h"
 
@@ -35,6 +36,10 @@ AHealthPickup::AHealthPickup()
 	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveHealthPickupMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveHealthPickup"));
 	UMaterialInstance* EmissiveHealthPickupMaterialObject = EmissiveHealthPickupMaterialAsset.Object;
 	PickupMesh->SetMaterial(0, EmissiveHealthPickupMaterialObject);
+
+	// initialize the heal effect
+	static ConstructorHelpers::FClassFinder<UGameplayEffect> HealEffectAsset(TEXT("/Game/HoverTanks/Actors/Pickups/GE_HealEffect_Instant"));
+	HealEffect = HealEffectAsset.Class;
 }
 
 void AHealthPickup::BeginPlay()
@@ -92,16 +97,36 @@ void AHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 {
 	if (HasAuthority())
 	{
-		// todo: canUsePickup, CanPickup interface
-		AHoverTank* HoverTank = Cast<AHoverTank>(OtherActor);
-		if (HoverTank)
+		bool bVasValidPickup = false;
+
+		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
+		if (HealEffect != nullptr && ActorWithAbilitySystem != nullptr)
 		{
-			HoverTank->GetHealthComponent()->Heal(60);
+			UAbilitySystemComponent* AbilitySystemComponent = ActorWithAbilitySystem->GetAbilitySystemComponent();
+			
+			if (AbilitySystemComponent != nullptr)
+			{
+				FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+				EffectContext.AddSourceObject(this);
+				EffectContext.AddInstigator(GetInstigatorController(), this);
+				
+				FGameplayEffectSpecHandle HealEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(HealEffect, 1.f, EffectContext);
+				FGameplayEffectSpec* HealEffectSpec = HealEffectSpecHandle.Data.Get();
+				
+				HealEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Healing")), HealAmount);
+				if (HealEffectSpecHandle.IsValid())
+				{
+					AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*HealEffectSpec, AbilitySystemComponent);
+				}
+				bVasValidPickup = true;
+			}
+		}
 
+		if (bVasValidPickup)
+		{
 			BoxCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 			bIsPickedUp = true;
-			DelayedDestroy();
+			DelayedDestroy();	
 		}
 	}
 }

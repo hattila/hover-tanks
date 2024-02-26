@@ -7,7 +7,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/UI/HUD/TeamDeathMatchHUD.h"
+#include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
@@ -15,7 +15,7 @@
 
 ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/BP_HoverTank"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
@@ -32,7 +32,7 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 
 	PlayerStateClass = AInTeamPlayerState::StaticClass();
 	GameStateClass = ATeamDeathMatchGameState::StaticClass();
-	HUDClass = ATeamDeathMatchHUD::StaticClass();
+	HUDClass = AHTTeamDeathMatchHUD::StaticClass();
 }
 
 void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)

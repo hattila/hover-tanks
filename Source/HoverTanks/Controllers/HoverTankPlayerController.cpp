@@ -5,11 +5,11 @@
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
-#include "HoverTanks/Components/HealthComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Game/GameModes/CanRequestRespawnGameModeInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
+#include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 #include "InputAction.h"
 #include "InputMappingContext.h"
@@ -55,6 +55,7 @@ void AHoverTankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ClientSetInputModeToGameOnly();
+	ClientCreatePlayerHUD();
 
 	if (!HasAuthority())
 	{
@@ -88,6 +89,25 @@ void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReaso
 	if (InGameMenu != nullptr)
 	{
 		InGameMenu->Teardown();
+	}
+}
+
+void AHoverTankPlayerController::ClientCreatePlayerHUD_Implementation()
+{
+	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->CreatePlayerHUD();
+	}
+}
+
+void AHoverTankPlayerController::ClientCreateTankHUD_Implementation(APawn* InPawn)
+{
+	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
+	AHoverTank* HoverTank = Cast<AHoverTank>(InPawn);
+	if (HUD && HoverTank)
+	{
+		HUD->CreateTankHUD(HoverTank);
 	}
 }
 
@@ -139,7 +159,7 @@ void AHoverTankPlayerController::OnRep_Pawn()
 	Super::OnRep_Pawn();
 
 	// log out the role
-	UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
+	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
 }
 
 void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
@@ -159,7 +179,7 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
 			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
 			{
-				PossessedHoverTank->GetHealthComponent()->OnAnyDamage(PossessedHoverTank, 9999.f, nullptr, this, nullptr);
+				PossessedHoverTank->ServerSuicide();
 			}
 		}
 		
@@ -231,7 +251,7 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-
+		
 	}
 }
 

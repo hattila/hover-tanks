@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "HTPlayerState.h"
 #include "InTeamPlayerState.generated.h"
 
 // define a delegate with one param
@@ -13,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTeamIdChanged, int8, NewTeamId);
  * 
  */
 UCLASS()
-class HOVERTANKS_API AInTeamPlayerState : public APlayerState
+class HOVERTANKS_API AInTeamPlayerState : public AHTPlayerState
 {
 	GENERATED_BODY()
 

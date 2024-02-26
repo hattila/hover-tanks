@@ -2,12 +2,15 @@
 
 #include "HoverTank.h"
 
-#include "HoverTanks/Components/HealthComponent.h"
+#include "AbilitySystemComponent.h"
 #include "HoverTanks/Components/HoverTankMovementComponent.h"
 #include "HoverTanks/Components/MovementReplicatorComponent.h"
 #include "HoverTanks/Components/HoverTankEffectsComponent.h"
-#include "HoverTanks/Components/WeaponsComponent.h"
+#include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/HTPlayerState.h"
+#include "HoverTanks/GAS/HTAbilitySystemComponent.h"
+#include "HoverTanks/GAS/HTGameplayAbility.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -15,6 +18,7 @@
 #include "Components/RectLightComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "Net/UnrealNetwork.h"
 
 class UNiagaraSystem;
@@ -39,10 +43,7 @@ AHoverTank::AHoverTank()
 	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
 	MovementReplicatorComponent->SetIsReplicated(true);
 
-	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
-	HealthComponent->SetIsReplicated(true);
-
-	WeaponsComponent = CreateDefaultSubobject<UWeaponsComponent>(TEXT("Weapons Component"));
+	WeaponsComponent = CreateDefaultSubobject<UHTWeaponsComponent>(TEXT("Weapons Component"));
 	WeaponsComponent->SetIsReplicated(true);
 
 	HoverTankEffectsComponent = CreateDefaultSubobject<UHoverTankEffectsComponent>(TEXT("Hover Tank Effects Component"));
@@ -63,19 +64,19 @@ AHoverTank::AHoverTank()
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTankCollision"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTankCollision"));
 	UStaticMesh* ColliderMeshAssetObject = ColliderMeshAsset.Object;
 	ColliderMesh->SetStaticMesh(ColliderMeshAssetObject);
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankBase"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankBase"));
 	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
 	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannon"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannon"));
 	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
 	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank_TankCannonBarrel"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannonBarrel"));
 	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
 	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
 	
@@ -128,6 +129,8 @@ AHoverTank::AHoverTank()
 	TankBaseMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
+
+	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
 void AHoverTank::BeginPlay()
@@ -147,6 +150,7 @@ void AHoverTank::BeginPlay()
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			Subsystem->AddMappingContext(AbilityInputMappingContext, 0);
 		}
 	}
 }
@@ -214,13 +218,37 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		
 		//Show debug lines and info
 		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
-		
+
+		//Suicide
+		EnhancedInputComponent->BindAction(SuicideAction, ETriggerEvent::Started, this, &AHoverTank::SuicideActionStarted);
+
+		BindAbilitySystemComponentActions();
 	}
+	
 }
 
 void AHoverTank::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+	InitPlayer();
+	BindAbilitySystemComponentActions();
+}
+
+UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
+{
+	// get the ability system component from the player state
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (HTPlayerState)
+	{
+		return HTPlayerState->GetAbilitySystemComponent();
+	}
+	else
+	{
+		// log
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
+	}
+
+	return nullptr;
 }
 
 void AHoverTank::OnDeath()
@@ -237,6 +265,15 @@ void AHoverTank::OnDeath()
 		return;
 	}
 	
+	if (DeathEffect != nullptr)
+	{
+		// add DeathEffect, one liner edition
+		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(DeathEffect->GetDefaultObject()), 1.0f, AbilitySystemComponent->MakeEffectContext());	
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::OnDeath: DeathEffect is null set it in the Blueprint!"));
+	}
+	
 	// disable player input
 	SetInputEnabled(false);
 
@@ -244,6 +281,8 @@ void AHoverTank::OnDeath()
 	ClientBroadcastOnTankDeath(); // eg: notify the HUD
 	
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	// ECC_GameTraceChannel1 is the Projectile channel
+	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
 	if (HoverTankEffectsComponent)
 	{
@@ -255,12 +294,40 @@ void AHoverTank::OnDeath()
 
 bool AHoverTank::IsDead() const
 {
-	if (HealthComponent != nullptr)
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (HTPlayerState)
 	{
-		return HealthComponent->IsDead();	
+		return HTPlayerState->IsDead();
 	}
 
 	return false;
+}
+
+void AHoverTank::ServerSuicide_Implementation()
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	if (DamageEffect == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::Suicide - No DamageEffect specified")); // tank should be killed anyway
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+	EffectContext.AddInstigator(GetController(), GetController());
+
+	FGameplayEffectSpecHandle DamageEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(DamageEffect, 1.f, EffectContext);
+	FGameplayEffectSpec* DamageEffectSpec = DamageEffectSpecHandle.Data.Get();
+
+	DamageEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), 9999);
+	if (DamageEffectSpecHandle.IsValid())
+	{
+		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*DamageEffectSpec, GetAbilitySystemComponent());
+	}
 }
 
 void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
@@ -302,9 +369,40 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
+/**
+ * Is called on Possessed on the server and Onrep_PlayerState on the client
+ */
+void AHoverTank::InitPlayer()
+{
+	// Player State should have the AbilitySystemComponent
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	if (!HTPlayerState)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InitPlayer: HTPlayerState is null"));
+		return;
+	}
+	
+	AbilitySystemComponent = Cast<UHTAbilitySystemComponent>(HTPlayerState->GetAbilitySystemComponent());
+	
+	// UE_LOG(LogTemp, Warning, TEXT("InitPlayer: %s"), *HTPlayerState->GetPlayerName());
+	AbilitySystemComponent->InitAbilityActorInfo(HTPlayerState, this);
+
+	// if there is an ongoing DeathEffect, remove it
+	if (AbilitySystemComponent->HasMatchingGameplayTag(DeadTag))
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(DeadTag));
+	}
+
+	InitializeAttributes();
+	AddOngoingEffects();
+	AddDefaultAbilities();
+}
+
 void AHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	InitPlayer();
 }
 
 void AHoverTank::UnPossessed()
@@ -315,6 +413,98 @@ void AHoverTank::UnPossessed()
 	}
 	
 	Super::UnPossessed();
+}
+
+void AHoverTank::InitializeAttributes()
+{
+	if (!IsValid(AbilitySystemComponent))
+	{
+		return;
+	}
+
+	if (!DefaultAttributes)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s() Missing DefaultAttributes for %s. Please fill in the character's Blueprint."), *FString(__FUNCTION__), *GetName());
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	// apply the default attributes, Tank is lvl 1, no lvl up in this game yet
+	FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, 1, EffectContext);
+	if (EffectSpecHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+}
+
+void AHoverTank::AddOngoingEffects()
+{
+	if (GetLocalRole() != ROLE_Authority || !IsValid(AbilitySystemComponent) || AbilitySystemComponent->bOngoingEffectsApplied)
+	{
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : OngoingEffects)
+	{
+		FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
+		if (EffectSpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+	}
+
+	AbilitySystemComponent->bOngoingEffectsApplied = true;
+}
+
+void AHoverTank::AddDefaultAbilities()
+{
+	if (HasAuthority() && !AbilitySystemComponent->bCharacterAbilitiesGiven)
+	{
+		// Give the player every ability in the DefaultAbilities array
+		for (TSubclassOf<UGameplayAbility> Ability : DefaultAbilities)
+		{
+			FGameplayAbilitySpecHandle AbilitySpecHandle = AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability, 0, -1)
+			);
+		}
+
+		AbilitySystemComponent->bCharacterAbilitiesGiven = true;
+	}
+}
+
+void AHoverTank::BindAbilitySystemComponentActions()
+{
+	if (bIsAbilitySystemComponentInputBound)
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("AbilitySystemComponent actions are already bound"));
+		return;
+	}
+	
+	if (!IsValid(AbilitySystemComponent))
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: AbilitySystemComponent is null"));
+		return;
+	}
+
+	if (!IsValid(InputComponent))
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("BindAbilitySystemComponentActions: InputComponent is null"));
+		return;
+	}
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComponent)
+	{
+		EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
+		EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityTwoStartedAction);
+	
+		bIsAbilitySystemComponentInputBound = true;	
+	}
 }
 
 void AHoverTank::MoveTriggered(const FInputActionValue& Value)
@@ -400,7 +590,7 @@ void AHoverTank::EBrakeCompleted()
 void AHoverTank::JumpTriggered()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
-	
+
 	if (bIsInputEnabled == false)
 	{
 		return;
@@ -499,6 +689,16 @@ void AHoverTank::ShowDebugActionStarted()
 	}
 }
 
+void AHoverTank::SuicideActionStarted()
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+	
+	ServerSuicide();
+}
+
 void AHoverTank::HandleCameraZoom(const float DeltaTime) const
 {
 	if (bIsZoomedIn)
@@ -561,18 +761,42 @@ void AHoverTank::DebugDrawPlayerTitle()
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
 
-	APlayerState* CurrentPlayerState = GetPlayerState();
-	FString PlayerName = CurrentPlayerState ? CurrentPlayerState->GetPlayerName() : "No Player State";
+	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
+	FString PlayerName = HTPlayerState ? HTPlayerState->GetPlayerName() : "No Player State";
 
-	if (CurrentPlayerState)
+	if (HTPlayerState)
 	{
-		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(CurrentPlayerState);
+		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(HTPlayerState);
 		if (InTeamPlayerState)
 		{
 			PlayerName += FString::Printf(TEXT(" (Team %d)"), InTeamPlayerState->GetTeamId());
 		}
 	}
 	
-	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, HP: %.0f"), *PlayerName, *RoleString,  HealthComponent->GetHealth());
+	FString DebugString = FString::Printf(TEXT("%s\nRole: %s, SH: %.0f / HP: %.0f"), *PlayerName, *RoleString, HTPlayerState->GetAttributeSetBase()->GetShield(), HTPlayerState->GetAttributeSetBase()->GetHealth());
 	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
+}
+
+void AHoverTank::AbilityOneStartedAction()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction"));
+
+	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
+	if (AbilitySpecs.Num() > 0)
+	{
+		// try to activate the first ability
+		AbilitySystemComponent->TryActivateAbility(AbilitySpecs[0].Handle, true);
+	}
+}
+
+void AHoverTank::AbilityTwoStartedAction()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AbilityTwoStartedAction"));
+
+	TArray<FGameplayAbilitySpec> AbilitySpecs = AbilitySystemComponent->GetActivatableAbilities();
+	if (AbilitySpecs.Num() > 0 && AbilitySpecs.IsValidIndex(1))
+	{
+		AbilitySystemComponent->TryActivateAbility(AbilitySpecs[1].Handle, true);
+	}
+	
 }
