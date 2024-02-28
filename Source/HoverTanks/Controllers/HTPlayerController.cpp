@@ -9,7 +9,7 @@
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
 #include "HoverTanks/Game/GameModes/HTGM_CanRequestRespawnInterface.h"
 #include "HoverTanks/Game/GameModes/HTGM_HandlesTankDeathInterface.h"
-#include "..\UI\HUD\HT_ScoringHUDInterface.h"
+#include "HoverTanks/UI/HUD/HT_ScoringHUDInterface.h"
 #include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 #include "InputAction.h"

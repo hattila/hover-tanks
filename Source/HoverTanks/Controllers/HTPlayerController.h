@@ -8,7 +8,7 @@
 #include "HTPlayerController.generated.h"
 
 class IHTGM_HandlesTankDeathInterface;
-class UDeathMatchScoreBoardWidget;
+class UHTDeathMatchScoreBoardWidget;
 class UInGameMenu;
 class UInputAction;
 class UInputMappingContext;

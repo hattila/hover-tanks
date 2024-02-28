@@ -1,27 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ScoreBoardWidget.h"
+#include "HTScoreBoardWidget.h"
 
-#include "PlayerScoreWidget.h"
+#include "HTPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 
-void UScoreBoardWidget::Setup()
+void UHTScoreBoardWidget::Setup()
 {
 	AddToViewport();
 
 	RefreshTimeLeft();
-	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UScoreBoardWidget::RefreshTimeLeft, 1, true);
+	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UHTScoreBoardWidget::RefreshTimeLeft, 1, true);
 }
 
-void UScoreBoardWidget::Teardown()
+void UHTScoreBoardWidget::Teardown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
 	RemoveFromParent();
 }
 
-void UScoreBoardWidget::RefreshTimeLeft()
+void UHTScoreBoardWidget::RefreshTimeLeft()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("widget is calling a timed function"));
 	
@@ -46,7 +46,7 @@ void UScoreBoardWidget::RefreshTimeLeft()
 	TimeLeft--;
 }
 
-void UScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
+void UHTScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	return;
 }

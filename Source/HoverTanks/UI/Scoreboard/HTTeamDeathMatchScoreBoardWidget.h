@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ScoreBoardWidget.h"
+#include "HTScoreBoardWidget.h"
 #include "Components/TextBlock.h"
 #include "HoverTanks/Game/HTPlayerScore.h"
-#include "TeamDeathMatchScoreBoardWidget.generated.h"
+#include "HTTeamDeathMatchScoreBoardWidget.generated.h"
 
 class UButton;
 class USpacer;
@@ -15,12 +15,12 @@ class UScrollBox;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UTeamDeathMatchScoreBoardWidget : public UScoreBoardWidget
+class HOVERTANKS_API UHTTeamDeathMatchScoreBoardWidget : public UHTScoreBoardWidget
 {
 	GENERATED_BODY()
 
 public:
-	UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
+	UHTTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
 
 	virtual bool Initialize() override;
 	

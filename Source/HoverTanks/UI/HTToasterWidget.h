@@ -6,14 +6,14 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/Throbber.h"
-#include "ToasterWidget.generated.h"
+#include "HTToasterWidget.generated.h"
 
 class UThrobber;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UToasterWidget : public UUserWidget
+class HOVERTANKS_API UHTToasterWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

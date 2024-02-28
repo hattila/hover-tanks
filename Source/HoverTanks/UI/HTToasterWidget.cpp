@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ToasterWidget.h"
+#include "HTToasterWidget.h"
 
-bool UToasterWidget::Initialize()
+bool UHTToasterWidget::Initialize()
 {
 	bool bIsSuccessful = Super::Initialize();
 	if (!bIsSuccessful)
@@ -14,12 +14,12 @@ bool UToasterWidget::Initialize()
 	PlayAnimation(ShowAnimation, 0.0f, 1, EUMGSequencePlayMode::Forward, 1.f);	
 	
 	FTimerHandle HideTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(HideTimerHandle, this, &UToasterWidget::HideDelayed, 5.f, false);
+	GetWorld()->GetTimerManager().SetTimer(HideTimerHandle, this, &UHTToasterWidget::HideDelayed, 5.f, false);
 
 	return true;
 }
 
-void UToasterWidget::HideDelayed()
+void UHTToasterWidget::HideDelayed()
 {
 	if (ShowAnimation != nullptr)
 	{
@@ -27,5 +27,5 @@ void UToasterWidget::HideDelayed()
 	}
 
 	FTimerHandle DestroyTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &UToasterWidget::RemoveFromParent, .5f, false);
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &UHTToasterWidget::RemoveFromParent, .5f, false);
 }

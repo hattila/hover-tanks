@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TeamDeathMatchScoreBoardWidget.h"
+#include "HTTeamDeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
-#include "PlayerScoreWidget.h"
+#include "HTPlayerScoreWidget.h"
 
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Components/Spacer.h"
 
-UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UHTTeamDeathMatchScoreBoardWidget::UHTTeamDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// initialize the player score class
 	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
@@ -22,7 +22,7 @@ UTeamDeathMatchScoreBoardWidget::UTeamDeathMatchScoreBoardWidget(const FObjectIn
 	PlayerScoreClass = PlayerScoreClassFinder.Class;
 }
 
-bool UTeamDeathMatchScoreBoardWidget::Initialize()
+bool UHTTeamDeathMatchScoreBoardWidget::Initialize()
 {
 	bool Success = Super::Initialize();
 	if (!Success)
@@ -35,13 +35,13 @@ bool UTeamDeathMatchScoreBoardWidget::Initialize()
 		return false;
 	}
 	
-	JoinTeam1->OnClicked.AddDynamic(this, &UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1);
-	JoinTeam2->OnClicked.AddDynamic(this, &UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2);
+	JoinTeam1->OnClicked.AddDynamic(this, &UHTTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1);
+	JoinTeam2->OnClicked.AddDynamic(this, &UHTTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2);
 
 	return true;
 }
 
-void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
+void UHTTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	if (PlayerScoreClass == nullptr || PlayerScoresBoxTeam1 == nullptr || PlayerScoresBoxTeam2 == nullptr)
 	{
@@ -58,7 +58,7 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayer
 	int32 i = 1;
 	for (FHTPlayerScore PlayerScore : InPlayerScores)
 	{
-		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		UHTPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UHTPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)
 		{
 			return;
@@ -92,7 +92,7 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayer
 	Team2Score->SetText(FText::FromString(FString::FromInt(Team2ScoreValue)));
 }
 
-bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized() const
+bool UHTTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized() const
 {
 	if (PlayerScoresBoxTeam1 == nullptr)
 	{
@@ -117,7 +117,7 @@ bool UTeamDeathMatchScoreBoardWidget::IsEveryElementInitialized() const
 	return true;
 }
 
-USpacer* UTeamDeathMatchScoreBoardWidget::CreateSpacerElement() const
+USpacer* UHTTeamDeathMatchScoreBoardWidget::CreateSpacerElement() const
 {
 	USpacer* Spacer = WidgetTree->ConstructWidget<USpacer>(USpacer::StaticClass());
 	Spacer->SetSize(FVector2d(1, 10));
@@ -125,7 +125,7 @@ USpacer* UTeamDeathMatchScoreBoardWidget::CreateSpacerElement() const
 	return Spacer;
 }
 
-void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam(const uint8 TeamId) const
+void UHTTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam(const uint8 TeamId) const
 {
 	if (!GetWorld())
 	{
@@ -141,12 +141,12 @@ void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam(const uint8 TeamId) cons
 	HoverTankPlayerController->ServerAttemptToJoinTeam(TeamId);
 }
 
-void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1()
+void UHTTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam1()
 {
 	AttemptToJoinTeam(1);
 }
 
-void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2()
+void UHTTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam2()
 {
 	AttemptToJoinTeam(2);
 }

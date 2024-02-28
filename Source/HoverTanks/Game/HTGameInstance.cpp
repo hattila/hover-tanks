@@ -8,7 +8,7 @@
 #include "OnlineSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "HoverTanks/MenuSystem/MainMenu.h"
-#include "HoverTanks/UI/ToasterWidget.h"
+#include "HoverTanks/UI/HTToasterWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 UHTGameInstance::UHTGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
@@ -195,7 +195,7 @@ void UHTGameInstance::JoinAvailableGame(uint32 Index)
 
 void UHTGameInstance::AddToastMessage(const FString& String, const bool bShowLoading)
 {
-	UToasterWidget* ToasterWidget = CreateWidget<UToasterWidget>(this, ToasterWidgetClass);
+	UHTToasterWidget* ToasterWidget = CreateWidget<UHTToasterWidget>(this, ToasterWidgetClass);
 	if (ToasterWidget)
 	{
 		ToasterWidget->SetAnchorsInViewport(FAnchors(0.1f, 0.85f, 0.9f, 0.9f));

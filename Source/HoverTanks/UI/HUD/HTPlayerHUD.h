@@ -9,7 +9,7 @@
 
 class AHTHoverTank;
 class UAbilitySystemComponent;
-class UScoreBoardWidget;
+class UHTScoreBoardWidget;
 class UHTHoverTankHUDWidget;
 class UHTDeathMatchPlayerHUDWidget;
 
@@ -62,7 +62,7 @@ protected:
 	TSubclassOf<UUserWidget> ScoreBoardClass;
 
 	UPROPERTY()
-	UScoreBoardWidget* ScoreBoardWidget = nullptr;
+	UHTScoreBoardWidget* ScoreBoardWidget = nullptr;
 
 private:
 	AGameStateBase* GetSafeGameState() const;

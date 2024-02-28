@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PlayerScoreWidget.generated.h"
+#include "HTPlayerScoreWidget.generated.h"
 
 class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UPlayerScoreWidget : public UUserWidget
+class HOVERTANKS_API UHTPlayerScoreWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ScoreBoardWidget.h"
+#include "HTScoreBoardWidget.h"
 #include "HoverTanks/Game/HTPlayerScore.h"
-#include "DeathMatchScoreBoardWidget.generated.h"
+#include "HTDeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
 class UTextBlock;
@@ -13,11 +13,11 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UScoreBoardWidget
+class HOVERTANKS_API UHTDeathMatchScoreBoardWidget : public UHTScoreBoardWidget
 {
 	GENERATED_BODY()
 public:
-	UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
+	UHTDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores) override;
 

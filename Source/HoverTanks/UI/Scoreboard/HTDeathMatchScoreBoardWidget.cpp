@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeathMatchScoreBoardWidget.h"
+#include "HTDeathMatchScoreBoardWidget.h"
 
 #include "Components/ScrollBox.h"
-#include "PlayerScoreWidget.h"
+#include "HTPlayerScoreWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Spacer.h"
 
-UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UHTDeathMatchScoreBoardWidget::UHTDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// initialize the player score class
 	static ConstructorHelpers::FClassFinder<UUserWidget> PlayerScoreClassFinder(
@@ -20,7 +20,7 @@ UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitialize
 	PlayerScoreClass = PlayerScoreClassFinder.Class;
 }
 
-void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
+void UHTDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
 	{
@@ -32,7 +32,7 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScor
 	int32 i = 1;
 	for (FHTPlayerScore PlayerScore : InPlayerScores)
 	{
-		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
+		UHTPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UHTPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)
 		{
 			return;

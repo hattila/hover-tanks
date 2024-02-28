@@ -5,7 +5,7 @@
 
 #include "HTHoverTankHUDWidget.h"
 #include "HTDeathMatchPlayerHUDWidget.h"
-#include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
+#include "HoverTanks/UI/Scoreboard/HTDeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
@@ -101,7 +101,7 @@ void AHTPlayerHUD::CreatePlayerHUD()
 
 	if (ScoreBoardWidget == nullptr)
 	{
-		ScoreBoardWidget = CreateWidget<UScoreBoardWidget>(GetOwningPlayerController(), ScoreBoardClass);
+		ScoreBoardWidget = CreateWidget<UHTScoreBoardWidget>(GetOwningPlayerController(), ScoreBoardClass);
 		ScoreBoardWidget->Setup();
 		ScoreBoardWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
