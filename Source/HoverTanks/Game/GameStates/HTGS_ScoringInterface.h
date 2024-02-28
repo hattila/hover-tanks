@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "HTGS_ScoringInterface.generated.h"
 
-struct FPlayerScore;
+struct FHTPlayerScore;
 
 UINTERFACE()
 class UHTGS_ScoringInterface : public UInterface
@@ -25,6 +25,6 @@ public:
 	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) = 0;
 	virtual void RemovePlayersScore(const FString& PlayerName) = 0;
 	
-	virtual TArray<FPlayerScore> GetPlayerScores() const = 0;
+	virtual TArray<FHTPlayerScore> GetPlayerScores() const = 0;
 	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd) = 0;
 };

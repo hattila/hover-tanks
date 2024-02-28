@@ -46,7 +46,7 @@ void UScoreBoardWidget::RefreshTimeLeft()
 	TimeLeft--;
 }
 
-void UScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
+void UScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	return;
 }

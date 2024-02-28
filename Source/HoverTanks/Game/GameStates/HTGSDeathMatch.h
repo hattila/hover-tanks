@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/Game/HTPlayerScore.h"
 #include "HTGS_ScoringInterface.h"
 
 #include "CoreMinimal.h"
@@ -28,7 +28,7 @@ public:
 	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) override;
 	virtual void RemovePlayersScore(const FString& PlayerName) override;
 
-	virtual TArray<FPlayerScore> GetPlayerScores() const override { return PlayerScores; }
+	virtual TArray<FHTPlayerScore> GetPlayerScores() const override { return PlayerScores; }
 	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd) override;
 	// ~IHTGS_ScoringInterface
 
@@ -39,7 +39,7 @@ public:
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
-	TArray<FPlayerScore> PlayerScores;
+	TArray<FHTPlayerScore> PlayerScores;
 
 	UPROPERTY(Replicated)
 	int32 TimeRemainingInSeconds;

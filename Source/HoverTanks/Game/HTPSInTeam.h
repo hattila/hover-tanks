@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "HTPlayerState.h"
-#include "InTeamPlayerState.generated.h"
+#include "HTPSInTeam.generated.h"
 
 // define a delegate with one param
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTeamIdChanged, int8, NewTeamId);
@@ -14,7 +14,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTeamIdChanged, int8, NewTeamId);
  * 
  */
 UCLASS()
-class HOVERTANKS_API AInTeamPlayerState : public AHTPlayerState
+class HOVERTANKS_API AHTPSInTeam : public AHTPlayerState
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,7 @@ public:
 	FOnTeamIdChanged OnTeamIdChanged;
 	
 	// constructor
-	AInTeamPlayerState();
+	AHTPSInTeam();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

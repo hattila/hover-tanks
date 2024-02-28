@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ScoreBoardWidget.h"
-#include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/Game/HTPlayerScore.h"
 #include "DeathMatchScoreBoardWidget.generated.h"
 
 class UScrollBox;
@@ -19,7 +19,7 @@ class HOVERTANKS_API UDeathMatchScoreBoardWidget : public UScoreBoardWidget
 public:
 	UDeathMatchScoreBoardWidget(const FObjectInitializer& ObjectInitializer);
 	
-	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
+	virtual void RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores) override;
 
 private:
 	UPROPERTY(meta = (BindWidget))

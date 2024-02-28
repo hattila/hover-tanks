@@ -5,7 +5,7 @@
 
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
-#include "GameModes\HTGM_HandlesTankDeathInterface.h"
+#include "HoverTanks/Game/GameModes/HTGM_HandlesTankDeathInterface.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 

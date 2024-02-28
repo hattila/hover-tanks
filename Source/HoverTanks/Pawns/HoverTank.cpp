@@ -7,7 +7,7 @@
 #include "HoverTanks/Components/HTMovementReplicatorComponent.h"
 #include "HoverTanks/Components/HTTankEffectsComponent.h"
 #include "HoverTanks/Components/HTWeaponsComponent.h"
-#include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/HTPlayerState.h"
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTGameplayAbility.h"
@@ -766,7 +766,7 @@ void AHoverTank::DebugDrawPlayerTitle()
 
 	if (HTPlayerState)
 	{
-		AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(HTPlayerState);
+		AHTPSInTeam* InTeamPlayerState = Cast<AHTPSInTeam>(HTPlayerState);
 		if (InTeamPlayerState)
 		{
 			PlayerName += FString::Printf(TEXT(" (Team %d)"), InTeamPlayerState->GetTeamId());

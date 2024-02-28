@@ -3,14 +3,14 @@
 
 #include "HTGMTeamDeathMatch.h"
 
-#include "..\GameStates\HTGSTeamDeathMatch.h"
+#include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
+#include "HoverTanks/Game/HTPSInTeam.h"
+#include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
-#include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
-#include "..\Teams\HTTeamDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 
 AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
@@ -30,7 +30,7 @@ AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
 		SpawnPoints.Add(Cast<APlayerStart>(SpawnPoint));
 	}
 
-	PlayerStateClass = AInTeamPlayerState::StaticClass();
+	PlayerStateClass = AHTPSInTeam::StaticClass();
 	GameStateClass = AHTGSTeamDeathMatch::StaticClass();
 	HUDClass = AHTTeamDeathMatchHUD::StaticClass();
 }
@@ -81,7 +81,7 @@ void AHTGMTeamDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
 			AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
 
-			const AInTeamPlayerState* TeamPlayerState = InPlayerController->GetPlayerState<AInTeamPlayerState>();
+			const AHTPSInTeam* TeamPlayerState = InPlayerController->GetPlayerState<AHTPSInTeam>();
 			IHasTeamColors* TeamColoredPawn = Cast<IHasTeamColors>(NewHoverTank);
 			if (TeamPlayerState && TeamColoredPawn)
 			{
@@ -111,7 +111,7 @@ void AHTGMTeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	AInTeamPlayerState* PlayerState = NewPlayer->GetPlayerState<AInTeamPlayerState>();
+	AHTPSInTeam* PlayerState = NewPlayer->GetPlayerState<AHTPSInTeam>();
 
 	AHTGSTeamDeathMatch* TeamGameState = Cast<AHTGSTeamDeathMatch>(GameState);
 	if (TeamGameState)
@@ -136,8 +136,8 @@ void AHTGMTeamDeathMatch::SomeoneKilledSomeone(AController* KillerController, AC
 	FLinearColor VictimTeamColor;
 	
 	// find the team colors
-	const AInTeamPlayerState* KillerTeamPlayerState = Cast<AInTeamPlayerState>(KillerController->PlayerState);
-	const AInTeamPlayerState* VictimTeamPlayerState = Cast<AInTeamPlayerState>(VictimController->PlayerState);
+	const AHTPSInTeam* KillerTeamPlayerState = Cast<AHTPSInTeam>(KillerController->PlayerState);
+	const AHTPSInTeam* VictimTeamPlayerState = Cast<AHTPSInTeam>(VictimController->PlayerState);
 	const AHTGSTeamDeathMatch* TeamDeathMatchGameState = GetGameState<AHTGSTeamDeathMatch>();
 
 	if (KillerTeamPlayerState && VictimTeamPlayerState && TeamDeathMatchGameState)

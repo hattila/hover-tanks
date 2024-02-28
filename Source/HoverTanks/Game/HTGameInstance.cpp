@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HoverTanksGameInstance.h"
+#include "HTGameInstance.h"
 
 #include "OnlineSessionSettings.h"
 #include "Interfaces/OnlineSessionInterface.h"
@@ -11,7 +11,7 @@
 #include "HoverTanks/UI/ToasterWidget.h"
 #include "Kismet/GameplayStatics.h"
 
-UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
+UHTGameInstance::UHTGameInstance(const FObjectInitializer& ObjectInitializer): MainMenu(nullptr)
 {
 	// load MainMenuClass
 	static ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/HoverTanks/Menu/WBP_MainMenu"));
@@ -32,28 +32,28 @@ UHoverTanksGameInstance::UHoverTanksGameInstance(const FObjectInitializer& Objec
 	ToasterWidgetClass = ToasterWidgetBPClass.Class;
 }
 
-void UHoverTanksGameInstance::Init()
+void UHTGameInstance::Init()
 {
 	Super::Init(); // without this call, widgets cannot initialize and the menu will not show
 	
-	// UE_LOG(LogTemp, Warning, TEXT("Initializing HoverTanksGameInstance"));
+	// UE_LOG(LogTemp, Warning, TEXT("Initializing UHTGameInstance"));
 	
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 
 	SessionInterface = Subsystem->GetSessionInterface();
 	if (SessionInterface.IsValid())
 	{
-		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnCreateSessionComplete);
-		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnDestroySessionComplete);
-		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnFindSessionsComplete);
-		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UHoverTanksGameInstance::OnJoinSessionComplete);
+		SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UHTGameInstance::OnCreateSessionComplete);
+		SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UHTGameInstance::OnDestroySessionComplete);
+		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UHTGameInstance::OnFindSessionsComplete);
+		SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UHTGameInstance::OnJoinSessionComplete);
 
-		SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UHoverTanksGameInstance::OnSessionUserInviteAccepted);
+		SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UHTGameInstance::OnSessionUserInviteAccepted);
 	}
 	
 }
 
-void UHoverTanksGameInstance::ShowMainMenu()
+void UHTGameInstance::ShowMainMenu()
 {
 	if (MainMenuClass == nullptr)
 	{
@@ -70,7 +70,7 @@ void UHoverTanksGameInstance::ShowMainMenu()
 	MainMenu->Setup();
 }
 
-void UHoverTanksGameInstance::Host()
+void UHTGameInstance::Host()
 {
 	if (SessionInterface.IsValid())
 	{
@@ -86,7 +86,7 @@ void UHoverTanksGameInstance::Host()
 	}
 }
 
-void UHoverTanksGameInstance::Join(const FString& Address)
+void UHTGameInstance::Join(const FString& Address)
 {
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (PlayerController)
@@ -99,7 +99,7 @@ void UHoverTanksGameInstance::Join(const FString& Address)
  * Console command
  * @param InInputMode - "GameAndUI" or "GameOnly" or "UIOnly"
  */
-void UHoverTanksGameInstance::InputMode(const FString& InInputMode)
+void UHTGameInstance::InputMode(const FString& InInputMode)
 {
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!PlayerController)
@@ -135,7 +135,7 @@ void UHoverTanksGameInstance::InputMode(const FString& InInputMode)
 	UE_LOG(LogTemp, Warning, TEXT("InputMode: given input mode does not exist: %s, try GameOnly, GameAndUI or UIOnly"), *InInputMode);
 }
 
-void UHoverTanksGameInstance::HostGame(const FHostGameSettings& InHostGameSettings)
+void UHTGameInstance::HostGame(const FHostGameSettings& InHostGameSettings)
 {
 	HostGameSettings.MapName = InHostGameSettings.MapName;
 	HostGameSettings.GameModeName = InHostGameSettings.GameModeName;
@@ -144,7 +144,7 @@ void UHoverTanksGameInstance::HostGame(const FHostGameSettings& InHostGameSettin
 	Host();
 }
 
-void UHoverTanksGameInstance::RefreshServerList()
+void UHTGameInstance::RefreshServerList()
 {
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
 	if (SessionSearch.IsValid())
@@ -164,7 +164,7 @@ void UHoverTanksGameInstance::RefreshServerList()
 	AddToastMessage(TEXT("Finding Servers"), true);
 }
 
-void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
+void UHTGameInstance::JoinAvailableGame(uint32 Index)
 {
 	if (!SessionInterface.IsValid())
 	{
@@ -193,7 +193,7 @@ void UHoverTanksGameInstance::JoinAvailableGame(uint32 Index)
 	AddToastMessage(FString::Printf(TEXT("Joining game of %s"), *SessionSearch->SearchResults[Index].Session.OwningUserName), true);
 }
 
-void UHoverTanksGameInstance::AddToastMessage(const FString& String, const bool bShowLoading)
+void UHTGameInstance::AddToastMessage(const FString& String, const bool bShowLoading)
 {
 	UToasterWidget* ToasterWidget = CreateWidget<UToasterWidget>(this, ToasterWidgetClass);
 	if (ToasterWidget)
@@ -206,7 +206,7 @@ void UHoverTanksGameInstance::AddToastMessage(const FString& String, const bool 
 	}
 }
 
-void UHoverTanksGameInstance::StartCreateSession()
+void UHTGameInstance::StartCreateSession()
 {
 	if (SessionInterface.IsValid())
 	{
@@ -248,7 +248,7 @@ void UHoverTanksGameInstance::StartCreateSession()
 	}
 }
 
-void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+void UHTGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
 	{
@@ -292,12 +292,12 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	UGameplayStatics::OpenLevel(World, FName(*MapName), true, ServerTravelURL);
 }
 
-void UHoverTanksGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
+void UHTGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	UE_LOG(LogTemp, Warning, TEXT("OnDestroySessionComplete was %s"), bWasSuccessful ? TEXT("successful") : TEXT("unsuccessful"));
 }
 
-void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
+void UHTGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 {
 	// add an on screen debug message
 	if (GEngine)
@@ -345,7 +345,7 @@ void UHoverTanksGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 	}
 }
 
-void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+void UHTGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
 	if (!SessionInterface.IsValid())
 	{
@@ -377,7 +377,7 @@ void UHoverTanksGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSe
 /**
  * @see https://www.reddit.com/r/unrealengine/comments/wprvfy/unreal_steam_join_game_setup_how_does_it_work/
  */
-void UHoverTanksGameInstance::OnSessionUserInviteAccepted(bool bWasSuccess, int ControllerId, TSharedPtr<const FUniqueNetId> UserId, const FOnlineSessionSearchResult& InviteResult)
+void UHTGameInstance::OnSessionUserInviteAccepted(bool bWasSuccess, int ControllerId, TSharedPtr<const FUniqueNetId> UserId, const FOnlineSessionSearchResult& InviteResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attempting to join with User Invite"));
 	

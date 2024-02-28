@@ -3,9 +3,9 @@
 
 #include "HTGSTeamDeathMatch.h"
 
-#include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/Teams/HTTeam.h"
-#include "..\Teams\HTTeamDataAsset.h"
+#include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
 AHTGSTeamDeathMatch::AHTGSTeamDeathMatch()
 {
@@ -26,7 +26,7 @@ AHTGSTeamDeathMatch::AHTGSTeamDeathMatch()
 
 void AHTGSTeamDeathMatch::InitializeNewPlayerScore(const APlayerController* NewPlayer)
 {
-	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(NewPlayer->PlayerState);
+	AHTPSInTeam* InTeamPlayerState = Cast<AHTPSInTeam>(NewPlayer->PlayerState);
 	if (!InTeamPlayerState)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is not InTeamPlayerState"));
@@ -46,7 +46,7 @@ void AHTGSTeamDeathMatch::InitializeNewPlayerScore(const APlayerController* NewP
 		}
 	}
 	
-	FPlayerScore PlayerScore;
+	FHTPlayerScore PlayerScore;
 	PlayerScore.PlayerName = InTeamPlayerState->GetPlayerName();
 	PlayerScore.Score = 0;
 	PlayerScore.TeamId = InTeamPlayerState->GetTeamId();
@@ -58,7 +58,7 @@ void AHTGSTeamDeathMatch::InitializeNewPlayerScore(const APlayerController* NewP
 
 void AHTGSTeamDeathMatch::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
 {
-	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(PlayerController->PlayerState);
+	AHTPSInTeam* InTeamPlayerState = Cast<AHTPSInTeam>(PlayerController->PlayerState);
 	if (!InTeamPlayerState)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer : PlayerState is not InTeamPlayerState"));
@@ -107,14 +107,14 @@ void AHTGSTeamDeathMatch::AssignPlayersToTeams()
 	// for each connected player, cast their player state to InTeamPlayerState, and assign them to a team
 	for (APlayerState* PS : PlayerArray)
 	{
-		if (AInTeamPlayerState* InTeamPS = Cast<AInTeamPlayerState>(PS))
+		if (AHTPSInTeam* InTeamPS = Cast<AHTPSInTeam>(PS))
 		{
 			AssignPlayerToLeastPopulatedTeam(InTeamPS);
 		}
 	}
 }
 
-bool AHTGSTeamDeathMatch::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState)
+bool AHTGSTeamDeathMatch::AssignPlayerToLeastPopulatedTeam(AHTPSInTeam* PlayerState)
 {
 	int8 LeastPopulatedTeamId = GetLeastPopulatedTeamId();
 	if (LeastPopulatedTeamId == INDEX_NONE)
@@ -125,7 +125,7 @@ bool AHTGSTeamDeathMatch::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* P
 	return AssignPlayerToTeam(PlayerState, LeastPopulatedTeamId);
 }
 
-bool AHTGSTeamDeathMatch::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId)
+bool AHTGSTeamDeathMatch::AssignPlayerToTeam(AHTPSInTeam* TeamPlayerState, int8 TeamId)
 {
 	if (!HasAuthority())
 	{
@@ -145,8 +145,8 @@ bool AHTGSTeamDeathMatch::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState
 
 bool AHTGSTeamDeathMatch::AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2)
 {
-	const AInTeamPlayerState* PlayerState1 = PlayerController1->GetPlayerState<AInTeamPlayerState>();
-	const AInTeamPlayerState* PlayerState2 = PlayerController2->GetPlayerState<AInTeamPlayerState>();
+	const AHTPSInTeam* PlayerState1 = PlayerController1->GetPlayerState<AHTPSInTeam>();
+	const AHTPSInTeam* PlayerState2 = PlayerController2->GetPlayerState<AHTPSInTeam>();
 
 	if (PlayerState1 && PlayerState2)
 	{
@@ -171,7 +171,7 @@ void AHTGSTeamDeathMatch::BeginPlay()
 	// // foreach player state, cast to InTeamPlayerState and subscribe to OnTeamIdChanged
 	// for (APlayerState* PS : PlayerArray)
 	// {
-	// 	if (AInTeamPlayerState* InTeamPS = Cast<AInTeamPlayerState>(PS))
+	// 	if (AHTPSInTeam* InTeamPS = Cast<AHTPSInTeam>(PS))
 	// 	{
 	// 		InTeamPS->OnTeamIdChanged.AddDynamic(this, &ATeamDeathMatchGameState::HandleTeamIdChanged);
 	// 	}
@@ -212,7 +212,7 @@ int8 AHTGSTeamDeathMatch::GetLeastPopulatedTeamId() const
 	// for all connected players cast their player state to InTeamPlayerState, check team id, and increment the count for that team
 	for (APlayerState* PS : PlayerArray)
 	{
-		if (const AInTeamPlayerState* InTeamPS = Cast<AInTeamPlayerState>(PS))
+		if (const AHTPSInTeam* InTeamPS = Cast<AHTPSInTeam>(PS))
 		{
 			const int8 PlayerTeamId = InTeamPS->GetTeamId();
 			if (PlayerTeamId != INDEX_NONE)

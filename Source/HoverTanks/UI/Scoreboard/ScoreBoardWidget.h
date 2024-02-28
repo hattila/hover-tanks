@@ -6,11 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "UObject/Interface.h"
-#include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/Game/HTPlayerScore.h"
 #include "HoverTanks/MenuSystem/OpenableMenu.h"
 #include "ScoreBoardWidget.generated.h"
 
-struct FPlayerScore;
+struct FHTPlayerScore;
 class UScrollBox;
 class UTextBlock;
 
@@ -32,7 +32,7 @@ public:
 	
 	virtual void RefreshTimeLeft();
 
-	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores);
+	virtual void RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores);
 
 protected:
 	UPROPERTY(meta = (BindWidget))

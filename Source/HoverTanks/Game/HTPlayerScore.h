@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 
-#include "PlayerScore.generated.h"
+#include "HTPlayerScore.generated.h"
 
 USTRUCT()
-struct FPlayerScore
+struct FHTPlayerScore
 {
 	GENERATED_BODY()
 

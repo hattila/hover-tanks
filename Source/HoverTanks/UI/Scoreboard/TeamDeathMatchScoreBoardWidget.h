@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "ScoreBoardWidget.h"
 #include "Components/TextBlock.h"
-#include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/Game/HTPlayerScore.h"
 #include "TeamDeathMatchScoreBoardWidget.generated.h"
 
 class UButton;
@@ -24,7 +24,7 @@ public:
 
 	virtual bool Initialize() override;
 	
-	virtual void RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores) override;
+	virtual void RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores) override;
 
 protected:
 	virtual bool IsEveryElementInitialized() const override;

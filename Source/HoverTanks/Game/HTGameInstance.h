@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MultiplayerGameControls.h"
+#include "HTGI_MultiplayerGameControlsInterface.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "UObject/Object.h"
-#include "HoverTanksGameInstance.generated.h"
+#include "HTGameInstance.generated.h"
 
 class UMainMenu;
 
@@ -16,12 +16,12 @@ const static FName GHover_Tanks_Session_Name = TEXT("My Hover Tanks Game Session
  * 
  */
 UCLASS()
-class HOVERTANKS_API UHoverTanksGameInstance : public UGameInstance, public IMultiplayerGameControls
+class HOVERTANKS_API UHTGameInstance : public UGameInstance, public IHTGI_MultiplayerGameControlsInterface
 {
 	GENERATED_BODY()
 
 public:
-	UHoverTanksGameInstance(const FObjectInitializer& ObjectInitializer);
+	UHTGameInstance(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void Init();
 

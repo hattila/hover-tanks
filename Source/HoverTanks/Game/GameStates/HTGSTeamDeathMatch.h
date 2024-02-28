@@ -7,7 +7,7 @@
 #include "CoreMinimal.h"
 #include "HTGSTeamDeathMatch.generated.h"
 
-class AInTeamPlayerState;
+class AHTPSInTeam;
 class UHTTeamDataAsset;
 class AHTTeam;
 /**
@@ -29,8 +29,8 @@ public:
 	void CreateTeams();
 	void AssignPlayersToTeams();
 
-	bool AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState);
-	bool AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId);
+	bool AssignPlayerToLeastPopulatedTeam(AHTPSInTeam* PlayerState);
+	bool AssignPlayerToTeam(AHTPSInTeam* TeamPlayerState, int8 TeamId);
 
 	UHTTeamDataAsset* GetTeamDataAsset(const int8 TeamId) const { return TeamsToCreate.FindRef(TeamId); }
 	

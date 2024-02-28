@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HostGameMenu.generated.h"
 
-class IMultiplayerGameControls;
+class IHTGI_MultiplayerGameControlsInterface;
 class UButton;
 class UComboBoxString;
 /**
@@ -21,10 +21,10 @@ public:
 	UFUNCTION()
 	virtual bool Initialize() override;
 
-	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
+	void SetMultiplayerGameControls(IHTGI_MultiplayerGameControlsInterface* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
 
 private:
-	IMultiplayerGameControls* MultiplayerGameControls;
+	IHTGI_MultiplayerGameControlsInterface* MultiplayerGameControls;
 	
 	UPROPERTY(meta = (BindWidget))
 	UComboBoxString* MapSelection;

@@ -8,12 +8,12 @@
 #include "MainMenu.generated.h"
 
 
-class IMultiplayerGameControls;
+class IHTGI_MultiplayerGameControlsInterface;
 struct FAvailableGame;
 
 class UThrobber;
 class UServerRow;
-class UHoverTanksGameInstance;
+class UHTGameInstance;
 class UWidgetSwitcher;
 class UButton;
 
@@ -27,7 +27,7 @@ class HOVERTANKS_API UMainMenu : public UOpenableMenu
 
 public:
 	explicit UMainMenu(const FObjectInitializer& ObjectInitializer);
-	void SetMultiplayerGameControls(IMultiplayerGameControls* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
+	void SetMultiplayerGameControls(IHTGI_MultiplayerGameControlsInterface* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
 
 	virtual bool Initialize() override;
 	virtual void Setup() override;
@@ -43,7 +43,7 @@ protected:
 	virtual bool IsEveryElementInitialized() const override;
 	
 private:
-	IMultiplayerGameControls* MultiplayerGameControls = nullptr;
+	IHTGI_MultiplayerGameControlsInterface* MultiplayerGameControls = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
 	UButton* HostButton = nullptr;

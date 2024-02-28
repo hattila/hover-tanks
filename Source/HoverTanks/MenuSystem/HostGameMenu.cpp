@@ -5,7 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
-#include "HoverTanks/Game/HoverTanksGameInstance.h"
+#include "HoverTanks/Game/HTGameInstance.h"
 
 bool UHostGameMenu::Initialize()
 {

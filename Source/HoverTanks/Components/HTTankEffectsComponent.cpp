@@ -6,7 +6,7 @@
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "..\Game\Teams\HTTeamDataAsset.h"
+#include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
 #include "NiagaraComponent.h"
 #include "Components/RectLightComponent.h"

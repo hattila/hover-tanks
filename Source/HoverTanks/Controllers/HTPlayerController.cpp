@@ -5,7 +5,7 @@
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
-#include "HoverTanks/Game/InTeamPlayerState.h"
+#include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
 #include "HoverTanks/Game/GameModes/HTGM_CanRequestRespawnInterface.h"
 #include "HoverTanks/Game/GameModes/HTGM_HandlesTankDeathInterface.h"
@@ -66,7 +66,7 @@ void AHTPlayerController::BeginPlay()
 	/**
 	 * Listen to team changes on a team game.
 	 */
-	AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+	AHTPSInTeam* TeamPlayerState = GetPlayerState<AHTPSInTeam>();
 	if (!TeamPlayerState)
 	{
 		FString RoleString;
@@ -168,7 +168,7 @@ void AHTPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
 	AHTGSTeamDeathMatch* GameState = GetWorld()->GetGameState<AHTGSTeamDeathMatch>();
 	if (GameState)
 	{
-		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
+		AHTPSInTeam* TeamPlayerState = GetPlayerState<AHTPSInTeam>();
 		if (TeamPlayerState == nullptr)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("AHTPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));

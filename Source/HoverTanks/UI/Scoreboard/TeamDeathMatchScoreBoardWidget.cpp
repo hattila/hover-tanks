@@ -41,7 +41,7 @@ bool UTeamDeathMatchScoreBoardWidget::Initialize()
 	return true;
 }
 
-void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
+void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	if (PlayerScoreClass == nullptr || PlayerScoresBoxTeam1 == nullptr || PlayerScoresBoxTeam2 == nullptr)
 	{
@@ -56,7 +56,7 @@ void UTeamDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerSc
 	int32 Team2ScoreValue = 0;
 
 	int32 i = 1;
-	for (FPlayerScore PlayerScore : InPlayerScores)
+	for (FHTPlayerScore PlayerScore : InPlayerScores)
 	{
 		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)

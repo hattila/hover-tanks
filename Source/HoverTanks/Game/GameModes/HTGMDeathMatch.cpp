@@ -3,7 +3,7 @@
 
 #include "HTGMDeathMatch.h"
 
-#include "..\GameStates\HTGSDeathMatch.h"
+#include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"

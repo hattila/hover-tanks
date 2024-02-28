@@ -3,7 +3,7 @@
 
 #include "HTGSDeathMatch.h"
 
-#include "HoverTanks/Game/PlayerScore.h"
+#include "HoverTanks/Game/HTPlayerScore.h"
 #include "HoverTanks/Controllers/HTHasScoreBoardInterface.h"
 
 #include "GameFramework/PlayerState.h"
@@ -28,7 +28,7 @@ void AHTGSDeathMatch::InitializeNewPlayerScore(const APlayerController* NewPlaye
 		}
 	}
 	
-	FPlayerScore PlayerScore;
+	FHTPlayerScore PlayerScore;
 	PlayerScore.PlayerName = NewPlayer->PlayerState->GetPlayerName();
 	PlayerScore.Score = 0;
 
@@ -67,7 +67,7 @@ void AHTGSDeathMatch::AddScoreToPlayer(const APlayerController* PlayerController
 	}
 
 	// sort the scores array by score descending
-	PlayerScores.Sort([](const FPlayerScore& PlayerScoreA, const FPlayerScore& PlayerScoreB)
+	PlayerScores.Sort([](const FHTPlayerScore& PlayerScoreA, const FHTPlayerScore& PlayerScoreB)
 	{
 		return PlayerScoreA.Score >= PlayerScoreB.Score;
 	});

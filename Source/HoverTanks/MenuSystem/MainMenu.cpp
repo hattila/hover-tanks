@@ -4,7 +4,7 @@
 
 #include "HostGameMenu.h"
 #include "ServerRow.h"
-#include "HoverTanks/Game/HoverTanksGameInstance.h"
+#include "HoverTanks/Game/HTGameInstance.h"
 
 #include "UObject/ConstructorHelpers.h"
 #include "Components/WidgetSwitcher.h"

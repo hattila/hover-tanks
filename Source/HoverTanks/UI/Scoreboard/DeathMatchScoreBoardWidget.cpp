@@ -20,7 +20,7 @@ UDeathMatchScoreBoardWidget::UDeathMatchScoreBoardWidget(const FObjectInitialize
 	PlayerScoreClass = PlayerScoreClassFinder.Class;
 }
 
-void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>& InPlayerScores)
+void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FHTPlayerScore>& InPlayerScores)
 {
 	if (PlayerScoreClass == nullptr || PlayerScoresBox == nullptr)
 	{
@@ -30,7 +30,7 @@ void UDeathMatchScoreBoardWidget::RefreshPlayerScores(const TArray<FPlayerScore>
 	PlayerScoresBox->ClearChildren();
 
 	int32 i = 1;
-	for (FPlayerScore PlayerScore : InPlayerScores)
+	for (FHTPlayerScore PlayerScore : InPlayerScores)
 	{
 		UPlayerScoreWidget* PlayerScoreWidget = CreateWidget<UPlayerScoreWidget>(GetWorld(), PlayerScoreClass);
 		if (!PlayerScoreWidget)

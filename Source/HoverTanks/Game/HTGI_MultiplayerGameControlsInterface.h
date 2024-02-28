@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "MultiplayerGameControls.generated.h"
+#include "HTGI_MultiplayerGameControlsInterface.generated.h"
 
 USTRUCT()
 struct FHostGameSettings
@@ -50,7 +50,7 @@ struct FAvailableGame
 
 // This class does not need to be modified.
 UINTERFACE()
-class UMultiplayerGameControls : public UInterface
+class UHTGI_MultiplayerGameControlsInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -58,7 +58,7 @@ class UMultiplayerGameControls : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IMultiplayerGameControls
+class HOVERTANKS_API IHTGI_MultiplayerGameControlsInterface
 {
 	GENERATED_BODY()
 
