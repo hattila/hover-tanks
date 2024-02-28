@@ -4,7 +4,7 @@
 #include "DeathMatchGameState.h"
 
 #include "HoverTanks/Game/PlayerScore.h"
-#include "HoverTanks/Controllers/HasScoreBoardController.h"
+#include "HoverTanks/Controllers/HTHasScoreBoardInterface.h"
 
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
@@ -84,7 +84,7 @@ void ADeathMatchGameState::OnRep_PlayerScores()
 		
 		// UE_LOG(LogTemp, Warning, TEXT("OnScoresChanged is going to be called on, %s"), *PlayerName);
 
-		if (IHasScoreBoardController* ControllerWithScoreBoard = Cast<IHasScoreBoardController>(PlayerController))
+		if (IHTHasScoreBoardInterface* ControllerWithScoreBoard = Cast<IHTHasScoreBoardInterface>(PlayerController))
 		{
 			ControllerWithScoreBoard->ClientOnScoresChanged();
 		}

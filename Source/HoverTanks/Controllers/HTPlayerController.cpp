@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HoverTankPlayerController.h"
+#include "HTPlayerController.h"
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
@@ -17,7 +17,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 
-AHoverTankPlayerController::AHoverTankPlayerController()
+AHTPlayerController::AHTPlayerController()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuClassFinder(TEXT("/Game/HoverTanks/Menu/WBP_InGameMenu"));
 	if (InGameMenuClassFinder.Succeeded())
@@ -50,7 +50,7 @@ AHoverTankPlayerController::AHoverTankPlayerController()
 	}
 }
 
-void AHoverTankPlayerController::BeginPlay()
+void AHTPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -71,18 +71,18 @@ void AHoverTankPlayerController::BeginPlay()
 		FString RoleString;
 		UEnum::GetValueAsString(GetLocalRole(), RoleString);
 
-		UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::BeginPlay, role %s, no team player state"), *RoleString);
+		UE_LOG(LogTemp, Warning, TEXT("AHTPlayerController::BeginPlay, role %s, no team player state"), *RoleString);
 		return;
 	}
 	
-	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ApplyTeamColorToPawn);
-	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard);
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHTPlayerController::ApplyTeamColorToPawn);
+	TeamPlayerState->OnTeamIdChanged.AddDynamic(this, &AHTPlayerController::ServerRefreshMeOnTheScoreBoard);
 
 	ApplyTeamColorToPawn(TeamPlayerState->GetTeamId());
 	ServerRefreshMeOnTheScoreBoard(TeamPlayerState->GetTeamId());
 }
 
-void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AHTPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
@@ -92,7 +92,7 @@ void AHoverTankPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReaso
 	}
 }
 
-void AHoverTankPlayerController::ClientCreatePlayerHUD_Implementation()
+void AHTPlayerController::ClientCreatePlayerHUD_Implementation()
 {
 	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
 	if (HUD)
@@ -101,7 +101,7 @@ void AHoverTankPlayerController::ClientCreatePlayerHUD_Implementation()
 	}
 }
 
-void AHoverTankPlayerController::ClientCreateTankHUD_Implementation(APawn* InPawn)
+void AHTPlayerController::ClientCreateTankHUD_Implementation(APawn* InPawn)
 {
 	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
 	AHoverTank* HoverTank = Cast<AHoverTank>(InPawn);
@@ -111,7 +111,7 @@ void AHoverTankPlayerController::ClientCreateTankHUD_Implementation(APawn* InPaw
 	}
 }
 
-void AHoverTankPlayerController::SetupInputComponent()
+void AHTPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
@@ -124,13 +124,13 @@ void AHoverTankPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-		EnhancedInputComponent->BindAction(OpenInGameMenuAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::OpenInGameMenuActionStarted);
-		EnhancedInputComponent->BindAction(OpenScoreBoardAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::OpenScoreBoardActionStarted);
-		EnhancedInputComponent->BindAction(RequestRespawnAction, ETriggerEvent::Started, this, &AHoverTankPlayerController::RequestRespawnActionStarted);
+		EnhancedInputComponent->BindAction(OpenInGameMenuAction, ETriggerEvent::Started, this, &AHTPlayerController::OpenInGameMenuActionStarted);
+		EnhancedInputComponent->BindAction(OpenScoreBoardAction, ETriggerEvent::Started, this, &AHTPlayerController::OpenScoreBoardActionStarted);
+		EnhancedInputComponent->BindAction(RequestRespawnAction, ETriggerEvent::Started, this, &AHTPlayerController::RequestRespawnActionStarted);
 	}
 }
 
-void AHoverTankPlayerController::ClientOnScoresChanged_Implementation()
+void AHTPlayerController::ClientOnScoresChanged_Implementation()
 {
 	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
 
@@ -142,7 +142,7 @@ void AHoverTankPlayerController::ClientOnScoresChanged_Implementation()
 	HUD->RefreshPlayerScores();
 }
 
-void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
+void AHTPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
 	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
 
@@ -154,15 +154,15 @@ void AHoverTankPlayerController::ClientForceOpenScoreBoard_Implementation(int32 
 	HUD->ForceOpenScoreBoard();
 }
 
-void AHoverTankPlayerController::OnRep_Pawn()
+void AHTPlayerController::OnRep_Pawn()
 {
 	Super::OnRep_Pawn();
 
 	// log out the role
-	// UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
+	// UE_LOG(LogTemp, Warning, TEXT("AHTPlayerController::OnRep_Pawn, role: %s"), *UEnum::GetValueAsString(GetLocalRole()));
 }
 
-void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
+void AHTPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
 {
 	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
 	if (GameState)
@@ -170,7 +170,7 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
 		if (TeamPlayerState == nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AHoverTankPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));
+			UE_LOG(LogTemp, Warning, TEXT("AHTPlayerController::ServerAttemptToJoinTeam: TeamPlayerState is null"));
 			return;
 		}
 
@@ -187,7 +187,7 @@ void AHoverTankPlayerController::ServerAttemptToJoinTeam_Implementation(int8 Tea
 	}
 }
 
-void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+void AHTPlayerController::ClientAddKillIndicator_Implementation(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
 {
 	// log out the colors
 	// UE_LOG(LogTemp, Warning, TEXT("KillerColor: %s, VictimColor: %s"), *KillerColor.ToString(), *VictimColor.ToString());
@@ -201,7 +201,7 @@ void AHoverTankPlayerController::ClientAddKillIndicator_Implementation(const FSt
 }
 
 
-void AHoverTankPlayerController::ClientSetInputModeToGameOnly_Implementation()
+void AHTPlayerController::ClientSetInputModeToGameOnly_Implementation()
 {
 	const FInputModeGameOnly InputModeData;
 	SetInputMode(InputModeData);
@@ -211,7 +211,7 @@ void AHoverTankPlayerController::ClientSetInputModeToGameOnly_Implementation()
 /**
  * If there is a possessed pawn that has team colors, and it is a team game, apply the team color to the pawn.
  */
-void AHoverTankPlayerController::ApplyTeamColorToPawn(const int8 NewTeamId)
+void AHTPlayerController::ApplyTeamColorToPawn(const int8 NewTeamId)
 {
 	if (GetPawn() == nullptr)
 	{
@@ -234,7 +234,7 @@ void AHoverTankPlayerController::ApplyTeamColorToPawn(const int8 NewTeamId)
 	TeamColorPawn->ApplyTeamColors(GameState->GetTeamDataAsset(NewTeamId));
 }
 
-void AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
+void AHTPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
 {
 	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
 	if (GameState == nullptr)
@@ -245,7 +245,7 @@ void AHoverTankPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(i
 	GameState->InitializeNewPlayerScore(this);
 }
 
-void AHoverTankPlayerController::OnPossess(APawn* InPawn)
+void AHTPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
@@ -255,7 +255,7 @@ void AHoverTankPlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
-void AHoverTankPlayerController::OnUnPossess()
+void AHTPlayerController::OnUnPossess()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -265,7 +265,7 @@ void AHoverTankPlayerController::OnUnPossess()
 	Super::OnUnPossess();
 }
 
-void AHoverTankPlayerController::OpenInGameMenuActionStarted()
+void AHTPlayerController::OpenInGameMenuActionStarted()
 {
 	if (!ensure(InGameMenuClass != nullptr))
 	{
@@ -291,7 +291,7 @@ void AHoverTankPlayerController::OpenInGameMenuActionStarted()
 	InGameMenu->Setup();
 }
 
-void AHoverTankPlayerController::OpenScoreBoardActionStarted()
+void AHTPlayerController::OpenScoreBoardActionStarted()
 {
 	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
 
@@ -303,7 +303,7 @@ void AHoverTankPlayerController::OpenScoreBoardActionStarted()
 	HUD->ToggleScoreBoard();
 }
 
-void AHoverTankPlayerController::RequestRespawnActionStarted()
+void AHTPlayerController::RequestRespawnActionStarted()
 {
 	if (GetPawn() == nullptr)
 	{
@@ -319,7 +319,7 @@ void AHoverTankPlayerController::RequestRespawnActionStarted()
 	
 }
 
-void AHoverTankPlayerController::ServerRequestRespawn_Implementation()
+void AHTPlayerController::ServerRequestRespawn_Implementation()
 {
 	ICanRequestRespawnGameModeInterface* GameModeInterface =  Cast<ICanRequestRespawnGameModeInterface>(GetWorld()->GetAuthGameMode());
 

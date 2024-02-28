@@ -5,10 +5,7 @@
 
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
-#include "HoverTanks/Controllers/HoverTankPlayerController.h"
 #include "HoverTanks/Game/HTPlayerState.h"
-#include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
-#include "HoverTanks/Pawns/HoverTank.h"
 
 void UHTAttributeSetBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

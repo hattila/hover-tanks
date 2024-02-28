@@ -7,7 +7,7 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
-#include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/Game/HTPlayerState.h"
 #include "HoverTanks/UI/HUD/HTDeathMatchHUD.h"
 
@@ -22,7 +22,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
+	PlayerControllerClass = AHTPlayerController::StaticClass();
 
 	TArray<AActor*> SpawnPointsInWorld;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPointsInWorld);
@@ -168,10 +168,10 @@ void ADeathMatchGameMode::GameOver()
 				PossessedHoverTank->SetInputEnabled(false);
 			}
 
-			IHasScoreBoardController* HoverTankPlayerController = Cast<IHasScoreBoardController>(PlayerController);
-			if (HoverTankPlayerController)
+			IHTHasScoreBoardInterface* ControllerWithScoreBoard = Cast<IHTHasScoreBoardInterface>(PlayerController);
+			if (ControllerWithScoreBoard)
 			{
-				HoverTankPlayerController->ClientForceOpenScoreBoard(GameRestartDelay);
+				ControllerWithScoreBoard->ClientForceOpenScoreBoard(GameRestartDelay);
 			}
 		}
 	}
@@ -261,10 +261,10 @@ void ADeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController, AC
 	const FString KillerName = KillerController->PlayerState->GetPlayerName();
 	const FString VictimName = VictimController->PlayerState->GetPlayerName();
 
-	// iterate over every joined player, cast their PlayerControllers to AHoverTankPlayerController and call ClientAddKillIndicator
+	// iterate over every joined player, cast their PlayerControllers to AHTPlayerController and call ClientAddKillIndicator
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(It->Get());
+		AHTPlayerController* PlayerController = Cast<AHTPlayerController>(It->Get());
 		if (PlayerController)
 		{
 			PlayerController->ClientAddKillIndicator(KillerName, VictimName);

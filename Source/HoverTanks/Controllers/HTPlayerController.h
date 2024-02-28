@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HasScoreBoardController.h"
+#include "HTHasScoreBoardInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "HoverTankPlayerController.generated.h"
+#include "HTPlayerController.generated.h"
 
 class ICanRequestRespawnGameModeInterface;
 class UDeathMatchScoreBoardWidget;
@@ -17,20 +17,20 @@ class UInputMappingContext;
  * 
  */
 UCLASS()
-class HOVERTANKS_API AHoverTankPlayerController : public APlayerController, public IHasScoreBoardController
+class HOVERTANKS_API AHTPlayerController : public APlayerController, public IHTHasScoreBoardInterface
 {
 	GENERATED_BODY()
 
 public:
-	AHoverTankPlayerController();
+	AHTPlayerController();
 
-	// ~IHasScoreBoard interface
+	// ~IHTHasScoreBoardInterface interface
 	UFUNCTION(Client, Unreliable)
 	virtual void ClientOnScoresChanged() override;
 
 	UFUNCTION(Client, Reliable)
 	virtual void ClientForceOpenScoreBoard(int32 TimeUntilRestartInSeconds) override;
-	// ~IHasScoreBoard interface
+	// ~IHTHasScoreBoardInterface interface
 	
 	virtual void OnRep_Pawn() override; // Controller.cpp
 

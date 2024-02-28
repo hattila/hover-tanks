@@ -5,7 +5,7 @@
 
 #include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
@@ -21,7 +21,7 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	PlayerControllerClass = AHoverTankPlayerController::StaticClass();
+	PlayerControllerClass = AHTPlayerController::StaticClass();
 	
 	TArray<AActor*> SpawnPointsInWorld;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), SpawnPointsInWorld);
@@ -146,10 +146,10 @@ void ATeamDeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController
 		VictimTeamColor = TeamDeathMatchGameState->GetTeamDataAsset(VictimTeamPlayerState->GetTeamId())->GetTextColor();	
 	}
 
-	// iterate over every joined player, cast their PlayerControllers to AHoverTankPlayerController and call ClientAddKillIndicator
+	// iterate over every joined player, cast their PlayerControllers to AHTPlayerController and call ClientAddKillIndicator
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(It->Get());
+		AHTPlayerController* PlayerController = Cast<AHTPlayerController>(It->Get());
 		if (PlayerController)
 		{
 			PlayerController->ClientAddKillIndicator(KillerName, VictimName, KillerTeamColor, VictimTeamColor);

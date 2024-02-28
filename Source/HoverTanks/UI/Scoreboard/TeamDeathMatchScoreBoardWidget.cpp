@@ -2,7 +2,7 @@
 
 
 #include "TeamDeathMatchScoreBoardWidget.h"
-#include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Controllers/HTPlayerController.h"
 #include "PlayerScoreWidget.h"
 
 #include "Blueprint/WidgetTree.h"
@@ -132,7 +132,7 @@ void UTeamDeathMatchScoreBoardWidget::AttemptToJoinTeam(const uint8 TeamId) cons
 		return;
 	}
 
-	AHoverTankPlayerController* HoverTankPlayerController = GetOwningPlayer<AHoverTankPlayerController>();
+	AHTPlayerController* HoverTankPlayerController = GetOwningPlayer<AHTPlayerController>();
 	if (!HoverTankPlayerController)
 	{
 		return;	

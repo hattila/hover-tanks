@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "HasScoreBoardController.generated.h"
+#include "HTHasScoreBoardInterface.generated.h"
 
 UINTERFACE()
-class UHasScoreBoardController : public UInterface
+class UHTHasScoreBoardInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -15,7 +15,7 @@ class UHasScoreBoardController : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IHasScoreBoardController
+class HOVERTANKS_API IHTHasScoreBoardInterface
 {
 	GENERATED_BODY()
 

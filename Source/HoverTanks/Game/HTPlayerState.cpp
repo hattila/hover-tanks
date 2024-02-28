@@ -6,7 +6,7 @@
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
-#include "HoverTanks/Controllers/HoverTankPlayerController.h"
+#include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 
 #include "AbilitySystemComponent.h"
@@ -54,7 +54,7 @@ void AHTPlayerState::BeginPlay()
 
 void AHTPlayerState::OnPawnChanged(APlayerState* PlayerState, APawn* NewPawn, APawn* OldPawn)
 {
-	AHoverTankPlayerController* PlayerController = Cast<AHoverTankPlayerController>(GetOwner());
+	AHTPlayerController* PlayerController = Cast<AHTPlayerController>(GetOwner());
 	if (!PlayerController)
 	{
 		// UE_LOG(LogTemp, Warning, TEXT("AHTPlayerState::OnPawnChanged PlayerController is null"));
