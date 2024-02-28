@@ -18,7 +18,7 @@ public:
 	AHTGMTeamDeathMatch();
 
 	// ~IHandlesTankDeathGameModeInterface
-	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
+	virtual void TankDies(AHTHoverTank* DeadHoverTank, AController* DeathCauser) override;
 	// ~IHandlesTankDeathGameModeInterface
 
 	// ~ICanRequestRespawnGameModeInterface

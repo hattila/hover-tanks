@@ -3,7 +3,7 @@
 
 #include "HTPlayerController.h"
 
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
 #include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
@@ -105,7 +105,7 @@ void AHTPlayerController::ClientCreatePlayerHUD_Implementation()
 void AHTPlayerController::ClientCreateTankHUD_Implementation(APawn* InPawn)
 {
 	AHTPlayerHUD* HUD = Cast<AHTPlayerHUD>(GetHUD());
-	AHoverTank* HoverTank = Cast<AHoverTank>(InPawn);
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(InPawn);
 	if (HUD && HoverTank)
 	{
 		HUD->CreateTankHUD(HoverTank);
@@ -177,7 +177,7 @@ void AHTPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
 
 		if (GetPawn() != nullptr)
 		{
-			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+			AHTHoverTank* PossessedHoverTank = Cast<AHTHoverTank>(GetPawn());
 			if (PossessedHoverTank && !PossessedHoverTank->IsDead())
 			{
 				PossessedHoverTank->ServerSuicide();
@@ -312,7 +312,7 @@ void AHTPlayerController::RequestRespawnActionStarted()
 		return;
 	}
 	
-	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+	AHTHoverTank* PossessedHoverTank = Cast<AHTHoverTank>(GetPawn());
 	if (PossessedHoverTank && PossessedHoverTank->IsDead())
 	{
 		ServerRequestRespawn();
@@ -335,7 +335,7 @@ void AHTPlayerController::ServerRequestRespawn_Implementation()
 		return;
 	}
 	
-	AHoverTank* PossessedHoverTank = Cast<AHoverTank>(GetPawn());
+	AHTHoverTank* PossessedHoverTank = Cast<AHTHoverTank>(GetPawn());
 	if (PossessedHoverTank && PossessedHoverTank->IsDead())
 	{
 		GameModeInterface->RequestRespawn(this);

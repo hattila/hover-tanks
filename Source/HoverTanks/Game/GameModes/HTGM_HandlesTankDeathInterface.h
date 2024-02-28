@@ -7,7 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "HTGM_HandlesTankDeathInterface.generated.h"
 
-class AHoverTank;
+class AHTHoverTank;
 
 UINTERFACE()
 class UHTGM_HandlesTankDeathInterface : public UInterface
@@ -23,5 +23,5 @@ class HOVERTANKS_API IHTGM_HandlesTankDeathInterface
 	GENERATED_BODY()
 
 public:
-	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) = 0;
+	virtual void TankDies(AHTHoverTank* DeadHoverTank, AController* DeathCauser) = 0;
 };

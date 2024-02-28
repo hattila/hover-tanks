@@ -8,7 +8,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "HTGMDeathMatch.generated.h"
 
-class AHoverTank;
+class AHTHoverTank;
 class APlayerStart;
 
 UENUM()
@@ -34,7 +34,7 @@ public:
 	AHTGMDeathMatch();
 
 	// ~IHTGMHandlesTankDeathInterface
-	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;
+	virtual void TankDies(AHTHoverTank* DeadHoverTank, AController* DeathCauser) override;
 	// ~IHTGMHandlesTankDeathInterface
 
 	// ~IHTCanRequestRespawnInterface
@@ -57,7 +57,7 @@ protected:
 	virtual void Logout(AController* Exiting) override;
 	
 	APlayerStart* FindRandomSpawnPoint();
-	AHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
+	AHTHoverTank* SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint);
 
 	virtual void RemovePlayerFromScoreBoardOnLogout(const FString PlayerName);
 

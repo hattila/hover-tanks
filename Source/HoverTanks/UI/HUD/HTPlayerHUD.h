@@ -7,7 +7,7 @@
 #include "GameFramework/HUD.h"
 #include "HTPlayerHUD.generated.h"
 
-class AHoverTank;
+class AHTHoverTank;
 class UAbilitySystemComponent;
 class UScoreBoardWidget;
 class UHoverTankHUDWidget;
@@ -27,7 +27,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	
 	void CreatePlayerHUD();
-	void CreateTankHUD(AHoverTank* HoverTank);
+	void CreateTankHUD(AHTHoverTank* HoverTank);
 	
 	// ~IScoringHUDInterface
 	virtual void ToggleScoreBoard() override;

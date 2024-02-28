@@ -9,7 +9,7 @@
 #include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 
 #include "AbilitySystemComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -107,7 +107,7 @@ void AHTPlayerHUD::CreatePlayerHUD()
 	}
 }
 
-void AHTPlayerHUD::CreateTankHUD(AHoverTank* HoverTank)
+void AHTPlayerHUD::CreateTankHUD(AHTHoverTank* HoverTank)
 {
 	if (HoverTank == nullptr)
 	{

@@ -5,7 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 
 #include "Net/UnrealNetwork.h"
 

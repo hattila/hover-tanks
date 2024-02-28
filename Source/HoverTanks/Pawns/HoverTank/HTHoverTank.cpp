@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "HoverTank.h"
+#include "HTHoverTank.h"
 
 #include "AbilitySystemComponent.h"
 #include "HoverTanks/Components/HTTankMovementComponent.h"
@@ -23,7 +23,7 @@
 
 class UNiagaraSystem;
 
-AHoverTank::AHoverTank()
+AHTHoverTank::AHTHoverTank()
 {
 	/**
 	 * Actor setup
@@ -133,7 +133,7 @@ AHoverTank::AHoverTank()
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
 
-void AHoverTank::BeginPlay()
+void AHTHoverTank::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -155,7 +155,7 @@ void AHoverTank::BeginPlay()
 	}
 }
 
-void AHoverTank::Tick(float DeltaTime)
+void AHTHoverTank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -167,14 +167,14 @@ void AHoverTank::Tick(float DeltaTime)
 	}
 }
 
-void AHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AHTHoverTank::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHoverTank, bIsInputEnabled);
+	DOREPLIFETIME(AHTHoverTank, bIsInputEnabled);
 }
 
-void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AHTHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -182,59 +182,59 @@ void AHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AHoverTank::MoveTriggered);
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AHoverTank::MoveCompleted);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AHTHoverTank::MoveTriggered);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AHTHoverTank::MoveCompleted);
 
 		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHoverTank::LookTriggered);
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &AHoverTank::LookCompleted);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHTHoverTank::LookTriggered);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &AHTHoverTank::LookCompleted);
 
 		//EBrake
-		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Started, this, &AHoverTank::EBrakeStarted);
-		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Completed, this, &AHoverTank::EBrakeCompleted);
+		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Started, this, &AHTHoverTank::EBrakeStarted);
+		EnhancedInputComponent->BindAction(EBrakeAction, ETriggerEvent::Completed, this, &AHTHoverTank::EBrakeCompleted);
 
 		//Jump
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AHoverTank::JumpTriggered);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AHoverTank::JumpCompleted);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AHTHoverTank::JumpTriggered);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AHTHoverTank::JumpCompleted);
 
 		//Boost
-		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Triggered, this, &AHoverTank::BoostTriggered);
-		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Completed, this, &AHoverTank::BoostCompleted);
+		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Triggered, this, &AHTHoverTank::BoostTriggered);
+		EnhancedInputComponent->BindAction(BoostAction, ETriggerEvent::Completed, this, &AHTHoverTank::BoostCompleted);
 
 		//Shoot
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHoverTank::ShootStarted);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AHTHoverTank::ShootStarted);
 
 		//ZoomIn
-		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Started, this, &AHoverTank::ZoomInActionStarted);
-		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Completed, this, &AHoverTank::ZoomInActionCompleted);
+		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Started, this, &AHTHoverTank::ZoomInActionStarted);
+		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Completed, this, &AHTHoverTank::ZoomInActionCompleted);
 
 		//Switch weapons
-		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHoverTank::NextWeaponActionStarted);
-		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHoverTank::PrevWeaponActionStarted);
+		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHTHoverTank::NextWeaponActionStarted);
+		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHTHoverTank::PrevWeaponActionStarted);
 
 		//Toggle lights
-		EnhancedInputComponent->BindAction(ToggleLightsAction, ETriggerEvent::Started, this, &AHoverTank::ToggleLightsActionStarted);
+		EnhancedInputComponent->BindAction(ToggleLightsAction, ETriggerEvent::Started, this, &AHTHoverTank::ToggleLightsActionStarted);
 		
 		
 		//Show debug lines and info
-		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHoverTank::ShowDebugActionStarted);
+		EnhancedInputComponent->BindAction(ShowDebugAction, ETriggerEvent::Started, this, &AHTHoverTank::ShowDebugActionStarted);
 
 		//Suicide
-		EnhancedInputComponent->BindAction(SuicideAction, ETriggerEvent::Started, this, &AHoverTank::SuicideActionStarted);
+		EnhancedInputComponent->BindAction(SuicideAction, ETriggerEvent::Started, this, &AHTHoverTank::SuicideActionStarted);
 
 		BindAbilitySystemComponentActions();
 	}
 	
 }
 
-void AHoverTank::OnRep_PlayerState()
+void AHTHoverTank::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	InitPlayer();
 	BindAbilitySystemComponentActions();
 }
 
-UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
+UAbilitySystemComponent* AHTHoverTank::GetAbilitySystemComponent() const
 {
 	// get the ability system component from the player state
 	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
@@ -245,13 +245,13 @@ UAbilitySystemComponent* AHoverTank::GetAbilitySystemComponent() const
 	else
 	{
 		// log
-		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
+		UE_LOG(LogTemp, Warning, TEXT("AHTHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
 	}
 
 	return nullptr;
 }
 
-void AHoverTank::OnDeath()
+void AHTHoverTank::OnDeath()
 {
 	if (!HasAuthority())
 	{
@@ -271,7 +271,7 @@ void AHoverTank::OnDeath()
 		AbilitySystemComponent->ApplyGameplayEffectToSelf(Cast<UGameplayEffect>(DeathEffect->GetDefaultObject()), 1.0f, AbilitySystemComponent->MakeEffectContext());	
 	} else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::OnDeath: DeathEffect is null set it in the Blueprint!"));
+		UE_LOG(LogTemp, Warning, TEXT("AHTHoverTank::OnDeath: DeathEffect is null set it in the Blueprint!"));
 	}
 	
 	// disable player input
@@ -292,7 +292,7 @@ void AHoverTank::OnDeath()
 	// change the mesh to a wreckage
 }
 
-bool AHoverTank::IsDead() const
+bool AHTHoverTank::IsDead() const
 {
 	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
 	if (HTPlayerState)
@@ -303,7 +303,7 @@ bool AHoverTank::IsDead() const
 	return false;
 }
 
-void AHoverTank::ServerSuicide_Implementation()
+void AHTHoverTank::ServerSuicide_Implementation()
 {
 	if (!HasAuthority())
 	{
@@ -312,7 +312,7 @@ void AHoverTank::ServerSuicide_Implementation()
 
 	if (DamageEffect == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AHoverTank::Suicide - No DamageEffect specified")); // tank should be killed anyway
+		UE_LOG(LogTemp, Warning, TEXT("AHTHoverTank::Suicide - No DamageEffect specified")); // tank should be killed anyway
 		return;
 	}
 
@@ -330,12 +330,12 @@ void AHoverTank::ServerSuicide_Implementation()
 	}
 }
 
-void AHoverTank::ClientBroadcastOnTankDeath_Implementation()
+void AHTHoverTank::ClientBroadcastOnTankDeath_Implementation()
 {
 	OnTankDeath.Broadcast();
 }
 
-FHitResult AHoverTank::FindTargetAtCrosshair() const
+FHitResult AHTHoverTank::FindTargetAtCrosshair() const
 {
 	FHitResult Hit;
 	FVector Start = Camera->GetComponentLocation();
@@ -352,7 +352,7 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
 /**
  * IHasTeamColors interface 
  */
-void AHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
+void AHTHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
 {
 	if (!HasAuthority())
 	{
@@ -372,7 +372,7 @@ void AHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
 /**
  * Is called on Possessed on the server and Onrep_PlayerState on the client
  */
-void AHoverTank::InitPlayer()
+void AHTHoverTank::InitPlayer()
 {
 	// Player State should have the AbilitySystemComponent
 	AHTPlayerState* HTPlayerState = GetPlayerState<AHTPlayerState>();
@@ -398,14 +398,14 @@ void AHoverTank::InitPlayer()
 	AddDefaultAbilities();
 }
 
-void AHoverTank::PossessedBy(AController* NewController)
+void AHTHoverTank::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
 	InitPlayer();
 }
 
-void AHoverTank::UnPossessed()
+void AHTHoverTank::UnPossessed()
 {
 	if (WeaponsComponent)
 	{
@@ -415,7 +415,7 @@ void AHoverTank::UnPossessed()
 	Super::UnPossessed();
 }
 
-void AHoverTank::InitializeAttributes()
+void AHTHoverTank::InitializeAttributes()
 {
 	if (!IsValid(AbilitySystemComponent))
 	{
@@ -439,7 +439,7 @@ void AHoverTank::InitializeAttributes()
 	}
 }
 
-void AHoverTank::AddOngoingEffects()
+void AHTHoverTank::AddOngoingEffects()
 {
 	if (GetLocalRole() != ROLE_Authority || !IsValid(AbilitySystemComponent) || AbilitySystemComponent->bOngoingEffectsApplied)
 	{
@@ -461,7 +461,7 @@ void AHoverTank::AddOngoingEffects()
 	AbilitySystemComponent->bOngoingEffectsApplied = true;
 }
 
-void AHoverTank::AddDefaultAbilities()
+void AHTHoverTank::AddDefaultAbilities()
 {
 	if (HasAuthority() && !AbilitySystemComponent->bCharacterAbilitiesGiven)
 	{
@@ -477,7 +477,7 @@ void AHoverTank::AddDefaultAbilities()
 	}
 }
 
-void AHoverTank::BindAbilitySystemComponentActions()
+void AHTHoverTank::BindAbilitySystemComponentActions()
 {
 	if (bIsAbilitySystemComponentInputBound)
 	{
@@ -500,14 +500,14 @@ void AHoverTank::BindAbilitySystemComponentActions()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-		EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityOneStartedAction);
-		EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHoverTank::AbilityTwoStartedAction);
+		EnhancedInputComponent->BindAction(AbilityOneInputAction, ETriggerEvent::Started, this, &AHTHoverTank::AbilityOneStartedAction);
+		EnhancedInputComponent->BindAction(AbilityTwoInputAction, ETriggerEvent::Started, this, &AHTHoverTank::AbilityTwoStartedAction);
 	
 		bIsAbilitySystemComponentInputBound = true;	
 	}
 }
 
-void AHoverTank::MoveTriggered(const FInputActionValue& Value)
+void AHTHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
 	
@@ -525,7 +525,7 @@ void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 	}
 }
 
-void AHoverTank::MoveCompleted()
+void AHTHoverTank::MoveCompleted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -539,7 +539,7 @@ void AHoverTank::MoveCompleted()
 	}
 }
 
-void AHoverTank::LookTriggered(const FInputActionValue& Value)
+void AHTHoverTank::LookTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
 	
@@ -552,7 +552,7 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 	}
 }
 
-void AHoverTank::LookCompleted()
+void AHTHoverTank::LookCompleted()
 {
 	if (TankMovementComponent)
 	{
@@ -561,7 +561,7 @@ void AHoverTank::LookCompleted()
 	}
 }
 
-void AHoverTank::EBrakeStarted()
+void AHTHoverTank::EBrakeStarted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -574,7 +574,7 @@ void AHoverTank::EBrakeStarted()
 	}
 }
 
-void AHoverTank::EBrakeCompleted()
+void AHTHoverTank::EBrakeCompleted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -587,7 +587,7 @@ void AHoverTank::EBrakeCompleted()
 	}
 }
 
-void AHoverTank::JumpTriggered()
+void AHTHoverTank::JumpTriggered()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
 
@@ -602,7 +602,7 @@ void AHoverTank::JumpTriggered()
 	}
 }
 
-void AHoverTank::JumpCompleted()
+void AHTHoverTank::JumpCompleted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -615,7 +615,7 @@ void AHoverTank::JumpCompleted()
 	}
 }
 
-void AHoverTank::BoostTriggered()
+void AHTHoverTank::BoostTriggered()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -628,7 +628,7 @@ void AHoverTank::BoostTriggered()
 	}
 }
 
-void AHoverTank::BoostCompleted()
+void AHTHoverTank::BoostCompleted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -641,7 +641,7 @@ void AHoverTank::BoostCompleted()
 	}
 }
 
-void AHoverTank::ShootStarted()
+void AHTHoverTank::ShootStarted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -655,7 +655,7 @@ void AHoverTank::ShootStarted()
 	}
 }
 
-void AHoverTank::ZoomInActionStarted()
+void AHTHoverTank::ZoomInActionStarted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -665,7 +665,7 @@ void AHoverTank::ZoomInActionStarted()
 	bIsZoomedIn = true;
 }
 
-void AHoverTank::ZoomInActionCompleted()
+void AHTHoverTank::ZoomInActionCompleted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -675,7 +675,7 @@ void AHoverTank::ZoomInActionCompleted()
 	bIsZoomedIn = false;
 }
 
-void AHoverTank::ShowDebugActionStarted()
+void AHTHoverTank::ShowDebugActionStarted()
 {
 	bShowDebug = !bShowDebug;
 
@@ -689,7 +689,7 @@ void AHoverTank::ShowDebugActionStarted()
 	}
 }
 
-void AHoverTank::SuicideActionStarted()
+void AHTHoverTank::SuicideActionStarted()
 {
 	if (bIsInputEnabled == false)
 	{
@@ -699,7 +699,7 @@ void AHoverTank::SuicideActionStarted()
 	ServerSuicide();
 }
 
-void AHoverTank::HandleCameraZoom(const float DeltaTime) const
+void AHTHoverTank::HandleCameraZoom(const float DeltaTime) const
 {
 	if (bIsZoomedIn)
 	{
@@ -711,7 +711,7 @@ void AHoverTank::HandleCameraZoom(const float DeltaTime) const
 	}
 }
 
-void AHoverTank::NextWeaponActionStarted(const FInputActionValue& Value)
+void AHTHoverTank::NextWeaponActionStarted(const FInputActionValue& Value)
 {
 	if (bIsInputEnabled == false)
 	{
@@ -726,7 +726,7 @@ void AHoverTank::NextWeaponActionStarted(const FInputActionValue& Value)
 	}
 }
 
-void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
+void AHTHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 {
 	if (bIsInputEnabled == false)
 	{
@@ -741,7 +741,7 @@ void AHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 	}
 }
 
-void AHoverTank::ToggleLightsActionStarted()
+void AHTHoverTank::ToggleLightsActionStarted()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("ToggleLightsActionStarted"));
 	
@@ -756,7 +756,7 @@ void AHoverTank::ToggleLightsActionStarted()
 	}
 }
 
-void AHoverTank::DebugDrawPlayerTitle()
+void AHTHoverTank::DebugDrawPlayerTitle()
 {
 	FString RoleString;
 	UEnum::GetValueAsString(GetLocalRole(), RoleString);
@@ -777,7 +777,7 @@ void AHoverTank::DebugDrawPlayerTitle()
 	DrawDebugString(GetWorld(), FVector(0, 0, 150), DebugString, this, FColor::White, 0);
 }
 
-void AHoverTank::AbilityOneStartedAction()
+void AHTHoverTank::AbilityOneStartedAction()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AbilityOneStartedAction"));
 
@@ -789,7 +789,7 @@ void AHoverTank::AbilityOneStartedAction()
 	}
 }
 
-void AHoverTank::AbilityTwoStartedAction()
+void AHTHoverTank::AbilityTwoStartedAction()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AbilityTwoStartedAction"));
 

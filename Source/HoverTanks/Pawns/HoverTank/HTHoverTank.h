@@ -6,8 +6,8 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
-#include "HasTeamColors.h"
-#include "HoverTank.generated.h"
+#include "HoverTanks/Pawns/HasTeamColors.h"
+#include "HTHoverTank.generated.h"
 
 class UHTGameplayAbility;
 class UHTAbilitySystemComponent;
@@ -32,7 +32,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTankDeath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponSwitched, int32, NewWeapon);
 
 UCLASS()
-class HOVERTANKS_API AHoverTank :
+class HOVERTANKS_API AHTHoverTank :
 	public APawn,
 	public IAbilitySystemInterface,
 	public IHasTeamColors
@@ -40,7 +40,7 @@ class HOVERTANKS_API AHoverTank :
 	GENERATED_BODY()
 	
 public:
-	AHoverTank();
+	AHTHoverTank();
 	
 	UPROPERTY(BlueprintAssignable, Category = "CustomEvents")
 	FOnTankDeath OnTankDeath;

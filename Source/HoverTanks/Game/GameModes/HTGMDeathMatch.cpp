@@ -4,7 +4,7 @@
 #include "HTGMDeathMatch.h"
 
 #include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
@@ -40,7 +40,7 @@ AHTGMDeathMatch::AHTGMDeathMatch()
 	bUseSeamlessTravel = false;
 }
 
-void AHTGMDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
+void AHTGMDeathMatch::TankDies(AHTHoverTank* DeadHoverTank, AController* DeathCauser)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
 
@@ -83,7 +83,7 @@ void AHTGMDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 			}
 
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
-			AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
+			AHTHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
 
 			InPlayerController->Possess(NewHoverTank);
 		}
@@ -161,7 +161,7 @@ void AHTGMDeathMatch::GameOver()
 		APlayerController* PlayerController = It->Get();
 		if (PlayerController)
 		{
-			AHoverTank* PossessedHoverTank = Cast<AHoverTank>(PlayerController->GetPawn());
+			AHTHoverTank* PossessedHoverTank = Cast<AHTHoverTank>(PlayerController->GetPawn());
 
 			if (PossessedHoverTank)
 			{
@@ -233,11 +233,11 @@ APlayerStart* AHTGMDeathMatch::FindRandomSpawnPoint()
 	return RandomSpawnPoint;
 }
 
-AHoverTank* AHTGMDeathMatch::SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint)
+AHTHoverTank* AHTGMDeathMatch::SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	AHoverTank* NewHoverTank = GetWorld()->SpawnActor<AHoverTank>(
+	AHTHoverTank* NewHoverTank = GetWorld()->SpawnActor<AHTHoverTank>(
 		DefaultPawnClass,
 		RandomSpawnPoint->GetActorLocation(),
 		RandomSpawnPoint->GetActorRotation(),

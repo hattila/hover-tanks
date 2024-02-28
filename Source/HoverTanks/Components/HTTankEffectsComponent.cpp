@@ -5,7 +5,7 @@
 
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
 #include "NiagaraComponent.h"
@@ -125,7 +125,7 @@ void UHTTankEffectsComponent::BeginPlay()
 		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
 	}
 
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank)
 	{
 		TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
@@ -193,7 +193,7 @@ void UHTTankEffectsComponent::ServerToggleLights_Implementation()
 
 void UHTTankEffectsComponent::OnRep_LightsOn()
 {
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (!HoverTank)
 	{
 		return;

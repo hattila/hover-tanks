@@ -3,7 +3,7 @@
 
 #include "HTTankMovementComponent.h"
 
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -20,7 +20,7 @@ void UHTTankMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank)
 	{
 		TankCannonMesh = HoverTank->GetTankCannonMesh();
@@ -432,7 +432,7 @@ bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &D
 
 bool UHTTankMovementComponent::IsInputEnabled()
 {
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank)
 	{
 		return HoverTank->IsInputEnabled();
@@ -443,7 +443,7 @@ bool UHTTankMovementComponent::IsInputEnabled()
 
 bool UHTTankMovementComponent::IsTankDead() const
 {
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank)
 	{
 		return HoverTank->IsDead();
@@ -454,7 +454,7 @@ bool UHTTankMovementComponent::IsTankDead() const
 
 bool UHTTankMovementComponent::ShowDebug() const
 {
-	if (const AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner()))
+	if (const AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner()))
 	{
 		return HoverTank->GetShowDebug();
 	}

@@ -11,7 +11,7 @@
 
 #include "HoverTankHUDWidget.generated.h"
 
-class AHoverTank;
+class AHTHoverTank;
 struct FOnAttributeChangeData;
 class UBorder;
 class UWidgetSwitcher;
@@ -53,9 +53,9 @@ public:
 
 	// create a blueprint readable getter for the OwningHoverTank
 	UFUNCTION(BlueprintCallable)
-	AHoverTank* GetOwningHoverTank() const { return OwnerHoverTank; }
+	AHTHoverTank* GetOwningHoverTank() const { return OwnerHoverTank; }
 	
-	void SetOwningHoverTank(AHoverTank* InHoverTank) { OwnerHoverTank = InHoverTank; OnHoverTankPawnSet(); }
+	void SetOwningHoverTank(AHTHoverTank* InHoverTank) { OwnerHoverTank = InHoverTank; OnHoverTankPawnSet(); }
 
 	UFUNCTION(BlueprintImplementableEvent )
 	void OnHoverTankPawnSet();
@@ -106,5 +106,5 @@ private:
 	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;
 
 	UPROPERTY()
-	AHoverTank* OwnerHoverTank = nullptr;
+	AHTHoverTank* OwnerHoverTank = nullptr;
 };

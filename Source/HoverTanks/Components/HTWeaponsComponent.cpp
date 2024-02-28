@@ -3,7 +3,7 @@
 
 #include "HTWeaponsComponent.h"
 
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Actors/Projectiles/HTCannonProjectile.h"
 #include "HoverTanks/Actors/Weapons/HTRocketLauncher.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,7 +17,7 @@ void UHTWeaponsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank)
 	{
 		TankCannonMesh = HoverTank->GetTankCannonMesh();
@@ -55,7 +55,7 @@ void UHTWeaponsComponent::SwitchToNextWeapon()
 		CurrentWeapon = EAvailableWeapons::Cannon;
 	}
 
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank == nullptr)
 	{
 		return;
@@ -75,7 +75,7 @@ void UHTWeaponsComponent::SwitchToPrevWeapon()
 		CurrentWeapon = EAvailableWeapons::Cannon;
 	}
 
-	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
 	if (HoverTank == nullptr)
 	{
 		return;
@@ -230,7 +230,7 @@ void UHTWeaponsComponent::ShowRocketTarget(const FHitResult& Hit) const
 	{
 		FVector HitLocation;
 		
-		if (const AHoverTank* HoverTank = Cast<AHoverTank>(Hit.GetActor()))
+		if (const AHTHoverTank* HoverTank = Cast<AHTHoverTank>(Hit.GetActor()))
 		{
 			HitLocation = HoverTank->GetActorLocation();
 		}

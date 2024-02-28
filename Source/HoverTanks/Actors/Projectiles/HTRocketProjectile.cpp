@@ -3,7 +3,7 @@
 
 #include "HTRocketProjectile.h"
 
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
@@ -69,7 +69,7 @@ void AHTRocketProjectile::SetHomingTargetDelayed()
 	ProjectileMovementComponent->bIsHomingProjectile = true;
 
 	// should be a targetable interface
-	if (AHoverTank* HoverTank = Cast<AHoverTank>(RocketTargetHitResult.GetActor()))
+	if (AHTHoverTank* HoverTank = Cast<AHTHoverTank>(RocketTargetHitResult.GetActor()))
 	{
 		ProjectileMovementComponent->HomingTargetComponent = HoverTank->GetRootComponent();
 	}

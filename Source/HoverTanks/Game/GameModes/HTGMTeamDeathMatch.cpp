@@ -6,7 +6,7 @@
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
 #include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
-#include "HoverTanks/Pawns/HoverTank.h"
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
@@ -35,7 +35,7 @@ AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
 	HUDClass = AHTTeamDeathMatchHUD::StaticClass();
 }
 
-void AHTGMTeamDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
+void AHTGMTeamDeathMatch::TankDies(AHTHoverTank* DeadHoverTank, AController* DeathCauser)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died in TDM!"), *DeadHoverTank->GetName());
 
@@ -79,7 +79,7 @@ void AHTGMTeamDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 			}
 
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
-			AHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
+			AHTHoverTank* NewHoverTank = SpawnTankAtPlayerStart(RandomSpawnPoint);
 
 			const AHTPSInTeam* TeamPlayerState = InPlayerController->GetPlayerState<AHTPSInTeam>();
 			IHasTeamColors* TeamColoredPawn = Cast<IHasTeamColors>(NewHoverTank);
