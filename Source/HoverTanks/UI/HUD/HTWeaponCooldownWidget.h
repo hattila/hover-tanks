@@ -5,19 +5,19 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ProgressBar.h"
-#include "WeaponCooldownWidget.generated.h"
+#include "HTWeaponCooldownWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UWeaponCooldownWidget : public UUserWidget
+class HOVERTANKS_API UHTWeaponCooldownWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	// constructor
-	UWeaponCooldownWidget(const FObjectInitializer& ObjectInitializer);
+	UHTWeaponCooldownWidget(const FObjectInitializer& ObjectInitializer);
 
 	virtual bool Initialize() override;
 	

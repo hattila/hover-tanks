@@ -2,8 +2,6 @@
 
 #include "HTTeamDeathMatchHUD.h"
 
-#include "HoverTankHUDWidget.h"
-
 #include "Blueprint/UserWidget.h"
 
 AHTTeamDeathMatchHUD::AHTTeamDeathMatchHUD()

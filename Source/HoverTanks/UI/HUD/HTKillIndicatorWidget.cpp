@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KillIndicatorWidget.h"
+#include "HTKillIndicatorWidget.h"
 
 #include "Components/TextBlock.h"
 
-void UKillIndicatorWidget::Setup(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+void UHTKillIndicatorWidget::Setup(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
 {
 	if (ShowAnimation != nullptr)
 	{
@@ -23,10 +23,10 @@ void UKillIndicatorWidget::Setup(const FString& KillerName, const FString& Victi
 
 	// create a timer to remove the widget after a few seconds
 	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UKillIndicatorWidget::HideDelayed, 5.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UHTKillIndicatorWidget::HideDelayed, 5.0f, false);
 }
 
-void UKillIndicatorWidget::HideDelayed()
+void UHTKillIndicatorWidget::HideDelayed()
 {
 	if (ShowAnimation != nullptr)
 	{
@@ -34,5 +34,5 @@ void UKillIndicatorWidget::HideDelayed()
 	}
 
 	FTimerHandle DestroyTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &UKillIndicatorWidget::RemoveFromParent, .5f, false);
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &UHTKillIndicatorWidget::RemoveFromParent, .5f, false);
 }

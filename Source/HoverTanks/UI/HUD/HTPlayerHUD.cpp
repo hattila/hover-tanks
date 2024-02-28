@@ -3,8 +3,8 @@
 
 #include "HTPlayerHUD.h"
 
-#include "HoverTankHUDWidget.h"
-#include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
+#include "HTHoverTankHUDWidget.h"
+#include "HTDeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
@@ -84,7 +84,7 @@ void AHTPlayerHUD::CreatePlayerHUD()
 		return;
 	}
 
-	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
+	PlayerHUDWidget = CreateWidget<UHTDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
 	PlayerHUDWidget->Setup();
 
 	const IHTGS_TimerInterface* TimerGameState = Cast<IHTGS_TimerInterface>(GetSafeGameState());
@@ -121,15 +121,15 @@ void AHTPlayerHUD::CreateTankHUD(AHTHoverTank* HoverTank)
 		return;
 	}
 
-	HoverTankHUDWidget = CreateWidget<UHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
+	HoverTankHUDWidget = CreateWidget<UHTHoverTankHUDWidget>(GetOwningPlayerController(), HoverTankHUDWidgetClass);
 	HoverTankHUDWidget->SetOwningHoverTank(HoverTank);
 	
 	HoverTank->OnTankDeath.AddDynamic(this, &AHTPlayerHUD::OnTankDeathHandler);
-	HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponSwitchedHandler);
+	HoverTank->OnWeaponSwitched.AddDynamic(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnWeaponSwitchedHandler);
 
 	if (HoverTank->GetWeaponsComponent() != nullptr)
 	{
-		HoverTank->GetWeaponsComponent()->OnWeaponFire.AddDynamic(HoverTankHUDWidget, &UHoverTankHUDWidget::OnWeaponFireHandler);
+		HoverTank->GetWeaponsComponent()->OnWeaponFire.AddDynamic(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnWeaponFireHandler);
 	}
 
 	UAbilitySystemComponent* AbilitySystemComponent = HoverTank->GetAbilitySystemComponent();
@@ -268,16 +268,16 @@ void AHTPlayerHUD::SetupAbilitySystemAttributeChangeHandlers(UAbilitySystemCompo
 
 	// listen for attribute changes on the AbilitySystemComponent
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetShieldAttribute())
-		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnShieldAttributeChangeHandler);
+		.AddUObject(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnShieldAttributeChangeHandler);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetMaxShieldAttribute())
-		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler);
+		.AddUObject(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnMaxShieldAttributeChangeHandler);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetHealthAttribute())
-		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnHealthAttributeChangeHandler);
+		.AddUObject(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnHealthAttributeChangeHandler);
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UHTAttributeSetBase::GetMaxHealthAttribute())
-		.AddUObject(HoverTankHUDWidget, &UHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler);
+		.AddUObject(HoverTankHUDWidget, &UHTHoverTankHUDWidget::OnMaxHealthAttributeChangeHandler);
 
 	// trigger attribute changes, clients don't get the initial default attribute set GE change
 	if (AttributeSet)

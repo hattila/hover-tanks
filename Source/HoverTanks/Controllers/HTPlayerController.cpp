@@ -9,7 +9,7 @@
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
 #include "HoverTanks/Game/GameModes/HTGM_CanRequestRespawnInterface.h"
 #include "HoverTanks/Game/GameModes/HTGM_HandlesTankDeathInterface.h"
-#include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
+#include "..\UI\HUD\HT_ScoringHUDInterface.h"
 #include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
 #include "InputAction.h"
@@ -133,7 +133,7 @@ void AHTPlayerController::SetupInputComponent()
 
 void AHTPlayerController::ClientOnScoresChanged_Implementation()
 {
-	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+	IHT_ScoringHUDInterface* HUD = Cast<IHT_ScoringHUDInterface>(GetHUD());
 
 	if (!ensure(HUD != nullptr))
 	{
@@ -145,7 +145,7 @@ void AHTPlayerController::ClientOnScoresChanged_Implementation()
 
 void AHTPlayerController::ClientForceOpenScoreBoard_Implementation(int32 TimeUntilRestartInSeconds)
 {
-	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+	IHT_ScoringHUDInterface* HUD = Cast<IHT_ScoringHUDInterface>(GetHUD());
 
 	if (!ensure(HUD != nullptr))
 	{
@@ -194,7 +194,7 @@ void AHTPlayerController::ClientAddKillIndicator_Implementation(const FString& K
 	// UE_LOG(LogTemp, Warning, TEXT("KillerColor: %s, VictimColor: %s"), *KillerColor.ToString(), *VictimColor.ToString());
 	
 	// get the hud
-	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+	IHT_ScoringHUDInterface* HUD = Cast<IHT_ScoringHUDInterface>(GetHUD());
 	if (HUD)
 	{
 		HUD->AddKillIndicator(KillerName, VictimName, KillerColor, VictimColor);
@@ -294,7 +294,7 @@ void AHTPlayerController::OpenInGameMenuActionStarted()
 
 void AHTPlayerController::OpenScoreBoardActionStarted()
 {
-	IScoringHUDInterface* HUD = Cast<IScoringHUDInterface>(GetHUD());
+	IHT_ScoringHUDInterface* HUD = Cast<IHT_ScoringHUDInterface>(GetHUD());
 
 	if (!ensure(HUD != nullptr))
 	{

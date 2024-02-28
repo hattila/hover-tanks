@@ -1,27 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeathMatchPlayerHUDWidget.h"
+#include "HTDeathMatchPlayerHUDWidget.h"
 
-#include "KillIndicatorWidget.h"
+#include "HTKillIndicatorWidget.h"
 #include "Components/TextBlock.h"
 
-UDeathMatchPlayerHUDWidget::UDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
+UHTDeathMatchPlayerHUDWidget::UHTDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> KillIndicatorWidgetClassFinder(
 		TEXT("/Game/HoverTanks/UI/HUD/WBP_KillIndicatorWidget"));
 	KillIndicatorWidgetClass = KillIndicatorWidgetClassFinder.Class;
 }
 
-void UDeathMatchPlayerHUDWidget::Setup()
+void UHTDeathMatchPlayerHUDWidget::Setup()
 {
 	AddToViewport();
 
 	RefreshTimeLeft();
-	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UDeathMatchPlayerHUDWidget::RefreshTimeLeft, 1, true);
+	GetWorld()->GetTimerManager().SetTimer(TimeLeftRefreshTimerHandle, this, &UHTDeathMatchPlayerHUDWidget::RefreshTimeLeft, 1, true);
 }
 
-void UDeathMatchPlayerHUDWidget::Teardown()
+void UHTDeathMatchPlayerHUDWidget::Teardown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimeLeftRefreshTimerHandle);
 
@@ -31,7 +31,7 @@ void UDeathMatchPlayerHUDWidget::Teardown()
 /**
  * Exact copy of ScoreBoardWidget's timer refresh function
  */
-void UDeathMatchPlayerHUDWidget::RefreshTimeLeft()
+void UHTDeathMatchPlayerHUDWidget::RefreshTimeLeft()
 {
 	if (TimeLeftText == nullptr)
 	{
@@ -54,9 +54,9 @@ void UDeathMatchPlayerHUDWidget::RefreshTimeLeft()
 	TimeLeft--;
 }
 
-void UDeathMatchPlayerHUDWidget::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
+void UHTDeathMatchPlayerHUDWidget::AddKillIndicator(const FString& KillerName, const FString& VictimName, FLinearColor KillerColor, FLinearColor VictimColor)
 {
-	UKillIndicatorWidget* KillIndicatorWidget = CreateWidget<UKillIndicatorWidget>(GetOwningPlayer(), KillIndicatorWidgetClass);
+	UHTKillIndicatorWidget* KillIndicatorWidget = CreateWidget<UHTKillIndicatorWidget>(GetOwningPlayer(), KillIndicatorWidgetClass);
 	if (KillIndicatorWidget == nullptr)
 	{
 		return;

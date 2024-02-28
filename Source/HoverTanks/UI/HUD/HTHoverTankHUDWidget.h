@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponCooldownWidget.h"
+#include "HTWeaponCooldownWidget.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Components/HorizontalBox.h"
 #include "GameplayEffectTypes.h"
 
-#include "HoverTankHUDWidget.generated.h"
+#include "HTHoverTankHUDWidget.generated.h"
 
 class AHTHoverTank;
 struct FOnAttributeChangeData;
@@ -20,13 +20,13 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UHoverTankHUDWidget : public UUserWidget
+class HOVERTANKS_API UHTHoverTankHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
 	// constructor
-	UHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer);
+	UHTHoverTankHUDWidget(const FObjectInitializer& ObjectInitializer);
 	
 	virtual bool Initialize() override;
 
@@ -97,10 +97,10 @@ private:
 	TSubclassOf<UUserWidget> WeaponCooldownWidgetClass;
 
 	UPROPERTY()
-	UWeaponCooldownWidget* CannonCooldownWidget = nullptr;
+	UHTWeaponCooldownWidget* CannonCooldownWidget = nullptr;
 
 	UPROPERTY()
-	UWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
+	UHTWeaponCooldownWidget* RocketsCooldownWidget = nullptr;
 
 	UPROPERTY(meta=(BindWidget))
 	UHorizontalBox* WeaponCooldownIndicatorsContainer = nullptr;

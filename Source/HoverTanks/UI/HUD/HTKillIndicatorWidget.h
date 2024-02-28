@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "KillIndicatorWidget.generated.h"
+#include "HTKillIndicatorWidget.generated.h"
 
 class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UKillIndicatorWidget : public UUserWidget
+class HOVERTANKS_API UHTKillIndicatorWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

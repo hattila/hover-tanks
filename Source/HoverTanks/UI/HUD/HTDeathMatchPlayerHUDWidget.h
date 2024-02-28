@@ -6,19 +6,19 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Border.h"
 #include "Components/VerticalBox.h"
-#include "DeathMatchPlayerHUDWidget.generated.h"
+#include "HTDeathMatchPlayerHUDWidget.generated.h"
 
 class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UDeathMatchPlayerHUDWidget : public UUserWidget
+class HOVERTANKS_API UHTDeathMatchPlayerHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	// constructor
-	UDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer);
+	UHTDeathMatchPlayerHUDWidget(const FObjectInitializer& ObjectInitializer);
 	
 	void Setup();
 	void Teardown();

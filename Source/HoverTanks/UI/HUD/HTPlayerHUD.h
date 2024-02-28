@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ScoringHUDInterface.h"
+#include "HT_ScoringHUDInterface.h"
 #include "GameFramework/HUD.h"
 #include "HTPlayerHUD.generated.h"
 
 class AHTHoverTank;
 class UAbilitySystemComponent;
 class UScoreBoardWidget;
-class UHoverTankHUDWidget;
-class UDeathMatchPlayerHUDWidget;
+class UHTHoverTankHUDWidget;
+class UHTDeathMatchPlayerHUDWidget;
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API AHTPlayerHUD : public AHUD, public IScoringHUDInterface
+class HOVERTANKS_API AHTPlayerHUD : public AHUD, public IHT_ScoringHUDInterface
 {
 	GENERATED_BODY()
 
@@ -52,12 +52,12 @@ protected:
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass; // timer, score, etc
 
 	UPROPERTY()
-	UDeathMatchPlayerHUDWidget* PlayerHUDWidget = nullptr;
+	UHTDeathMatchPlayerHUDWidget* PlayerHUDWidget = nullptr;
 	
 	TSubclassOf<UUserWidget> HoverTankHUDWidgetClass;
 
 	UPROPERTY()
-	UHoverTankHUDWidget* HoverTankHUDWidget = nullptr;
+	UHTHoverTankHUDWidget* HoverTankHUDWidget = nullptr;
 
 	TSubclassOf<UUserWidget> ScoreBoardClass;
 

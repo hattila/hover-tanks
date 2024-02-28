@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameFramework/HUD.h" // do not remove this!
-#include "ScoringHUDInterface.generated.h"
+#include "HT_ScoringHUDInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE()
-class UScoringHUDInterface : public UInterface
+class UHT_ScoringHUDInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -17,7 +17,7 @@ class UScoringHUDInterface : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IScoringHUDInterface
+class HOVERTANKS_API IHT_ScoringHUDInterface
 {
 	GENERATED_BODY()
 
