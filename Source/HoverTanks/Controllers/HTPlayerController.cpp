@@ -7,7 +7,7 @@
 #include "HoverTanks/MenuSystem/InGameMenu.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
-#include "HoverTanks/Game/GameModes/CanRequestRespawnGameModeInterface.h"
+#include "HoverTanks/Game/GameModes/HTCanRequestRespawnGameModeInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 #include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
@@ -321,7 +321,7 @@ void AHTPlayerController::RequestRespawnActionStarted()
 
 void AHTPlayerController::ServerRequestRespawn_Implementation()
 {
-	ICanRequestRespawnGameModeInterface* GameModeInterface =  Cast<ICanRequestRespawnGameModeInterface>(GetWorld()->GetAuthGameMode());
+	IHTCanRequestRespawnGameModeInterface* GameModeInterface =  Cast<IHTCanRequestRespawnGameModeInterface>(GetWorld()->GetAuthGameMode());
 
 	if (GameModeInterface == nullptr)
 	{

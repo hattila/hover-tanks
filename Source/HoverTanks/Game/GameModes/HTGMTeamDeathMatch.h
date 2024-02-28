@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DeathMatchGameMode.h"
-#include "TeamDeathMatchGameMode.generated.h"
+#include "HTGMDeathMatch.h"
+#include "HTGMTeamDeathMatch.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API ATeamDeathMatchGameMode : public ADeathMatchGameMode
+class HOVERTANKS_API AHTGMTeamDeathMatch : public AHTGMDeathMatch
 {
 	GENERATED_BODY()
 
 public:
-	ATeamDeathMatchGameMode();
+	AHTGMTeamDeathMatch();
 
 	// ~IHandlesTankDeathGameModeInterface
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;

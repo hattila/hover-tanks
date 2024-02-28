@@ -273,7 +273,7 @@ void UHoverTanksGameInstance::OnCreateSessionComplete(FName SessionName, bool bW
 	if (HostGameSettings.GameModeName != "")
 	{
 		// const FString GameModePath = FString::Printf(TEXT("HoverTanks./Script/HoverTanks/Game/GameModes/%s"), *HostGameSettings.GameModeName);
-		const FString GameModePath = FString::Printf(TEXT("HoverTanks.Game.GameModes.%sGameMode"), *HostGameSettings.GameModeName); // todo class exists check
+		const FString GameModePath = FString::Printf(TEXT("HoverTanks.Game.GameModes.HTGM%s"), *HostGameSettings.GameModeName); // todo class exists check
 		ServerTravelURL.Append(FString::Printf(TEXT("?Game=%s"), *GameModePath));
 	}
 

@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameFramework/GameModeBase.h"
-#include "HandlesTankDeathGameModeInterface.generated.h"
+#include "HTHandlesTankDeathGameModeInterface.generated.h"
 
 class AHoverTank;
 
 UINTERFACE()
-class UHandlesTankDeathGameModeInterface : public UInterface
+class UHTHandlesTankDeathGameModeInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -18,7 +18,7 @@ class UHandlesTankDeathGameModeInterface : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IHandlesTankDeathGameModeInterface
+class HOVERTANKS_API IHTHandlesTankDeathGameModeInterface
 {
 	GENERATED_BODY()
 

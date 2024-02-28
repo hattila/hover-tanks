@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TeamDeathMatchGameMode.h"
+#include "HTGMTeamDeathMatch.h"
 
 #include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
 #include "HoverTanks/Pawns/HoverTank.h"
@@ -13,7 +13,7 @@
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 
-ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
+AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
 {
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != nullptr)
@@ -35,7 +35,7 @@ ATeamDeathMatchGameMode::ATeamDeathMatchGameMode()
 	HUDClass = AHTTeamDeathMatchHUD::StaticClass();
 }
 
-void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
+void AHTGMTeamDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died in TDM!"), *DeadHoverTank->GetName());
 
@@ -58,7 +58,7 @@ void ATeamDeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* D
 	
 }
 
-void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
+void AHTGMTeamDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 {
 	ATeamDeathMatchGameState* TeamDeathMatchGameState = GetGameState<ATeamDeathMatchGameState>();
 
@@ -75,7 +75,7 @@ void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerControll
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ADeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
+				UE_LOG(LogTemp, Warning, TEXT("AHTDeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
 			}
 
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
@@ -94,7 +94,7 @@ void ATeamDeathMatchGameMode::RequestRespawn(APlayerController* InPlayerControll
 	}
 }
 
-void ATeamDeathMatchGameMode::BeginPlay()
+void AHTGMTeamDeathMatch::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -107,7 +107,7 @@ void ATeamDeathMatchGameMode::BeginPlay()
 	
 }
 
-void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
+void AHTGMTeamDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
@@ -122,12 +122,12 @@ void ATeamDeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void ATeamDeathMatchGameMode::Logout(AController* Exiting)
+void AHTGMTeamDeathMatch::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 }
 
-void ATeamDeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
+void AHTGMTeamDeathMatch::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
 {
 	const FString KillerName = KillerController->PlayerState->GetPlayerName();
 	const FString VictimName = VictimController->PlayerState->GetPlayerName();

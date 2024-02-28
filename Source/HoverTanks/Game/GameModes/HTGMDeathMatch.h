@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CanRequestRespawnGameModeInterface.h"
-#include "HandlesTankDeathGameModeInterface.h"
+#include "HTCanRequestRespawnGameModeInterface.h"
+#include "HTHandlesTankDeathGameModeInterface.h"
 #include "GameFramework/GameModeBase.h"
-#include "DeathMatchGameMode.generated.h"
+#include "HTGMDeathMatch.generated.h"
 
 class AHoverTank;
 class APlayerStart;
@@ -23,15 +23,15 @@ enum EMatchState
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchGameMode :
+class HOVERTANKS_API AHTGMDeathMatch :
 	public AGameModeBase,
-	public ICanRequestRespawnGameModeInterface,
-	public IHandlesTankDeathGameModeInterface
+	public IHTCanRequestRespawnGameModeInterface,
+	public IHTHandlesTankDeathGameModeInterface
 {
 	GENERATED_BODY()
 
 public:
-	ADeathMatchGameMode();
+	AHTGMDeathMatch();
 
 	// ~IHandlesTankDeathGameModeInterface
 	virtual void TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser) override;

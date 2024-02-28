@@ -5,7 +5,7 @@
 
 #include "HoverTanks/GAS/HTAbilitySystemComponent.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
-#include "HoverTanks/Game/GameModes/HandlesTankDeathGameModeInterface.h"
+#include "HoverTanks/Game/GameModes/HTHandlesTankDeathGameModeInterface.h"
 #include "HoverTanks/Controllers/HTPlayerController.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 
@@ -88,7 +88,7 @@ void AHTPlayerState::OnOutOfHealthHandler(AController* InstigatorController, AAc
 	}
 
 	// get the game mode
-	IHandlesTankDeathGameModeInterface* HandlesTankDeathGameMode = Cast<IHandlesTankDeathGameModeInterface>(GetWorld()->GetAuthGameMode());
+	IHTHandlesTankDeathGameModeInterface* HandlesTankDeathGameMode = Cast<IHTHandlesTankDeathGameModeInterface>(GetWorld()->GetAuthGameMode());
 	if (HandlesTankDeathGameMode)
 	{
 		AHoverTank* Tank = Cast<AHoverTank>(GetPawn());

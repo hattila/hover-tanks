@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeathMatchGameMode.h"
+#include "HTGMDeathMatch.h"
 
 #include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
 #include "HoverTanks/Pawns/HoverTank.h"
@@ -14,7 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
-ADeathMatchGameMode::ADeathMatchGameMode()
+AHTGMDeathMatch::AHTGMDeathMatch()
 {
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/BP_HoverTank"));
 	if (PlayerPawnBPClass.Class != NULL)
@@ -40,7 +40,7 @@ ADeathMatchGameMode::ADeathMatchGameMode()
 	bUseSeamlessTravel = false;
 }
 
-void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
+void AHTGMDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCauser)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Tank %s died!"), *DeadHoverTank->GetName());
 
@@ -62,7 +62,7 @@ void ADeathMatchGameMode::TankDies(AHoverTank* DeadHoverTank, AController* Death
 	
 }
 
-void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
+void AHTGMDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 {
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 
@@ -79,7 +79,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("ADeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
+				UE_LOG(LogTemp, Warning, TEXT("AHTDeathMatchGameMode::RequestRespawn - CurrentPawn is null"));
 			}
 
 			APlayerStart* RandomSpawnPoint = FindRandomSpawnPoint();
@@ -90,7 +90,7 @@ void ADeathMatchGameMode::RequestRespawn(APlayerController* InPlayerController)
 	}
 }
 
-void ADeathMatchGameMode::BeginPlay()
+void AHTGMDeathMatch::BeginPlay()
 {
 	Super::BeginPlay();
 	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay %d"), MatchTimeInSeconds);
@@ -101,7 +101,7 @@ void ADeathMatchGameMode::BeginPlay()
 		DeathMatchGameState->SetTimeRemaining(MatchTimeInSeconds);
 	}
 
-	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &AHTGMDeathMatch::OnOneSecondElapsed, 1.f, true);
 
 	// recreate player scores
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
@@ -114,7 +114,7 @@ void ADeathMatchGameMode::BeginPlay()
 	}
 }
 
-void ADeathMatchGameMode::OnOneSecondElapsed()
+void AHTGMDeathMatch::OnOneSecondElapsed()
 {
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
@@ -137,7 +137,7 @@ void ADeathMatchGameMode::OnOneSecondElapsed()
  * Restarts the GameTimer, it now acts as a countdown to level restart.
  * Disable every players tank, force open the scoreboard for everyone.
  */
-void ADeathMatchGameMode::GameOver()
+void AHTGMDeathMatch::GameOver()
 {
 	// clear the timer
 	GetWorldTimerManager().ClearTimer(GameTimerHandle);
@@ -151,10 +151,10 @@ void ADeathMatchGameMode::GameOver()
 	{
 		DeathMatchGameState->SetTimeRemaining(GameRestartDelay);
 	}
-	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ADeathMatchGameMode::OnOneSecondElapsed, 1.f, true);
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &AHTGMDeathMatch::OnOneSecondElapsed, 1.f, true);
 	
 	FTimerHandle GameRestartTimerHandle;
-	GetWorldTimerManager().SetTimer(GameRestartTimerHandle, this, &ADeathMatchGameMode::ResetLevel, GameRestartDelay, true);
+	GetWorldTimerManager().SetTimer(GameRestartTimerHandle, this, &AHTGMDeathMatch::ResetLevel, GameRestartDelay, true);
 
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
@@ -177,7 +177,7 @@ void ADeathMatchGameMode::GameOver()
 	}
 }
 
-void ADeathMatchGameMode::ResetLevel()
+void AHTGMDeathMatch::ResetLevel()
 {
 	GetWorldTimerManager().ClearTimer(GameTimerHandle);
 
@@ -187,7 +187,7 @@ void ADeathMatchGameMode::ResetLevel()
 	GetWorld()->ServerTravel("?Restart",false);
 }
 
-void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
+void AHTGMDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
@@ -198,7 +198,7 @@ void ADeathMatchGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 }
 
-void ADeathMatchGameMode::Logout(AController* Exiting)
+void AHTGMDeathMatch::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 
@@ -221,11 +221,11 @@ void ADeathMatchGameMode::Logout(AController* Exiting)
 	 */
 	
 	const FString ExitingPlayerName = Exiting->PlayerState->GetPlayerName();
-	const FTimerDelegate ScoreBoardRefreshDelegate = FTimerDelegate::CreateUObject(this, &ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout, ExitingPlayerName);
+	const FTimerDelegate ScoreBoardRefreshDelegate = FTimerDelegate::CreateUObject(this, &AHTGMDeathMatch::RemovePlayerFromScoreBoardOnLogout, ExitingPlayerName);
 	GetWorldTimerManager().SetTimer(OnLogoutScoreRefreshTimerHandle, ScoreBoardRefreshDelegate, 1.f, false);
 }
 
-APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()
+APlayerStart* AHTGMDeathMatch::FindRandomSpawnPoint()
 {
 	const int32 RandomIndex = FMath::RandRange(0, SpawnPoints.Num() - 1);
 	APlayerStart* RandomSpawnPoint = SpawnPoints[RandomIndex];
@@ -233,7 +233,7 @@ APlayerStart* ADeathMatchGameMode::FindRandomSpawnPoint()
 	return RandomSpawnPoint;
 }
 
-AHoverTank* ADeathMatchGameMode::SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint)
+AHoverTank* AHTGMDeathMatch::SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoint)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -247,7 +247,7 @@ AHoverTank* ADeathMatchGameMode::SpawnTankAtPlayerStart(APlayerStart* RandomSpaw
 	return NewHoverTank;
 }
 
-void ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout(const FString PlayerName)
+void AHTGMDeathMatch::RemovePlayerFromScoreBoardOnLogout(const FString PlayerName)
 {
 	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
 	if (DeathMatchGameState)
@@ -256,7 +256,7 @@ void ADeathMatchGameMode::RemovePlayerFromScoreBoardOnLogout(const FString Playe
 	}
 }
 
-void ADeathMatchGameMode::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
+void AHTGMDeathMatch::SomeoneKilledSomeone(AController* KillerController, AController* VictimController)
 {
 	const FString KillerName = KillerController->PlayerState->GetPlayerName();
 	const FString VictimName = VictimController->PlayerState->GetPlayerName();
