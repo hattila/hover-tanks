@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "HTCanRequestRespawnGameModeInterface.generated.h"
+#include "HTGM_CanRequestRespawnInterface.generated.h"
 
 UINTERFACE()
-class UHTCanRequestRespawnGameModeInterface : public UInterface
+class UHTGM_CanRequestRespawnInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -15,7 +15,7 @@ class UHTCanRequestRespawnGameModeInterface : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IHTCanRequestRespawnGameModeInterface
+class HOVERTANKS_API IHTGM_CanRequestRespawnInterface
 {
 	GENERATED_BODY()
 

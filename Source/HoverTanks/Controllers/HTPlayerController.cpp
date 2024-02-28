@@ -6,8 +6,9 @@
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/MenuSystem/InGameMenu.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/Game/GameStates/TeamDeathMatchGameState.h"
-#include "HoverTanks/Game/GameModes/HTCanRequestRespawnGameModeInterface.h"
+#include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
+#include "HoverTanks/Game/GameModes/HTGM_CanRequestRespawnInterface.h"
+#include "HoverTanks/Game/GameModes/HTGM_HandlesTankDeathInterface.h"
 #include "HoverTanks/UI/HUD/ScoringHUDInterface.h"
 #include "HoverTanks/UI/HUD/HTPlayerHUD.h"
 
@@ -164,7 +165,7 @@ void AHTPlayerController::OnRep_Pawn()
 
 void AHTPlayerController::ServerAttemptToJoinTeam_Implementation(int8 TeamId)
 {
-	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	AHTGSTeamDeathMatch* GameState = GetWorld()->GetGameState<AHTGSTeamDeathMatch>();
 	if (GameState)
 	{
 		AInTeamPlayerState* TeamPlayerState = GetPlayerState<AInTeamPlayerState>();
@@ -225,7 +226,7 @@ void AHTPlayerController::ApplyTeamColorToPawn(const int8 NewTeamId)
 	}
 
 	// get the teams data asset todo: TeamGameStateInterface
-	const ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	const AHTGSTeamDeathMatch* GameState = GetWorld()->GetGameState<AHTGSTeamDeathMatch>();
 	if (GameState == nullptr)
 	{
 		return;
@@ -236,7 +237,7 @@ void AHTPlayerController::ApplyTeamColorToPawn(const int8 NewTeamId)
 
 void AHTPlayerController::ServerRefreshMeOnTheScoreBoard_Implementation(int8 NewTeamId)
 {
-	ATeamDeathMatchGameState* GameState = GetWorld()->GetGameState<ATeamDeathMatchGameState>();
+	AHTGSTeamDeathMatch* GameState = GetWorld()->GetGameState<AHTGSTeamDeathMatch>();
 	if (GameState == nullptr)
 	{
 		return;
@@ -321,7 +322,7 @@ void AHTPlayerController::RequestRespawnActionStarted()
 
 void AHTPlayerController::ServerRequestRespawn_Implementation()
 {
-	IHTCanRequestRespawnGameModeInterface* GameModeInterface =  Cast<IHTCanRequestRespawnGameModeInterface>(GetWorld()->GetAuthGameMode());
+	IHTGM_CanRequestRespawnInterface* GameModeInterface =  Cast<IHTGM_CanRequestRespawnInterface>(GetWorld()->GetAuthGameMode());
 
 	if (GameModeInterface == nullptr)
 	{

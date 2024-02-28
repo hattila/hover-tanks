@@ -7,7 +7,7 @@
 #include "HoverTanks/UI/HUD/DeathMatchPlayerHUDWidget.h"
 #include "HoverTanks/UI/ScoreBoard/DeathMatchScoreBoardWidget.h"
 #include "HoverTanks/Components/HTWeaponsComponent.h"
-#include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
+#include "HoverTanks/Game/GameStates/HTGSDeathMatch.h"
 #include "HoverTanks/GAS/HTAttributeSetBase.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 
@@ -87,7 +87,7 @@ void AHTPlayerHUD::CreatePlayerHUD()
 	PlayerHUDWidget = CreateWidget<UDeathMatchPlayerHUDWidget>(GetOwningPlayerController(), PlayerHUDWidgetClass);
 	PlayerHUDWidget->Setup();
 
-	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	const IHTGS_TimerInterface* TimerGameState = Cast<IHTGS_TimerInterface>(GetSafeGameState());
 	if (TimerGameState && PlayerHUDWidget)
 	{
 		PlayerHUDWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
@@ -168,13 +168,13 @@ void AHTPlayerHUD::ToggleScoreBoard()
 		return;
 	}
 	
-	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	const IHTGS_TimerInterface* TimerGameState = Cast<IHTGS_TimerInterface>(GetSafeGameState());
 	if (TimerGameState)
 	{
 		ScoreBoardWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
 	}
 
-	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	const IHTGS_ScoringInterface* ScoringGameState = Cast<IHTGS_ScoringInterface>(GetSafeGameState());
 	if (ScoringGameState)
 	{
 		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());
@@ -194,13 +194,13 @@ void AHTPlayerHUD::ForceOpenScoreBoard()
 		return;
 	}
 
-	const ITimerGameStateInterface* TimerGameState = Cast<ITimerGameStateInterface>(GetSafeGameState());
+	const IHTGS_TimerInterface* TimerGameState = Cast<IHTGS_TimerInterface>(GetSafeGameState());
 	if (TimerGameState)
 	{
 		ScoreBoardWidget->SetTimeLeft(TimerGameState->GetTimeRemaining());
 	}
 
-	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	const IHTGS_ScoringInterface* ScoringGameState = Cast<IHTGS_ScoringInterface>(GetSafeGameState());
 	if (ScoringGameState)
 	{
 		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());
@@ -218,7 +218,7 @@ void AHTPlayerHUD::RefreshPlayerScores()
 		return;
 	}
 
-	const IScoringGameStateInterface* ScoringGameState = Cast<IScoringGameStateInterface>(GetSafeGameState());
+	const IHTGS_ScoringInterface* ScoringGameState = Cast<IHTGS_ScoringInterface>(GetSafeGameState());
 	if (ScoringGameState)
 	{
 		ScoreBoardWidget->RefreshPlayerScores(ScoringGameState->GetPlayerScores());

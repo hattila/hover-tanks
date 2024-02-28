@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "DeathMatchGameState.h"
+#include "HTGSDeathMatch.h"
 
 #include "HoverTanks/Game/PlayerScore.h"
 #include "HoverTanks/Controllers/HTHasScoreBoardInterface.h"
@@ -9,15 +9,15 @@
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 
-void ADeathMatchGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AHTGSDeathMatch::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ADeathMatchGameState, TimeRemainingInSeconds);
-	DOREPLIFETIME(ADeathMatchGameState, PlayerScores);
+	DOREPLIFETIME(AHTGSDeathMatch, TimeRemainingInSeconds);
+	DOREPLIFETIME(AHTGSDeathMatch, PlayerScores);
 }
 
-void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* NewPlayer)
+void AHTGSDeathMatch::InitializeNewPlayerScore(const APlayerController* NewPlayer)
 {
 	// return if the player is already in the array
 	for (int32 i = 0; i < PlayerScores.Num(); i++)
@@ -37,7 +37,7 @@ void ADeathMatchGameState::InitializeNewPlayerScore(const APlayerController* New
 	OnRep_PlayerScores();
 }
 
-void ADeathMatchGameState::RemovePlayersScore(const FString& PlayerName)
+void AHTGSDeathMatch::RemovePlayersScore(const FString& PlayerName)
 {
 	// find the Player by name and remove it from the array
 	for (int32 i = 0; i < PlayerScores.Num(); i++)
@@ -52,7 +52,7 @@ void ADeathMatchGameState::RemovePlayersScore(const FString& PlayerName)
 	OnRep_PlayerScores();
 }
 
-void ADeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
+void AHTGSDeathMatch::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AddScoreToPlayer, %s, %d"), *PlayerController->PlayerState->GetPlayerName(), ScoreToAdd);
 	
@@ -75,7 +75,7 @@ void ADeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerContr
 	OnRep_PlayerScores();
 }
 
-void ADeathMatchGameState::OnRep_PlayerScores()
+void AHTGSDeathMatch::OnRep_PlayerScores()
 {
 	for (int32 i = 0; i < PlayerArray.Num(); i++)
 	{

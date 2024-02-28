@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TeamDeathMatchGameState.h"
+#include "HTGSTeamDeathMatch.h"
 
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/Teams/Team.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
 
-ATeamDeathMatchGameState::ATeamDeathMatchGameState()
+AHTGSTeamDeathMatch::AHTGSTeamDeathMatch()
 {
 	// find and set the team data asset
 	static ConstructorHelpers::FObjectFinder<UTeamDataAsset> Team1DataAssetFinder(TEXT("/Game/HoverTanks/Game/Teams/DA_RedTeam"));
@@ -24,7 +24,7 @@ ATeamDeathMatchGameState::ATeamDeathMatchGameState()
 	
 }
 
-void ATeamDeathMatchGameState::InitializeNewPlayerScore(const APlayerController* NewPlayer)
+void AHTGSTeamDeathMatch::InitializeNewPlayerScore(const APlayerController* NewPlayer)
 {
 	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(NewPlayer->PlayerState);
 	if (!InTeamPlayerState)
@@ -56,7 +56,7 @@ void ATeamDeathMatchGameState::InitializeNewPlayerScore(const APlayerController*
 	OnRep_PlayerScores();
 }
 
-void ATeamDeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
+void AHTGSTeamDeathMatch::AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd)
 {
 	AInTeamPlayerState* InTeamPlayerState = Cast<AInTeamPlayerState>(PlayerController->PlayerState);
 	if (!InTeamPlayerState)
@@ -80,7 +80,7 @@ void ATeamDeathMatchGameState::AddScoreToPlayer(const APlayerController* PlayerC
 	Super::AddScoreToPlayer(PlayerController, ScoreToAdd);
 }
 
-void ATeamDeathMatchGameState::CreateTeams()
+void AHTGSTeamDeathMatch::CreateTeams()
 {
 	if (TeamMap.Num() > 0)
 	{
@@ -100,7 +100,7 @@ void ATeamDeathMatchGameState::CreateTeams()
 	}
 }
 
-void ATeamDeathMatchGameState::AssignPlayersToTeams()
+void AHTGSTeamDeathMatch::AssignPlayersToTeams()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("AssignPlayersToTeams"));
 	
@@ -114,7 +114,7 @@ void ATeamDeathMatchGameState::AssignPlayersToTeams()
 	}
 }
 
-bool ATeamDeathMatchGameState::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState)
+bool AHTGSTeamDeathMatch::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState)
 {
 	int8 LeastPopulatedTeamId = GetLeastPopulatedTeamId();
 	if (LeastPopulatedTeamId == INDEX_NONE)
@@ -125,7 +125,7 @@ bool ATeamDeathMatchGameState::AssignPlayerToLeastPopulatedTeam(AInTeamPlayerSta
 	return AssignPlayerToTeam(PlayerState, LeastPopulatedTeamId);
 }
 
-bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId)
+bool AHTGSTeamDeathMatch::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId)
 {
 	if (!HasAuthority())
 	{
@@ -143,7 +143,7 @@ bool ATeamDeathMatchGameState::AssignPlayerToTeam(AInTeamPlayerState* TeamPlayer
 	return true;
 }
 
-bool ATeamDeathMatchGameState::AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2)
+bool AHTGSTeamDeathMatch::AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2)
 {
 	const AInTeamPlayerState* PlayerState1 = PlayerController1->GetPlayerState<AInTeamPlayerState>();
 	const AInTeamPlayerState* PlayerState2 = PlayerController2->GetPlayerState<AInTeamPlayerState>();
@@ -156,7 +156,7 @@ bool ATeamDeathMatchGameState::AreSameTeam(APlayerController* PlayerController1,
 	return false;
 }
 
-void ATeamDeathMatchGameState::BeginPlay()
+void AHTGSTeamDeathMatch::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -188,7 +188,7 @@ void ATeamDeathMatchGameState::BeginPlay()
 /**
  * Based on the Lyra example
  */
-int8 ATeamDeathMatchGameState::GetLeastPopulatedTeamId() const
+int8 AHTGSTeamDeathMatch::GetLeastPopulatedTeamId() const
 {
 	const int32 TeamsNum = TeamMap.Num();
 	if (TeamsNum <= 0)

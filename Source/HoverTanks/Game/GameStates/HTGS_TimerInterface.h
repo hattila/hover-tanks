@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "TimerGameStateInterface.generated.h"
+#include "HTGS_TimerInterface.generated.h"
 
 UINTERFACE()
-class UTimerGameStateInterface : public UInterface
+class UHTGS_TimerInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -15,7 +15,7 @@ class UTimerGameStateInterface : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API ITimerGameStateInterface
+class HOVERTANKS_API IHTGS_TimerInterface
 {
 	GENERATED_BODY()
 

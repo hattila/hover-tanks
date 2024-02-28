@@ -7,7 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HTPlayerController.generated.h"
 
-class IHTCanRequestRespawnGameModeInterface;
+class IHTGM_HandlesTankDeathInterface;
 class UDeathMatchScoreBoardWidget;
 class UInGameMenu;
 class UInputAction;

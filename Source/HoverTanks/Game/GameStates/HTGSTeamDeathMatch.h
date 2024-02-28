@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "DeathMatchGameState.h"
+#include "HTGSDeathMatch.h"
 
 #include "CoreMinimal.h"
-#include "TeamDeathMatchGameState.generated.h"
+#include "HTGSTeamDeathMatch.generated.h"
 
 class AInTeamPlayerState;
 class UTeamDataAsset;
@@ -14,12 +14,12 @@ class ATeam;
  * 
  */
 UCLASS()
-class HOVERTANKS_API ATeamDeathMatchGameState : public ADeathMatchGameState
+class HOVERTANKS_API AHTGSTeamDeathMatch : public AHTGSDeathMatch
 {
 	GENERATED_BODY()
 
 public:
-	ATeamDeathMatchGameState();
+	AHTGSTeamDeathMatch();
 
 	// ~IScoringGameStateInterface
 	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) override;

@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ScoringGameStateInterface.generated.h"
+#include "HTGS_ScoringInterface.generated.h"
 
 struct FPlayerScore;
 
 UINTERFACE()
-class UScoringGameStateInterface : public UInterface
+class UHTGS_ScoringInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -17,7 +17,7 @@ class UScoringGameStateInterface : public UInterface
 /**
  * 
  */
-class HOVERTANKS_API IScoringGameStateInterface
+class HOVERTANKS_API IHTGS_ScoringInterface
 {
 	GENERATED_BODY()
 

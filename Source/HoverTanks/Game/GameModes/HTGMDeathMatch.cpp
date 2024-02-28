@@ -3,7 +3,7 @@
 
 #include "HTGMDeathMatch.h"
 
-#include "HoverTanks/Game/GameStates/DeathMatchGameState.h"
+#include "..\GameStates\HTGSDeathMatch.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameFramework/PlayerState.h"
@@ -34,7 +34,7 @@ AHTGMDeathMatch::AHTGMDeathMatch()
 	// Custom GameInstance should be set in DefaultEngine.ini
 
 	PlayerStateClass = AHTPlayerState::StaticClass();
-	GameStateClass = ADeathMatchGameState::StaticClass();
+	GameStateClass = AHTGSDeathMatch::StaticClass();
 	HUDClass = AHTDeathMatchHUD::StaticClass();
 
 	bUseSeamlessTravel = false;
@@ -51,7 +51,7 @@ void AHTGMDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCaus
 
 		APlayerController* KillerPlayerController = Cast<APlayerController>(DeathCauser);
 		
-		ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+		AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 		if (DeathMatchGameState && KillerPlayerController != nullptr)
 		{
 			DeathMatchGameState->AddScoreToPlayer(KillerPlayerController, 1);
@@ -64,7 +64,7 @@ void AHTGMDeathMatch::TankDies(AHoverTank* DeadHoverTank, AController* DeathCaus
 
 void AHTGMDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 {
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 
 	if (DeathMatchGameState)
 	{
@@ -95,7 +95,7 @@ void AHTGMDeathMatch::BeginPlay()
 	Super::BeginPlay();
 	// UE_LOG(LogTemp, Warning, TEXT("DeathMatchGameMode BeginPlay %d"), MatchTimeInSeconds);
 
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 	if (DeathMatchGameState)
 	{
 		DeathMatchGameState->SetTimeRemaining(MatchTimeInSeconds);
@@ -116,7 +116,7 @@ void AHTGMDeathMatch::BeginPlay()
 
 void AHTGMDeathMatch::OnOneSecondElapsed()
 {
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 	if (DeathMatchGameState)
 	{
 		const int32 TimeRemaining = DeathMatchGameState->GetTimeRemaining();
@@ -146,7 +146,7 @@ void AHTGMDeathMatch::GameOver()
 
 	// UE_LOG(LogTemp, Warning, TEXT("GameOver!"));
 
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 	if (DeathMatchGameState)
 	{
 		DeathMatchGameState->SetTimeRemaining(GameRestartDelay);
@@ -191,7 +191,7 @@ void AHTGMDeathMatch::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 	if (DeathMatchGameState)
 	{
 		DeathMatchGameState->InitializeNewPlayerScore(NewPlayer);
@@ -249,7 +249,7 @@ AHoverTank* AHTGMDeathMatch::SpawnTankAtPlayerStart(APlayerStart* RandomSpawnPoi
 
 void AHTGMDeathMatch::RemovePlayerFromScoreBoardOnLogout(const FString PlayerName)
 {
-	ADeathMatchGameState* DeathMatchGameState = GetGameState<ADeathMatchGameState>();
+	AHTGSDeathMatch* DeathMatchGameState = GetGameState<AHTGSDeathMatch>();
 	if (DeathMatchGameState)
 	{
 		DeathMatchGameState->RemovePlayersScore(PlayerName);

@@ -3,39 +3,39 @@
 #pragma once
 
 #include "HoverTanks/Game/PlayerScore.h"
-#include "ScoringGameStateInterface.h"
+#include "HTGS_ScoringInterface.h"
 
 #include "CoreMinimal.h"
-#include "TimerGameStateInterface.h"
+#include "HTGS_TimerInterface.h"
 #include "GameFramework/GameStateBase.h"
-#include "DeathMatchGameState.generated.h"
+#include "HTGSDeathMatch.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API ADeathMatchGameState :
+class HOVERTANKS_API AHTGSDeathMatch :
 	public AGameStateBase,
-	public IScoringGameStateInterface,
-	public ITimerGameStateInterface
+	public IHTGS_ScoringInterface,
+	public IHTGS_TimerInterface
 {
 	GENERATED_BODY()
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	// ~IScoringGameStateInterface
+	// ~IHTGS_ScoringInterface
 	virtual void InitializeNewPlayerScore(const APlayerController* NewPlayer) override;
 	virtual void RemovePlayersScore(const FString& PlayerName) override;
 
 	virtual TArray<FPlayerScore> GetPlayerScores() const override { return PlayerScores; }
 	virtual void AddScoreToPlayer(const APlayerController* PlayerController, const int32 ScoreToAdd) override;
-	// ~IScoringGameStateInterface
+	// ~IHTGS_ScoringInterface
 
-	// ~ITimerGameStateInterface
+	// ~IHTGS_TimerInterface
 	virtual int32 GetTimeRemaining() const override { return TimeRemainingInSeconds; }
 	virtual void SetTimeRemaining(const int32 NewTimeRemaining) override { TimeRemainingInSeconds = NewTimeRemaining; }
-	// ~ITimerGameStateInterface
+	// ~IHTGS_TimerInterface
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerScores)
