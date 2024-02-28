@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HealthPickup.h"
+#include "HTHealthPickup.h"
 #include "GameFramework/Actor.h"
-#include "PickupSpawner.generated.h"
+#include "HTPickupSpawner.generated.h"
 
 class UBoxComponent;
 
 UCLASS()
-class HOVERTANKS_API APickupSpawner : public AActor
+class HOVERTANKS_API AHTPickupSpawner : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	APickupSpawner();
+	AHTPickupSpawner();
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,7 +34,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh = nullptr;
 	
-	TSubclassOf<AHealthPickup> HealthPickupClass;
+	TSubclassOf<AHTHealthPickup> HealthPickupClass;
 
 	bool bCurrentlyHasPickup = false;
 	

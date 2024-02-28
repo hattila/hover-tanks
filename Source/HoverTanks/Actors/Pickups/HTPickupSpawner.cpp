@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PickupSpawner.h"
+#include "HTPickupSpawner.h"
 
-APickupSpawner::APickupSpawner()
+AHTPickupSpawner::AHTPickupSpawner()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -29,11 +29,11 @@ APickupSpawner::APickupSpawner()
 	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
 	BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
-	HealthPickupClass = AHealthPickup::StaticClass();
+	HealthPickupClass = AHTHealthPickup::StaticClass();
 	
 }
 
-void APickupSpawner::BeginPlay()
+void AHTPickupSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -41,44 +41,44 @@ void APickupSpawner::BeginPlay()
 	{
 		SpawnPickup();
 
-		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APickupSpawner::OnOverlapBegin);
-		BoxCollider->OnComponentEndOverlap.AddDynamic(this, &APickupSpawner::OnOverlapEnd);
+		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHTPickupSpawner::OnOverlapBegin);
+		BoxCollider->OnComponentEndOverlap.AddDynamic(this, &AHTPickupSpawner::OnOverlapEnd);
 	}
 	
 }
 
-void APickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void AHTPickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(AHealthPickup::StaticClass()))
+	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = true;
 		// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapBegin) now has a pickup"));
 	}
 }
 
-void APickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void AHTPickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->IsA(AHealthPickup::StaticClass()))
+	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = false;
 		// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) now does not have a pickup, starting timer"));
 
-		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &APickupSpawner::SpawnPickup, ItemRespawnTime, false, ItemRespawnTime);
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AHTPickupSpawner::SpawnPickup, ItemRespawnTime, false, ItemRespawnTime);
 	}
 
 	// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) the OtherActor was a %s"), *OtherActor->GetName());
 }
 
-void APickupSpawner::SpawnPickup()
+void AHTPickupSpawner::SpawnPickup()
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = nullptr;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	AHealthPickup* SpawnedPickup = GetWorld()->SpawnActor<AHealthPickup>(HealthPickupClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+	AHTHealthPickup* SpawnedPickup = GetWorld()->SpawnActor<AHTHealthPickup>(HealthPickupClass, GetActorLocation(), GetActorRotation(), SpawnParams);
 
 	bCurrentlyHasPickup = true;
 	// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (SpawnPickup) now has a pickup"));

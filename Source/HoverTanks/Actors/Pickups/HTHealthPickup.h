@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
-#include "HealthPickup.generated.h"
+#include "HTHealthPickup.generated.h"
 
 class UGameplayEffect;
 
 UCLASS()
-class HOVERTANKS_API AHealthPickup : public AActor
+class HOVERTANKS_API AHTHealthPickup : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AHealthPickup();
+	AHTHealthPickup();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
