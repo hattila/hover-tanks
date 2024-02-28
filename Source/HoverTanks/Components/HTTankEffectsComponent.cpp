@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HoverTankEffectsComponent.h"
+#include "HTTankEffectsComponent.h"
 
-#include "HoverTankMovementComponent.h"
-#include "MovementReplicatorComponent.h"
+#include "HTTankMovementComponent.h"
+#include "HTMovementReplicatorComponent.h"
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Game/Teams/TeamDataAsset.h"
 
@@ -12,7 +12,7 @@
 #include "Components/RectLightComponent.h"
 #include "Net/UnrealNetwork.h"
 
-UHoverTankEffectsComponent::UHoverTankEffectsComponent()
+UHTTankEffectsComponent::UHTTankEffectsComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -27,17 +27,17 @@ UHoverTankEffectsComponent::UHoverTankEffectsComponent()
 	TankBurningFX->SetIsReplicated(true);
 }
 
-void UHoverTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UHoverTankEffectsComponent, TeamDataAsset);
-	DOREPLIFETIME(UHoverTankEffectsComponent, bAreLightsOn);
-	DOREPLIFETIME(UHoverTankEffectsComponent, TeamColorEmissiveStrength);
-	// DOREPLIFETIME(UHoverTankEffectsComponent, bIsBurningFxActive);
+	DOREPLIFETIME(UHTTankEffectsComponent, TeamDataAsset);
+	DOREPLIFETIME(UHTTankEffectsComponent, bAreLightsOn);
+	DOREPLIFETIME(UHTTankEffectsComponent, TeamColorEmissiveStrength);
+	// DOREPLIFETIME(UHTTankEffectsComponent, bIsBurningFxActive);
 }
 
-void UHoverTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -65,7 +65,7 @@ void UHoverTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	}
 }
 
-void UHoverTankEffectsComponent::BrakeLights(const bool bBraking) const
+void UHTTankEffectsComponent::BrakeLights(const bool bBraking) const
 {
 
 	if (TankLightsDynamicMaterialInstance)
@@ -75,7 +75,7 @@ void UHoverTankEffectsComponent::BrakeLights(const bool bBraking) const
 	}
 }
 
-void UHoverTankEffectsComponent::ThrusterLights(const bool bThrusting) const
+void UHTTankEffectsComponent::ThrusterLights(const bool bThrusting) const
 {
 	if (TankLightsDynamicMaterialInstance)
 	{
@@ -84,7 +84,7 @@ void UHoverTankEffectsComponent::ThrusterLights(const bool bThrusting) const
 	}
 }
 
-void UHoverTankEffectsComponent::OnDeath()
+void UHTTankEffectsComponent::OnDeath()
 {
 	if (!GetOwner() || !GetOwner()->HasAuthority())
 	{
@@ -104,16 +104,16 @@ void UHoverTankEffectsComponent::OnDeath()
 	// OnRep_IsBurningFxActive();
 }
 
-void UHoverTankEffectsComponent::MulticastActivateBurningFX_Implementation()
+void UHTTankEffectsComponent::MulticastActivateBurningFX_Implementation()
 {
 	TankBurningFX->Activate();
 }
 
-void UHoverTankEffectsComponent::BeginPlay()
+void UHTTankEffectsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UMovementReplicatorComponent>();
+	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UHTMovementReplicatorComponent>();
 
 	TArray<UStaticMeshComponent*> StaticMeshComponents;
 	GetOwner()->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
@@ -136,7 +136,7 @@ void UHoverTankEffectsComponent::BeginPlay()
 	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
 }
 
-// void UHoverTankEffectsComponent::OnRep_IsBurningFxActive()
+// void UHTTankEffectsComponent::OnRep_IsBurningFxActive()
 // {
 // 	if (!TankBurningFx)
 // 	{
@@ -153,7 +153,7 @@ void UHoverTankEffectsComponent::BeginPlay()
 // 	}
 // }
 
-void UHoverTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
+void UHTTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 {
 	if (TankLightsDynamicMaterialInstance)
 	{
@@ -162,7 +162,7 @@ void UHoverTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 	}
 }
 
-void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset)
+void UHTTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset)
 {
 	FString RoleString;
 	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
@@ -179,19 +179,19 @@ void UHoverTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset
 }
 
 
-void UHoverTankEffectsComponent::OnRep_TeamDataAsset()
+void UHTTankEffectsComponent::OnRep_TeamDataAsset()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("FX comp, OnRep_TeamDataAsset, color %s"), *TeamDataAsset->GetTeamShortName().ToString());
 	TeamDataAsset->ApplyToActor(GetOwner());
 }
 
-void UHoverTankEffectsComponent::ServerToggleLights_Implementation()
+void UHTTankEffectsComponent::ServerToggleLights_Implementation()
 {
 	bAreLightsOn = !bAreLightsOn;
 	OnRep_LightsOn();
 }
 
-void UHoverTankEffectsComponent::OnRep_LightsOn()
+void UHTTankEffectsComponent::OnRep_LightsOn()
 {
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (!HoverTank)

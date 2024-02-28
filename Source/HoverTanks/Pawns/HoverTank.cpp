@@ -3,9 +3,9 @@
 #include "HoverTank.h"
 
 #include "AbilitySystemComponent.h"
-#include "HoverTanks/Components/HoverTankMovementComponent.h"
-#include "HoverTanks/Components/MovementReplicatorComponent.h"
-#include "HoverTanks/Components/HoverTankEffectsComponent.h"
+#include "HoverTanks/Components/HTTankMovementComponent.h"
+#include "HoverTanks/Components/HTMovementReplicatorComponent.h"
+#include "HoverTanks/Components/HTTankEffectsComponent.h"
 #include "HoverTanks/Components/HTWeaponsComponent.h"
 #include "HoverTanks/Game/InTeamPlayerState.h"
 #include "HoverTanks/Game/HTPlayerState.h"
@@ -38,16 +38,16 @@ AHoverTank::AHoverTank()
 	/**
 	 * Create ActorComponents
 	 */
-	HoverTankMovementComponent = CreateDefaultSubobject<UHoverTankMovementComponent>(TEXT("Hover Tank Movement Component"));
+	TankMovementComponent = CreateDefaultSubobject<UHTTankMovementComponent>(TEXT("Tank Movement Component"));
 
-	MovementReplicatorComponent = CreateDefaultSubobject<UMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
+	MovementReplicatorComponent = CreateDefaultSubobject<UHTMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
 	MovementReplicatorComponent->SetIsReplicated(true);
 
 	WeaponsComponent = CreateDefaultSubobject<UHTWeaponsComponent>(TEXT("Weapons Component"));
 	WeaponsComponent->SetIsReplicated(true);
 
-	HoverTankEffectsComponent = CreateDefaultSubobject<UHoverTankEffectsComponent>(TEXT("Hover Tank Effects Component"));
-	HoverTankEffectsComponent->SetIsReplicated(true);
+	TankEffectsComponent = CreateDefaultSubobject<UHTTankEffectsComponent>(TEXT("Tank Effects Component"));
+	TankEffectsComponent->SetIsReplicated(true);
 
 	/**
 	 * Create Visible Components
@@ -284,9 +284,9 @@ void AHoverTank::OnDeath()
 	// ECC_GameTraceChannel1 is the Projectile channel
 	ColliderMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
 
-	if (HoverTankEffectsComponent)
+	if (TankEffectsComponent)
 	{
-		HoverTankEffectsComponent->OnDeath();
+		TankEffectsComponent->OnDeath();
 	}
 	
 	// change the mesh to a wreckage
@@ -360,13 +360,13 @@ void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
 		return;
 	}
 	
-	if (HoverTankEffectsComponent == nullptr)
+	if (TankEffectsComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HoverTankEffectsComponent is null on HoverTank, cannot apply team colors"));
+		UE_LOG(LogTemp, Warning, TEXT("TankEffectsComponent is null on HoverTank, cannot apply team colors"));
 		return;
 	}
 
-	HoverTankEffectsComponent->ApplyTeamColors(TeamDataAsset);
+	TankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
 /**
@@ -518,10 +518,10 @@ void AHoverTank::MoveTriggered(const FInputActionValue& Value)
 	
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->SetThrottle(MovementVector.Y);
-		HoverTankMovementComponent->SetSteering(MovementVector.X);
+		TankMovementComponent->SetThrottle(MovementVector.Y);
+		TankMovementComponent->SetSteering(MovementVector.X);
 	}
 }
 
@@ -532,10 +532,10 @@ void AHoverTank::MoveCompleted()
 		return;
 	}
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->SetThrottle(0);
-		HoverTankMovementComponent->SetSteering(0);
+		TankMovementComponent->SetThrottle(0);
+		TankMovementComponent->SetSteering(0);
 	}
 }
 
@@ -543,21 +543,21 @@ void AHoverTank::LookTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Look Value: %s"), *Value.ToString());
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		
-		HoverTankMovementComponent->SetLookUp(LookAxisVector.Y);
-		HoverTankMovementComponent->SetLookRight(LookAxisVector.X);
+		TankMovementComponent->SetLookUp(LookAxisVector.Y);
+		TankMovementComponent->SetLookRight(LookAxisVector.X);
 	}
 }
 
 void AHoverTank::LookCompleted()
 {
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->SetLookUp(0);
-		HoverTankMovementComponent->SetLookRight(0);
+		TankMovementComponent->SetLookUp(0);
+		TankMovementComponent->SetLookRight(0);
 	}
 }
 
@@ -568,9 +568,9 @@ void AHoverTank::EBrakeStarted()
 		return;
 	}
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->SetIsEBraking(true);
+		TankMovementComponent->SetIsEBraking(true);
 	}
 }
 
@@ -581,9 +581,9 @@ void AHoverTank::EBrakeCompleted()
 		return;
 	}
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->SetIsEBraking(false);
+		TankMovementComponent->SetIsEBraking(false);
 	}
 }
 
@@ -596,9 +596,9 @@ void AHoverTank::JumpTriggered()
 		return;
 	}
 
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->JumpTriggered();
+		TankMovementComponent->JumpTriggered();
 	}
 }
 
@@ -609,9 +609,9 @@ void AHoverTank::JumpCompleted()
 		return;
 	}
 
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->JumpCompleted();
+		TankMovementComponent->JumpCompleted();
 	}
 }
 
@@ -622,9 +622,9 @@ void AHoverTank::BoostTriggered()
 		return;
 	}
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->BoostTriggered();
+		TankMovementComponent->BoostTriggered();
 	}
 }
 
@@ -635,9 +635,9 @@ void AHoverTank::BoostCompleted()
 		return;
 	}
 	
-	if (HoverTankMovementComponent)
+	if (TankMovementComponent)
 	{
-		HoverTankMovementComponent->BoostCompleted();
+		TankMovementComponent->BoostCompleted();
 	}
 }
 
@@ -750,9 +750,9 @@ void AHoverTank::ToggleLightsActionStarted()
 		return;
 	}
 
-	if (HoverTankEffectsComponent)
+	if (TankEffectsComponent)
 	{
-		HoverTankEffectsComponent->ServerToggleLights();
+		TankEffectsComponent->ServerToggleLights();
 	}
 }
 

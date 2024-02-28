@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "HoverTankMovementComponent.generated.h"
+#include "HTTankMovementComponent.generated.h"
 
 USTRUCT()
 struct FHoverTankMove
@@ -58,12 +58,12 @@ struct FHoverTankCannonRotate
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HOVERTANKS_API UHoverTankMovementComponent : public UActorComponent
+class HOVERTANKS_API UHTTankMovementComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UHoverTankMovementComponent();
+	UHTTankMovementComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

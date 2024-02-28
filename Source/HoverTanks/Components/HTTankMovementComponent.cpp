@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HoverTankMovementComponent.h"
+#include "HTTankMovementComponent.h"
 
 #include "HoverTanks/Pawns/HoverTank.h"
 
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
-UHoverTankMovementComponent::UHoverTankMovementComponent(): LastMove(), LastCannonRotate()
+UHTTankMovementComponent::UHTTankMovementComponent(): LastMove(), LastCannonRotate()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
@@ -16,7 +16,7 @@ UHoverTankMovementComponent::UHoverTankMovementComponent(): LastMove(), LastCann
 	GroundTraceLocation->SetRelativeLocation(GroundTraceLocationOffset);
 }
 
-void UHoverTankMovementComponent::BeginPlay()
+void UHTTankMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -31,7 +31,7 @@ void UHoverTankMovementComponent::BeginPlay()
 	
 }
 
-void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHTTankMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -62,23 +62,23 @@ void UHoverTankMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	}
 }
 
-void UHoverTankMovementComponent::JumpTriggered()
+void UHTTankMovementComponent::JumpTriggered()
 {
 	bIsJumping = true;
 }
 
-void UHoverTankMovementComponent::JumpCompleted()
+void UHTTankMovementComponent::JumpCompleted()
 {
 	bIsJumping = false;
 }
 
-void UHoverTankMovementComponent::BoostTriggered()
+void UHTTankMovementComponent::BoostTriggered()
 {
 	// handle boost reserve, CD
 	bIsBoosting = true;
 }
 
-void UHoverTankMovementComponent::BoostCompleted()
+void UHTTankMovementComponent::BoostCompleted()
 {
 	bIsBoosting = false;
 }
@@ -91,7 +91,7 @@ void UHoverTankMovementComponent::BoostCompleted()
  *  - Slopes and rotation along surface normals
  *  - Turning and Rotation
  */
-void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
+void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
 	/**
 	 * Initial Forces
@@ -184,7 +184,7 @@ void UHoverTankMovementComponent::SimulateMove(FHoverTankMove Move)
 /**
  * Cannon Rotation Simulation covers the rotation of the TankCannon and TankBarrel meshes
  */
-void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
+void UHTTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate& CannonRotate)
 {
 	if (!IsInputEnabled())
 	{
@@ -215,7 +215,7 @@ void UHoverTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRot
 	TankBarrelMesh->SetWorldRotation(BarrelRotationTowardControlRotation);
 }
 
-FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
+FHoverTankMove UHTTankMovementComponent::CreateMove(float DeltaTime)
 {
 	FHoverTankMove Move;
 	Move.DeltaTime = DeltaTime;
@@ -229,7 +229,7 @@ FHoverTankMove UHoverTankMovementComponent::CreateMove(float DeltaTime)
 	return Move;
 }
 
-FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation)
+FHoverTankCannonRotate UHTTankMovementComponent::CreateCannonRotate(float DeltaTime, const FRotator& ControlRotation)
 {
 	FHoverTankCannonRotate CannonRotate;
 	CannonRotate.DeltaTime = DeltaTime;
@@ -245,7 +245,7 @@ FHoverTankCannonRotate UHoverTankMovementComponent::CreateCannonRotate(float Del
  * Velocity is rotated by the Steering angle. The lower the speed is, the more turning is applied to the Velocity.
  * More speed means more drift.
  */
-void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta)
+void UHTTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, FRotator &HorizontalRotation, FQuat &RotationDelta)
 {
 	// Rotate Actor based on Steering
 	HorizontalRotation = GetOwner()->GetActorRotation();
@@ -262,7 +262,7 @@ void UHoverTankMovementComponent::CalculateTurning(const FHoverTankMove& Move, F
 	RotationDelta = FQuat(GetOwner()->GetActorUpVector(), RotationAngle);
 }
 
-FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
+FRotator UHTTankMovementComponent::CalculateSurfaceNormalRotation(const bool bIsGrounded, const FVector& GroundSurfaceNormal, FVector RightVector, float ActorYawRotation)
 {
 	if (!bIsGrounded)
 	{
@@ -290,12 +290,12 @@ FRotator UHoverTankMovementComponent::CalculateSurfaceNormalRotation(const bool 
 	return AlignedRotation;
 }
 
-FVector UHoverTankMovementComponent::CalculateAirResistance()
+FVector UHTTankMovementComponent::CalculateAirResistance()
 {
 	return Velocity.GetSafeNormal() * -1 * Velocity.SizeSquared() * DragCoefficient;
 }
 
-FVector UHoverTankMovementComponent::CalculateRollingResistance(bool InIsEBraking)
+FVector UHTTankMovementComponent::CalculateRollingResistance(bool InIsEBraking)
 {
 	float AccelerationDueToGravity = GetWorld()->GetGravityZ() / 100; // 1 to 100 to be in meters per seconds
 	
@@ -311,7 +311,7 @@ FVector UHoverTankMovementComponent::CalculateRollingResistance(bool InIsEBrakin
 	return Velocity.GetSafeNormal() * RollingResistanceCoefficient * NormalForce;
 }
 
-FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
+FVector UHTTankMovementComponent::CalculateBounceVector(const FVector& InVelocity, const FVector& WallNormal)
 {
 	// Ensure that the incoming velocity and wall normal are normalized
 	const FVector NormalizedVelocity = InVelocity.GetSafeNormal();
@@ -323,7 +323,7 @@ FVector UHoverTankMovementComponent::CalculateBounceVector(const FVector& InVelo
 	return BounceVector;
 }
 
-FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
+FVector UHTTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded)
 {
 	const FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1); // m/s^2
 
@@ -371,7 +371,7 @@ FVector UHoverTankMovementComponent::CalculateVerticalForce(const FHoverTankMove
  * component should move further ahead, maximized at MaxSpeed. As Velocity magnitude decreases, the GroundTraceStart
  * component should closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
  */
-FVector UHoverTankMovementComponent::CalculateGroundTraceStartLocation() const
+FVector UHTTankMovementComponent::CalculateGroundTraceStartLocation() const
 {
 	const FVector GroundTraceOriginLocation = GetOwner()->GetActorLocation() + GroundTraceLocationOffset;
 	const FVector NormalizedVelocity = Velocity.GetSafeNormal();
@@ -386,7 +386,7 @@ FVector UHoverTankMovementComponent::CalculateGroundTraceStartLocation() const
 	return GroundTraceTargetLocation;
 }
 
-bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const
+bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const
 {
 	if (GetOwner() == nullptr)
 	{
@@ -430,7 +430,7 @@ bool UHoverTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float
 	return false;
 }
 
-bool UHoverTankMovementComponent::IsInputEnabled()
+bool UHTTankMovementComponent::IsInputEnabled()
 {
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
@@ -441,7 +441,7 @@ bool UHoverTankMovementComponent::IsInputEnabled()
 	return false;
 }
 
-bool UHoverTankMovementComponent::IsTankDead() const
+bool UHTTankMovementComponent::IsTankDead() const
 {
 	AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner());
 	if (HoverTank)
@@ -452,7 +452,7 @@ bool UHoverTankMovementComponent::IsTankDead() const
 	return false;
 }
 
-bool UHoverTankMovementComponent::ShowDebug() const
+bool UHTTankMovementComponent::ShowDebug() const
 {
 	if (const AHoverTank* HoverTank = Cast<AHoverTank>(GetOwner()))
 	{
@@ -462,7 +462,7 @@ bool UHoverTankMovementComponent::ShowDebug() const
 	return false;
 }
 
-void UHoverTankMovementComponent::DebugDrawForwardAndVelocity() const
+void UHTTankMovementComponent::DebugDrawForwardAndVelocity() const
 {
 	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + Velocity.GetSafeNormal() * 1000, 10, FColor::Purple, false, 0, 0, 4);
 	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 1000, 10, FColor::Green, false, 0, 0, 4);

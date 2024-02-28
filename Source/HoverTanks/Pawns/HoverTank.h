@@ -12,9 +12,9 @@
 class UHTGameplayAbility;
 class UHTAbilitySystemComponent;
 class UHTWeaponsComponent;
-class UHoverTankEffectsComponent;
-class UHoverTankMovementComponent;
-class UMovementReplicatorComponent;
+class UHTTankEffectsComponent;
+class UHTTankMovementComponent;
+class UHTMovementReplicatorComponent;
 
 class UGameplayEffect;
 class UGameplayAbility;
@@ -87,7 +87,7 @@ public:
 	FHitResult FindTargetAtCrosshair() const;
 	
 	UHTWeaponsComponent* GetWeaponsComponent() const { return WeaponsComponent; }
-	UHoverTankEffectsComponent* GetEffectsComponent() const { return HoverTankEffectsComponent; }
+	UHTTankEffectsComponent* GetEffectsComponent() const { return TankEffectsComponent; }
 
 	//~ Begin IHasTeamColors interface
 	virtual void ApplyTeamColors(UTeamDataAsset* TeamDataAsset) override;
@@ -154,16 +154,16 @@ private:
 	 */
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	UHoverTankMovementComponent* HoverTankMovementComponent;
+	UHTTankMovementComponent* TankMovementComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	UMovementReplicatorComponent* MovementReplicatorComponent;
+	UHTMovementReplicatorComponent* MovementReplicatorComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UHTWeaponsComponent* WeaponsComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
-	UHoverTankEffectsComponent* HoverTankEffectsComponent = nullptr;
+	UHTTankEffectsComponent* TankEffectsComponent = nullptr;
 
 	/**
 	 * Game components

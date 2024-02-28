@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MovementReplicatorComponent.h"
+#include "HTMovementReplicatorComponent.h"
 
 #include "Net/UnrealNetwork.h"
 
-UMovementReplicatorComponent::UMovementReplicatorComponent(): ServerMoveState(),
+UHTMovementReplicatorComponent::UHTMovementReplicatorComponent(): ServerMoveState(),
                                                               ClientTimeSinceUpdate(0),
                                                               ClientTimeBetweenLastUpdates(0),
                                                               ServerCannonRotateState()
@@ -14,22 +14,22 @@ UMovementReplicatorComponent::UMovementReplicatorComponent(): ServerMoveState(),
 	// SetIsReplicated(true); // it is set in the parent actors constructor	
 }
 
-void UMovementReplicatorComponent::BeginPlay()
+void UHTMovementReplicatorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HoverTankMovementComponent = GetOwner()->FindComponentByClass<UHoverTankMovementComponent>();
+	HoverTankMovementComponent = GetOwner()->FindComponentByClass<UHTTankMovementComponent>();
 }
 
-void UMovementReplicatorComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UHTMovementReplicatorComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UMovementReplicatorComponent, ServerMoveState);
-	DOREPLIFETIME(UMovementReplicatorComponent, ServerCannonRotateState);
+	DOREPLIFETIME(UHTMovementReplicatorComponent, ServerMoveState);
+	DOREPLIFETIME(UHTMovementReplicatorComponent, ServerCannonRotateState);
 }
 
-void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHTMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -83,7 +83,7 @@ void UMovementReplicatorComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	
 }
 
-void UMovementReplicatorComponent::ClientTick(const float DeltaTime)
+void UHTMovementReplicatorComponent::ClientTick(const float DeltaTime)
 {
 	ClientTimeSinceUpdate += DeltaTime;
 
@@ -98,7 +98,7 @@ void UMovementReplicatorComponent::ClientTick(const float DeltaTime)
 	InterpolateCannon(LerpRatio);
 }
 
-void UMovementReplicatorComponent::InterpolateMovement(const float LerpRatio)
+void UHTMovementReplicatorComponent::InterpolateMovement(const float LerpRatio)
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -125,7 +125,7 @@ void UMovementReplicatorComponent::InterpolateMovement(const float LerpRatio)
 	GetOwner()->SetActorRotation(InterpolatedRotation);
 }
 
-void UMovementReplicatorComponent::InterpolateCannon(const float LerpRatio)
+void UHTMovementReplicatorComponent::InterpolateCannon(const float LerpRatio)
 {
 	if (HoverTankMovementComponent == nullptr || HoverTankMovementComponent->GetTankCannonMesh() == nullptr || HoverTankMovementComponent->GetTankBarrelMesh() == nullptr)
 	{
@@ -140,7 +140,7 @@ void UMovementReplicatorComponent::InterpolateCannon(const float LerpRatio)
 	HoverTankMovementComponent->GetTankBarrelMesh()->SetWorldRotation(InterpolatedBarrelRotation);
 }
 
-void UMovementReplicatorComponent::OnRep_ServerMoveState()
+void UHTMovementReplicatorComponent::OnRep_ServerMoveState()
 {
 	switch (GetOwnerRole())
 	{
@@ -158,7 +158,7 @@ void UMovementReplicatorComponent::OnRep_ServerMoveState()
 /**
  * Simulated Proxies cache the last server state and use it to interpolate to the current state on ClientTick.
  */
-void UMovementReplicatorComponent::SimulatedProxy_OnRep_ServerMoveState()
+void UHTMovementReplicatorComponent::SimulatedProxy_OnRep_ServerMoveState()
 {
 	ClientTimeBetweenLastUpdates = ClientTimeSinceUpdate; // Time between last update
 	ClientTimeSinceUpdate = 0; // we just received an update
@@ -175,7 +175,7 @@ void UMovementReplicatorComponent::SimulatedProxy_OnRep_ServerMoveState()
  * Autonomous Proxies get set back where the serves state says we are, and than plays the saved unacknowledged
  * moves on top.
  */
-void UMovementReplicatorComponent::AutonomousProxy_OnRep_ServerMoveState()
+void UHTMovementReplicatorComponent::AutonomousProxy_OnRep_ServerMoveState()
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -196,7 +196,7 @@ void UMovementReplicatorComponent::AutonomousProxy_OnRep_ServerMoveState()
 	}
 }
 
-void UMovementReplicatorComponent::ClearAcknowledgedMoves(FHoverTankMove LastMove)
+void UHTMovementReplicatorComponent::ClearAcknowledgedMoves(FHoverTankMove LastMove)
 {
 	// iterate over UnacknowledgedMoves and remove every element with older time than in LastMove
 	TArray<FHoverTankMove> NewMoves;
@@ -210,7 +210,7 @@ void UMovementReplicatorComponent::ClearAcknowledgedMoves(FHoverTankMove LastMov
 	UnacknowledgedMoves = NewMoves;
 }
 
-void UMovementReplicatorComponent::ServerSendMove_Implementation(FHoverTankMove Move)
+void UHTMovementReplicatorComponent::ServerSendMove_Implementation(FHoverTankMove Move)
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -221,19 +221,19 @@ void UMovementReplicatorComponent::ServerSendMove_Implementation(FHoverTankMove 
 	UpdateServerMoveState(Move);
 }
 
-bool UMovementReplicatorComponent::ServerSendMove_Validate(FHoverTankMove Move)
+bool UHTMovementReplicatorComponent::ServerSendMove_Validate(FHoverTankMove Move)
 {
 	return Move.IsValid();
 }
 
-void UMovementReplicatorComponent::UpdateServerMoveState(const FHoverTankMove& Move)
+void UHTMovementReplicatorComponent::UpdateServerMoveState(const FHoverTankMove& Move)
 {
 	ServerMoveState.LastMove = Move;
 	ServerMoveState.Transform = GetOwner()->GetActorTransform();
 	ServerMoveState.Velocity = HoverTankMovementComponent->GetVelocity();
 }
 
-FHermiteCubicSpline UMovementReplicatorComponent::CreateSpline()
+FHermiteCubicSpline UHTMovementReplicatorComponent::CreateSpline()
 {
 	FHermiteCubicSpline Spline;
 
@@ -246,7 +246,7 @@ FHermiteCubicSpline UMovementReplicatorComponent::CreateSpline()
 	return Spline;
 }
 
-void UMovementReplicatorComponent::ServerSendCannonRotate_Implementation(const FHoverTankCannonRotate& CannonRotate)
+void UHTMovementReplicatorComponent::ServerSendCannonRotate_Implementation(const FHoverTankCannonRotate& CannonRotate)
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -257,20 +257,20 @@ void UMovementReplicatorComponent::ServerSendCannonRotate_Implementation(const F
 	UpdateServerCannonRotate(CannonRotate);
 }
 
-bool UMovementReplicatorComponent::ServerSendCannonRotate_Validate(const FHoverTankCannonRotate& CannonRotate)
+bool UHTMovementReplicatorComponent::ServerSendCannonRotate_Validate(const FHoverTankCannonRotate& CannonRotate)
 {
 	// return CannonRotate.IsValid();
 	return true;
 }
 
-void UMovementReplicatorComponent::UpdateServerCannonRotate(FHoverTankCannonRotate LastCannonRotateReceived)
+void UHTMovementReplicatorComponent::UpdateServerCannonRotate(FHoverTankCannonRotate LastCannonRotateReceived)
 {
 	ServerCannonRotateState.LastCannonRotate = LastCannonRotateReceived;
 	ServerCannonRotateState.CannonRotation = HoverTankMovementComponent->GetTankCannonMesh()->GetComponentRotation(); // maybe a getter for the rotation only?
 	ServerCannonRotateState.BarrelRotation = HoverTankMovementComponent->GetTankBarrelMesh()->GetComponentRotation();
 }
 
-void UMovementReplicatorComponent::OnRep_ServerCannonRotateState()
+void UHTMovementReplicatorComponent::OnRep_ServerCannonRotateState()
 {
 	switch (GetOwnerRole())
 	{
@@ -285,7 +285,7 @@ void UMovementReplicatorComponent::OnRep_ServerCannonRotateState()
 	}
 }
 
-void UMovementReplicatorComponent::AutonomousProxy_OnRep_ServerCannonRotateState()
+void UHTMovementReplicatorComponent::AutonomousProxy_OnRep_ServerCannonRotateState()
 {
 	if (HoverTankMovementComponent == nullptr)
 	{
@@ -299,7 +299,7 @@ void UMovementReplicatorComponent::AutonomousProxy_OnRep_ServerCannonRotateState
 	// HoverTankMovementComponent->SimulateCannonRotate(ServerCannonRotateState.LastCannonRotate);
 }
 
-void UMovementReplicatorComponent::SimulatedProxy_OnRep_ServerCannonRotateState()
+void UHTMovementReplicatorComponent::SimulatedProxy_OnRep_ServerCannonRotateState()
 {
 	if (HoverTankMovementComponent == nullptr || HoverTankMovementComponent->GetTankCannonMesh() == nullptr)
 	{

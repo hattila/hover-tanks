@@ -5,7 +5,7 @@
 
 #include "HoverTanks/Pawns/HoverTank.h"
 #include "HoverTanks/Actors/Projectiles/HTCannonProjectile.h"
-#include "..\Actors\Weapons\HTRocketLauncher.h"
+#include "HoverTanks/Actors/Weapons/HTRocketLauncher.h"
 #include "Kismet/GameplayStatics.h"
 
 UHTWeaponsComponent::UHTWeaponsComponent(): TankCannonMesh(nullptr), TankBarrelMesh(nullptr)

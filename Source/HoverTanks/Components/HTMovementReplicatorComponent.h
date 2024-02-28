@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "HoverTankMovementComponent.h"
+#include "HTTankMovementComponent.h"
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MovementReplicatorComponent.generated.h"
+#include "HTMovementReplicatorComponent.generated.h"
 
 USTRUCT()
 struct FHoverTankMoveState
@@ -57,13 +57,13 @@ struct FHermiteCubicSpline
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class HOVERTANKS_API UMovementReplicatorComponent : public UActorComponent
+class HOVERTANKS_API UHTMovementReplicatorComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UMovementReplicatorComponent();
+	UHTMovementReplicatorComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -74,7 +74,7 @@ protected:
 
 private:
 	UPROPERTY()
-	UHoverTankMovementComponent* HoverTankMovementComponent = nullptr;
+	UHTTankMovementComponent* HoverTankMovementComponent = nullptr;
 
 	void ClientTick(float DeltaTime);
 	

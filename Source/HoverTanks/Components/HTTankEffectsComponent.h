@@ -4,21 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "HoverTankEffectsComponent.generated.h"
+#include "HTTankEffectsComponent.generated.h"
 
 class UNiagaraComponent;
 class UTeamDataAsset;
-class UMovementReplicatorComponent;
+class UHTMovementReplicatorComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class HOVERTANKS_API UHoverTankEffectsComponent : public UActorComponent // USceneComponent
+class HOVERTANKS_API UHTTankEffectsComponent : public UActorComponent // USceneComponent
 {
 	GENERATED_BODY()
 
 public:
-	UHoverTankEffectsComponent();
+	UHTTankEffectsComponent();
 
-	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -37,7 +37,7 @@ protected:
 
 private:
 	UPROPERTY()
-	UMovementReplicatorComponent* MovementReplicatorComponent = nullptr;
+	UHTMovementReplicatorComponent* MovementReplicatorComponent = nullptr;
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
