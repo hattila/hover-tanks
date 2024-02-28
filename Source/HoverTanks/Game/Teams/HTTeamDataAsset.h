@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "TeamDataAsset.generated.h"
+#include "HTTeamDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UTeamDataAsset : public UDataAsset
+class HOVERTANKS_API UHTTeamDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 

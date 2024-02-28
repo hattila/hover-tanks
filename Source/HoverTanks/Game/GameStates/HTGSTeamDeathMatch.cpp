@@ -4,19 +4,19 @@
 #include "HTGSTeamDeathMatch.h"
 
 #include "HoverTanks/Game/InTeamPlayerState.h"
-#include "HoverTanks/Game/Teams/Team.h"
-#include "HoverTanks/Game/Teams/TeamDataAsset.h"
+#include "HoverTanks/Game/Teams/HTTeam.h"
+#include "..\Teams\HTTeamDataAsset.h"
 
 AHTGSTeamDeathMatch::AHTGSTeamDeathMatch()
 {
 	// find and set the team data asset
-	static ConstructorHelpers::FObjectFinder<UTeamDataAsset> Team1DataAssetFinder(TEXT("/Game/HoverTanks/Game/Teams/DA_RedTeam"));
+	static ConstructorHelpers::FObjectFinder<UHTTeamDataAsset> Team1DataAssetFinder(TEXT("/Game/HoverTanks/Game/Teams/DA_RedTeam"));
 	if (Team1DataAssetFinder.Succeeded())
 	{
 		TeamsToCreate.Add(1, Team1DataAssetFinder.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UTeamDataAsset> Team2DataAssetFinder(TEXT("/Game/HoverTanks/Game/Teams/DA_BlueTeam"));
+	static ConstructorHelpers::FObjectFinder<UHTTeamDataAsset> Team2DataAssetFinder(TEXT("/Game/HoverTanks/Game/Teams/DA_BlueTeam"));
 	if (Team2DataAssetFinder.Succeeded())
 	{
 		TeamsToCreate.Add(2, Team2DataAssetFinder.Object);
@@ -92,7 +92,7 @@ void AHTGSTeamDeathMatch::CreateTeams()
 
 	for (const auto& TeamToCreate : TeamsToCreate)
 	{
-		ATeam* NewTeam = GetWorld()->SpawnActor<ATeam>(ATeam::StaticClass());
+		AHTTeam* NewTeam = GetWorld()->SpawnActor<AHTTeam>(AHTTeam::StaticClass());
 		NewTeam->SetTeamId(TeamToCreate.Key);
 		NewTeam->SetTeamDataAsset(TeamToCreate.Value);
 

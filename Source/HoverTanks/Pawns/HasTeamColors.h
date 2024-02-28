@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "HasTeamColors.generated.h"
 
-class UTeamDataAsset;
+class UHTTeamDataAsset;
 
 UINTERFACE()
 class UHasTeamColors : public UInterface
@@ -22,5 +22,5 @@ class HOVERTANKS_API IHasTeamColors
 	GENERATED_BODY()
 
 public:
-	virtual void ApplyTeamColors(UTeamDataAsset* TeamDataAsset) = 0;
+	virtual void ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset) = 0;
 };

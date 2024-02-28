@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TeamDataAsset.h"
+#include "HTTeamDataAsset.h"
 
 #include "NiagaraComponent.h"
 
-void UTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
+void UHTTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
 {
 	if (TargetActor == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToActor: TargetActor is nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("UHTTeamDataAsset::ApplyToActor: TargetActor is nullptr"));
 		return;
 	}
 
@@ -17,7 +17,7 @@ void UTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
 	{
 		if (UMeshComponent* MeshComponent = Cast<UMeshComponent>(InComponent))
 		{
-			// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToActor: Applying to mesh component"));
+			// UE_LOG(LogTemp, Warning, TEXT("UHTTeamDataAsset::ApplyToActor: Applying to mesh component"));
 			ApplyToMeshComponent(MeshComponent);
 		}
 		else if (UNiagaraComponent* NiagaraComponent = Cast<UNiagaraComponent>(InComponent))
@@ -27,7 +27,7 @@ void UTeamDataAsset::ApplyToActor(AActor* TargetActor, bool bIncludeChildActors)
 	});		
 }
 
-void UTeamDataAsset::ApplyToMeshComponent(UMeshComponent* MeshComponent)
+void UHTTeamDataAsset::ApplyToMeshComponent(UMeshComponent* MeshComponent)
 {
 
 	const TArray<UMaterialInterface*> MaterialInterfaces = MeshComponent->GetMaterials();
@@ -40,14 +40,14 @@ void UTeamDataAsset::ApplyToMeshComponent(UMeshComponent* MeshComponent)
 			UMaterialInstanceDynamic* DynamicMaterial = Cast<UMaterialInstanceDynamic>(MaterialInterface);
 			if (!DynamicMaterial)
 			{
-				// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToMeshComponent: material is not yet dynamic"));
+				// UE_LOG(LogTemp, Warning, TEXT("UHTTeamDataAsset::ApplyToMeshComponent: material is not yet dynamic"));
 				DynamicMaterial = MeshComponent->CreateAndSetMaterialInstanceDynamic(MaterialIndex);
 				// continue;
 			}
 
 			for (const auto& ColorParameter : ColorParameters)
 			{
-				// UE_LOG(LogTemp, Warning, TEXT("UTeamDataAsset::ApplyToMeshComponent: setting parameter: %s with value %s"), *ColorParameter.Key.ToString(), *ColorParameter.Value.ToString());
+				// UE_LOG(LogTemp, Warning, TEXT("UHTTeamDataAsset::ApplyToMeshComponent: setting parameter: %s with value %s"), *ColorParameter.Key.ToString(), *ColorParameter.Value.ToString());
 				DynamicMaterial->SetVectorParameterValue(ColorParameter.Key, ColorParameter.Value);
 			}
 		}

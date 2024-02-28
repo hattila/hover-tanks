@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Info.h"
-#include "Team.generated.h"
+#include "HTTeam.generated.h"
 
-class UTeamDataAsset;
+class UHTTeamDataAsset;
 
 UCLASS()
-class HOVERTANKS_API ATeam : public AInfo
+class HOVERTANKS_API AHTTeam : public AInfo
 {
 	GENERATED_BODY()
 
 public:
-	ATeam();
+	AHTTeam();
 
 	void SetTeamId(int8 NewTeamId) { TeamId = NewTeamId; }
 	int8 GetTeamId() const { return TeamId; }
 	
-	void SetTeamDataAsset(TObjectPtr<UTeamDataAsset> NewTeamDataAsset) { TeamDataAsset = NewTeamDataAsset; }
-	UTeamDataAsset* GetTeamDataAsset() const { return TeamDataAsset; }
+	void SetTeamDataAsset(TObjectPtr<UHTTeamDataAsset> NewTeamDataAsset) { TeamDataAsset = NewTeamDataAsset; }
+	UHTTeamDataAsset* GetTeamDataAsset() const { return TeamDataAsset; }
 	
 protected:
 
@@ -28,5 +28,5 @@ protected:
 private:
 	int8 TeamId;
 
-	UTeamDataAsset* TeamDataAsset;
+	UHTTeamDataAsset* TeamDataAsset;
 };

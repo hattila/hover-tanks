@@ -352,7 +352,7 @@ FHitResult AHoverTank::FindTargetAtCrosshair() const
 /**
  * IHasTeamColors interface 
  */
-void AHoverTank::ApplyTeamColors(UTeamDataAsset* TeamDataAsset)
+void AHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
 {
 	if (!HasAuthority())
 	{

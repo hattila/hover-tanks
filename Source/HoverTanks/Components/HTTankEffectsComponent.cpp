@@ -6,7 +6,7 @@
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
 #include "HoverTanks/Pawns/HoverTank.h"
-#include "HoverTanks/Game/Teams/TeamDataAsset.h"
+#include "..\Game\Teams\HTTeamDataAsset.h"
 
 #include "NiagaraComponent.h"
 #include "Components/RectLightComponent.h"
@@ -162,7 +162,7 @@ void UHTTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 	}
 }
 
-void UHTTankEffectsComponent::ApplyTeamColors(UTeamDataAsset* InTeamDataAsset)
+void UHTTankEffectsComponent::ApplyTeamColors(UHTTeamDataAsset* InTeamDataAsset)
 {
 	FString RoleString;
 	UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);

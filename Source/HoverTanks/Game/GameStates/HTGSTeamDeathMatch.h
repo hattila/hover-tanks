@@ -8,8 +8,8 @@
 #include "HTGSTeamDeathMatch.generated.h"
 
 class AInTeamPlayerState;
-class UTeamDataAsset;
-class ATeam;
+class UHTTeamDataAsset;
+class AHTTeam;
 /**
  * 
  */
@@ -32,9 +32,9 @@ public:
 	bool AssignPlayerToLeastPopulatedTeam(AInTeamPlayerState* PlayerState);
 	bool AssignPlayerToTeam(AInTeamPlayerState* TeamPlayerState, int8 TeamId);
 
-	UTeamDataAsset* GetTeamDataAsset(const int8 TeamId) const { return TeamsToCreate.FindRef(TeamId); }
+	UHTTeamDataAsset* GetTeamDataAsset(const int8 TeamId) const { return TeamsToCreate.FindRef(TeamId); }
 	
-	TMap<int8, ATeam*> GetTeamMap() { return TeamMap; }
+	TMap<int8, AHTTeam*> GetTeamMap() { return TeamMap; }
 
 	bool AreSameTeam(APlayerController* PlayerController1, APlayerController* PlayerController2);
 
@@ -46,9 +46,9 @@ protected:
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Team", meta = (AllowPrivateAccess = "true"))
-	TMap<int8, TObjectPtr<UTeamDataAsset>> TeamsToCreate;
+	TMap<int8, TObjectPtr<UHTTeamDataAsset>> TeamsToCreate;
 
-	TMap<int8, ATeam*> TeamMap;
+	TMap<int8, AHTTeam*> TeamMap;
 	
 	int8 GetLeastPopulatedTeamId() const;
 };

@@ -90,7 +90,7 @@ public:
 	UHTTankEffectsComponent* GetEffectsComponent() const { return TankEffectsComponent; }
 
 	//~ Begin IHasTeamColors interface
-	virtual void ApplyTeamColors(UTeamDataAsset* TeamDataAsset) override;
+	virtual void ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset) override;
 	//~ End of IHasTeamColors interface
 
 protected:

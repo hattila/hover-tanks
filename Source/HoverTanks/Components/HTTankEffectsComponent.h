@@ -7,7 +7,7 @@
 #include "HTTankEffectsComponent.generated.h"
 
 class UNiagaraComponent;
-class UTeamDataAsset;
+class UHTTeamDataAsset;
 class UHTMovementReplicatorComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -22,7 +22,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void ApplyTeamColors(UTeamDataAsset* InTeamDataAsset);
+	void ApplyTeamColors(UHTTeamDataAsset* InTeamDataAsset);
 
 	UFUNCTION(Server, Reliable)
 	void ServerToggleLights();
@@ -108,7 +108,7 @@ private:
 	 * Team colors
 	 */
 	UPROPERTY(ReplicatedUsing=OnRep_TeamDataAsset)
-	UTeamDataAsset* TeamDataAsset = nullptr;
+	UHTTeamDataAsset* TeamDataAsset = nullptr;
 
 	UFUNCTION()
 	void OnRep_TeamDataAsset();

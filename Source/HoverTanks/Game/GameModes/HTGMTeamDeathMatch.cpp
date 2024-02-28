@@ -10,7 +10,7 @@
 #include "HoverTanks/UI/HUD/HTTeamDeathMatchHUD.h"
 
 #include "GameFramework/PlayerStart.h"
-#include "HoverTanks/Game/Teams/TeamDataAsset.h"
+#include "..\Teams\HTTeamDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 
 AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
@@ -85,7 +85,7 @@ void AHTGMTeamDeathMatch::RequestRespawn(APlayerController* InPlayerController)
 			IHasTeamColors* TeamColoredPawn = Cast<IHasTeamColors>(NewHoverTank);
 			if (TeamPlayerState && TeamColoredPawn)
 			{
-				UTeamDataAsset* TeamDataAsset = TeamDeathMatchGameState->GetTeamDataAsset(TeamPlayerState->GetTeamId());
+				UHTTeamDataAsset* TeamDataAsset = TeamDeathMatchGameState->GetTeamDataAsset(TeamPlayerState->GetTeamId());
 				TeamColoredPawn->ApplyTeamColors(TeamDataAsset);
 			}
 			
