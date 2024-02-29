@@ -63,22 +63,6 @@ AHTHoverTank::AHTHoverTank()
 
 	TankBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Tank Barrel Mesh"));
 	TankBarrelMesh->SetupAttachment(TankCannonMesh);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> ColliderMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTankCollision"));
-	UStaticMesh* ColliderMeshAssetObject = ColliderMeshAsset.Object;
-	ColliderMesh->SetStaticMesh(ColliderMeshAssetObject);
-	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBaseMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankBase"));
-	UStaticMesh* TankBaseMeshAssetObject = TankBaseMeshAsset.Object;
-	TankBaseMesh->SetStaticMesh(TankBaseMeshAssetObject);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankCannonMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannon"));
-	UStaticMesh* TankCannonMeshAssetObject = TankCannonMeshAsset.Object;
-	TankCannonMesh->SetStaticMesh(TankCannonMeshAssetObject);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> TankBarrelMeshAsset(TEXT("/Game/HoverTanks/Pawns/HoverTank/HoverTank_TankCannonBarrel"));
-	UStaticMesh* TankBarrelMeshAssetObject = TankBarrelMeshAsset.Object;
-	TankBarrelMesh->SetStaticMesh(TankBarrelMeshAssetObject);
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	SpringArm->SetupAttachment(ColliderMesh);
@@ -96,6 +80,9 @@ AHTHoverTank::AHTHoverTank()
 	SpringArm->AddLocalOffset(FVector(0, 0, SpringArmZOffset));
 	SpringArm->bUsePawnControlRotation = true;
 
+	/**
+	 * Setup defaults, change them in the BP version
+	 */
 	TankLights->SetIntensity(50000.f);
 	TankLights->SetAttenuationRadius(2000.f);
 	TankLights->SetSourceHeight(16);
@@ -114,21 +101,6 @@ AHTHoverTank::AHTHoverTank()
 	TankCannonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	TankBarrelMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	TankBarrelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	/**
-	 * Materials
-	 */
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
-	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
-	TankBaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
-	TankCannonMesh->SetMaterial(0, TankBaseMaterialAssetObject);
-	TankBarrelMesh->SetMaterial(0, TankBaseMaterialAssetObject);
-
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankLightsMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_HoverTankLights"));
-	UMaterialInterface* TankLightsMaterialAssetObject = TankLightsMaterialAsset.Object;
-	TankBaseMesh->SetMaterial(1, TankLightsMaterialAssetObject);
-	TankCannonMesh->SetMaterial(1, TankLightsMaterialAssetObject);
-	TankBarrelMesh->SetMaterial(1, TankLightsMaterialAssetObject);
 
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
 }
@@ -242,12 +214,8 @@ UAbilitySystemComponent* AHTHoverTank::GetAbilitySystemComponent() const
 	{
 		return HTPlayerState->GetAbilitySystemComponent();
 	}
-	else
-	{
-		// log
-		UE_LOG(LogTemp, Warning, TEXT("AHTHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
-	}
 
+	UE_LOG(LogTemp, Warning, TEXT("AHTHoverTank::GetAbilitySystemComponent: HTPlayerState is null!"));
 	return nullptr;
 }
 
