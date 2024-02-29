@@ -12,22 +12,28 @@ AHTPickupSpawner::AHTPickupSpawner()
 	BoxCollider->SetBoxExtent(FVector(100.0f, 100.0f, 200.0f));
 	RootComponent = BoxCollider;
 
-	// initialize the baseMesh as the engine cube
+	// initialize the baseMesh
 	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
 	BaseMesh->SetupAttachment(RootComponent);
 
+	/**
+	 * Example of how to reference a static mesh object from the editor, and set it
+	 */
 	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Engine/BasicShapes/Cube"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Actors/Pickups/PickupSpawner"));
-	UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
-	BaseMesh->SetStaticMesh(BaseMeshObject);
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BaseMeshAsset(TEXT("/Game/HoverTanks/Actors/Pickups/PickupSpawner"));
+	// UStaticMesh* BaseMeshObject = BaseMeshAsset.Object;
+	// BaseMesh->SetStaticMesh(BaseMeshObject);
 	
 	BaseMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BaseMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -192.0f));
 
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
-	UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
-	BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
+	/**
+	 * Example of how to reference a material object from the editor, and set it
+	 */
+	// static ConstructorHelpers::FObjectFinder<UMaterialInterface> TankBaseMaterialAsset(TEXT("/Game/Megascans/surfaces/Painted_Gun_Metal_shrbehqc/MI_Painted_Gun_Metal_shrbehqc_4K"));
+	// UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
+	// BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
 	HealthPickupClass = AHTHealthPickup::StaticClass();
 	
@@ -53,7 +59,6 @@ void AHTPickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = true;
-		// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapBegin) now has a pickup"));
 	}
 }
 
@@ -63,12 +68,9 @@ void AHTPickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = false;
-		// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) now does not have a pickup, starting timer"));
 
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, this, &AHTPickupSpawner::SpawnPickup, ItemRespawnTime, false, ItemRespawnTime);
 	}
-
-	// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (OnOverlapEnd) the OtherActor was a %s"), *OtherActor->GetName());
 }
 
 void AHTPickupSpawner::SpawnPickup()
@@ -81,5 +83,4 @@ void AHTPickupSpawner::SpawnPickup()
 	AHTHealthPickup* SpawnedPickup = GetWorld()->SpawnActor<AHTHealthPickup>(HealthPickupClass, GetActorLocation(), GetActorRotation(), SpawnParams);
 
 	bCurrentlyHasPickup = true;
-	// UE_LOG(LogTemp, Warning, TEXT("PickupSpawner (SpawnPickup) now has a pickup"));
 }

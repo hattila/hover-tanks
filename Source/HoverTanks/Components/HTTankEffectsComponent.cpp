@@ -18,12 +18,7 @@ UHTTankEffectsComponent::UHTTankEffectsComponent()
 
 	TankBurningFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Burning FX"));
 	TankBurningFX->SetAutoActivate(false);
-	
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningEmitterAsset(TEXT("/Game/HoverTanks/Niagara/NS_Burning"));
-	UNiagaraSystem* BurningEmitterObject = BurningEmitterAsset.Object;
-	TankBurningFX->SetAsset(BurningEmitterObject);
-	TankBurningFX->SetRelativeLocation(FVector(-140.f, 0.f, 40.f));
-	
+	TankBurningFX->SetRelativeLocation(TankBurningFXOffset);
 	TankBurningFX->SetIsReplicated(true);
 }
 

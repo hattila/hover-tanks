@@ -7,7 +7,6 @@
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
-#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AHTRocketProjectile::AHTRocketProjectile()
