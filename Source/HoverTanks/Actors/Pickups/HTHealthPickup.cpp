@@ -4,9 +4,8 @@
 #include "HTHealthPickup.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
 #include "GameplayEffect.h"
-#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
-
 #include "Net/UnrealNetwork.h"
 
 AHTHealthPickup::AHTHealthPickup()
@@ -24,22 +23,13 @@ AHTHealthPickup::AHTHealthPickup()
 	// initialize the mesh
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	PickupMesh->SetupAttachment(RootComponent);
-
 	PickupMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("/Engine/BasicShapes/Sphere"));
-	UStaticMesh* ProjectileMeshObject = MeshAsset.Object;
-	PickupMesh->SetStaticMesh(ProjectileMeshObject);
-	PickupMesh->SetWorldScale3D(FVector(1.5, 1.5, 1.5));
-
-	// find the material instance MI_EmissiveHealthPickup
-	static ConstructorHelpers::FObjectFinder<UMaterialInstance> EmissiveHealthPickupMaterialAsset(TEXT("/Game/HoverTanks/Materials/MI_EmissiveHealthPickup"));
-	UMaterialInstance* EmissiveHealthPickupMaterialObject = EmissiveHealthPickupMaterialAsset.Object;
-	PickupMesh->SetMaterial(0, EmissiveHealthPickupMaterialObject);
-
-	// initialize the heal effect
-	static ConstructorHelpers::FClassFinder<UGameplayEffect> HealEffectAsset(TEXT("/Game/HoverTanks/Actors/Pickups/GE_HealEffect_Instant"));
-	HealEffect = HealEffectAsset.Class;
+	/**
+	 * An example of how to reference a UGameplayEffect class from the editor, and set it
+	 */
+	// static ConstructorHelpers::FClassFinder<UGameplayEffect> HealEffectAsset(TEXT("/Game/HoverTanks/Actors/Pickups/GE_HealEffect_Instant"));
+	// HealEffect = HealEffectAsset.Class;
 }
 
 void AHTHealthPickup::BeginPlay()
@@ -102,21 +92,21 @@ void AHTHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
 		if (HealEffect != nullptr && ActorWithAbilitySystem != nullptr)
 		{
-			UAbilitySystemComponent* AbilitySystemComponent = ActorWithAbilitySystem->GetAbilitySystemComponent();
+			UAbilitySystemComponent* TargetASC = ActorWithAbilitySystem->GetAbilitySystemComponent();
 			
-			if (AbilitySystemComponent != nullptr)
+			if (TargetASC != nullptr)
 			{
-				FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+				FGameplayEffectContextHandle EffectContext = TargetASC->MakeEffectContext();
 				EffectContext.AddSourceObject(this);
 				EffectContext.AddInstigator(GetInstigatorController(), this);
 				
-				FGameplayEffectSpecHandle HealEffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(HealEffect, 1.f, EffectContext);
+				FGameplayEffectSpecHandle HealEffectSpecHandle = TargetASC->MakeOutgoingSpec(HealEffect, 1.f, EffectContext);
 				FGameplayEffectSpec* HealEffectSpec = HealEffectSpecHandle.Data.Get();
 				
 				HealEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Healing")), HealAmount);
 				if (HealEffectSpecHandle.IsValid())
 				{
-					AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*HealEffectSpec, AbilitySystemComponent);
+					TargetASC->ApplyGameplayEffectSpecToTarget(*HealEffectSpec, TargetASC);
 				}
 				bVasValidPickup = true;
 			}
