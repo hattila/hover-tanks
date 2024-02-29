@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HostGameMenu.h"
+#include "HTHostGameMenu.h"
 
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
 #include "HoverTanks/Game/HTGameInstance.h"
 
-bool UHostGameMenu::Initialize()
+bool UHTHostGameMenu::Initialize()
 {
 	const bool Success = Super::Initialize();
 	bIsFocusable = true;
@@ -27,7 +27,7 @@ bool UHostGameMenu::Initialize()
 	MapSelection->AddOption(TEXT("DesertRamps"));
 	MapSelection->SetSelectedIndex(2);
 
-	MapSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnMapSelectionChanged);
+	MapSelection->OnSelectionChanged.AddDynamic(this, &UHTHostGameMenu::OnMapSelectionChanged);
 
 	if (!ensure(GameModeSelection != nullptr))
 	{
@@ -39,29 +39,29 @@ bool UHostGameMenu::Initialize()
 	GameModeSelection->AddOption(TEXT("DestructionOfTheAncients"));
 	GameModeSelection->SetSelectedIndex(0);
 
-	GameModeSelection->OnSelectionChanged.AddDynamic(this, &UHostGameMenu::OnGameModeSelectionChanged);
+	GameModeSelection->OnSelectionChanged.AddDynamic(this, &UHTHostGameMenu::OnGameModeSelectionChanged);
 	
 	if (!ensure(StartGame != nullptr))
 	{
 		return false;
 	}
-	StartGame->OnClicked.AddDynamic(this, &UHostGameMenu::OnStartGameClicked);
+	StartGame->OnClicked.AddDynamic(this, &UHTHostGameMenu::OnStartGameClicked);
 	
 
 	return true;
 }
 
-void UHostGameMenu::OnMapSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void UHTHostGameMenu::OnMapSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected map: %s"), *SelectedItem);
 }
 
-void UHostGameMenu::OnGameModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void UHTHostGameMenu::OnGameModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected game mode: %s"), *SelectedItem);
 }
 
-void UHostGameMenu::OnStartGameClicked()
+void UHTHostGameMenu::OnStartGameClicked()
 {
 	if (MultiplayerGameControls)
 	{

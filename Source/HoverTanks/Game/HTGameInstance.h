@@ -8,7 +8,7 @@
 #include "UObject/Object.h"
 #include "HTGameInstance.generated.h"
 
-class UMainMenu;
+class UHTMainMenu;
 
 const static FName GHover_Tanks_Session_Name = TEXT("My Hover Tanks Game Session");
 
@@ -53,7 +53,7 @@ private:
 
 	TSubclassOf<UUserWidget> ToasterWidgetClass;
 
-	UMainMenu* MainMenu;
+	UHTMainMenu* MainMenu;
 	
 	/**
 	 * Online Session

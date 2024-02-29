@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OptionsMenu.h"
+#include "HTOptionsMenu.h"
 
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
 #include "GameFramework/GameUserSettings.h"
 
-bool UOptionsMenu::Initialize()
+bool UHTOptionsMenu::Initialize()
 {
 	bool Success = Super::Initialize();
 
@@ -27,12 +27,12 @@ bool UOptionsMenu::Initialize()
 	SetupResolutionSelection();
 	SetupWindowModeSelection();
 
-	SaveButton->OnClicked.AddDynamic(this, &UOptionsMenu::OnSaveButtonClicked);
+	SaveButton->OnClicked.AddDynamic(this, &UHTOptionsMenu::OnSaveButtonClicked);
 
 	return true;
 }
 
-bool UOptionsMenu::IsEveryElementInitialized() const
+bool UHTOptionsMenu::IsEveryElementInitialized() const
 {
 	if (!ensure(GraphicsSelection != nullptr))
 	{
@@ -57,7 +57,7 @@ bool UOptionsMenu::IsEveryElementInitialized() const
 	return true;
 }
 
-void UOptionsMenu::OnGraphicsSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void UHTOptionsMenu::OnGraphicsSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected graphics: %s"), *SelectedItem);
 
@@ -87,7 +87,7 @@ void UOptionsMenu::OnGraphicsSelectionChanged(FString SelectedItem, ESelectInfo:
 	}
 }
 
-void UOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void UHTOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Selected resolution: %s"), *SelectedItem);
 
@@ -111,7 +111,7 @@ void UOptionsMenu::OnResolutionSelectionChanged(FString SelectedItem, ESelectInf
 	GameUserSettings->SetScreenResolution(Resolution);
 }
 
-void UOptionsMenu::OnWindowModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+void UHTOptionsMenu::OnWindowModeSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
 	if (SelectedItem == "Fullscreen")
 	{
@@ -129,14 +129,14 @@ void UOptionsMenu::OnWindowModeSelectionChanged(FString SelectedItem, ESelectInf
 	}
 }
 
-void UOptionsMenu::OnSaveButtonClicked()
+void UHTOptionsMenu::OnSaveButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Save button clicked."));
 
 	GameUserSettings->ApplySettings(false);
 }
 
-void UOptionsMenu::SetupGraphicsSelection()
+void UHTOptionsMenu::SetupGraphicsSelection()
 {
 	if (GameUserSettings == nullptr)
 	{
@@ -169,10 +169,10 @@ void UOptionsMenu::SetupGraphicsSelection()
 		GraphicsSelection->SetSelectedIndex(4);
 	}
 
-	GraphicsSelection->OnSelectionChanged.AddDynamic(this, &UOptionsMenu::OnGraphicsSelectionChanged);
+	GraphicsSelection->OnSelectionChanged.AddDynamic(this, &UHTOptionsMenu::OnGraphicsSelectionChanged);
 }
 
-void UOptionsMenu::SetupResolutionSelection()
+void UHTOptionsMenu::SetupResolutionSelection()
 {
 	if (GameUserSettings == nullptr)
 	{
@@ -214,10 +214,10 @@ void UOptionsMenu::SetupResolutionSelection()
 		ResolutionSelection->SetSelectedIndex(4);
 	}
 	
-	ResolutionSelection->OnSelectionChanged.AddDynamic(this, &UOptionsMenu::OnResolutionSelectionChanged);
+	ResolutionSelection->OnSelectionChanged.AddDynamic(this, &UHTOptionsMenu::OnResolutionSelectionChanged);
 }
 
-void UOptionsMenu::SetupWindowModeSelection()
+void UHTOptionsMenu::SetupWindowModeSelection()
 {
 	if (GameUserSettings == nullptr)
 	{
@@ -245,6 +245,6 @@ void UOptionsMenu::SetupWindowModeSelection()
 		WindowModeSelection->SetSelectedIndex(2);
 	}
 
-	WindowModeSelection->OnSelectionChanged.AddDynamic(this, &UOptionsMenu::OnWindowModeSelectionChanged);
+	WindowModeSelection->OnSelectionChanged.AddDynamic(this, &UHTOptionsMenu::OnWindowModeSelectionChanged);
 }
 

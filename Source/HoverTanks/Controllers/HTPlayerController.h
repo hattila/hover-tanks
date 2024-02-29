@@ -9,7 +9,7 @@
 
 class IHTGM_HandlesTankDeathInterface;
 class UHTDeathMatchScoreBoardWidget;
-class UInGameMenu;
+class UHTInGameMenu;
 class UInputAction;
 class UInputMappingContext;
 
@@ -83,7 +83,7 @@ private:
 	TSubclassOf<UUserWidget> InGameMenuClass;
 
 	UPROPERTY()
-	UInGameMenu* InGameMenu = nullptr;
+	UHTInGameMenu* InGameMenu = nullptr;
 	
 	void OpenInGameMenuActionStarted();
 	void OpenScoreBoardActionStarted();

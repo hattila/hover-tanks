@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OpenableMenu.h"
+#include "HTOpenableMenu.h"
 #include "Blueprint/UserWidget.h"
-#include "MainMenu.generated.h"
+#include "HTMainMenu.generated.h"
 
 
 class IHTGI_MultiplayerGameControlsInterface;
 struct FAvailableGame;
 
 class UThrobber;
-class UServerRow;
+class UHTServerRow;
 class UHTGameInstance;
 class UWidgetSwitcher;
 class UButton;
@@ -21,12 +21,12 @@ class UButton;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UMainMenu : public UOpenableMenu
+class HOVERTANKS_API UHTMainMenu : public UHTOpenableMenu
 {
 	GENERATED_BODY()
 
 public:
-	explicit UMainMenu(const FObjectInitializer& ObjectInitializer);
+	explicit UHTMainMenu(const FObjectInitializer& ObjectInitializer);
 	void SetMultiplayerGameControls(IHTGI_MultiplayerGameControlsInterface* InMultiplayerGameControls) { MultiplayerGameControls = InMultiplayerGameControls; }
 
 	virtual bool Initialize() override;

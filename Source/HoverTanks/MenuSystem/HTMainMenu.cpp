@@ -1,9 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "MainMenu.h"
+#include "HTMainMenu.h"
 
-#include "HostGameMenu.h"
-#include "ServerRow.h"
+#include "HTHostGameMenu.h"
+#include "HTServerRow.h"
 #include "HoverTanks/Game/HTGameInstance.h"
 
 #include "UObject/ConstructorHelpers.h"
@@ -12,8 +12,8 @@
 #include "Components/PanelWidget.h"
 #include "Components/Throbber.h"
 
-UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
-	: UOpenableMenu(ObjectInitializer)
+UHTMainMenu::UHTMainMenu(const FObjectInitializer& ObjectInitializer)
+	: UHTOpenableMenu(ObjectInitializer)
 {
 	// Super::Construct();
 
@@ -32,7 +32,7 @@ UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer)
 	HostGameMenuClass = HostGameMenuBPClass.Class;
 }
 
-bool UMainMenu::Initialize()
+bool UHTMainMenu::Initialize()
 {
 	const bool Success = Super::Initialize();
 	bIsFocusable = true;
@@ -47,17 +47,17 @@ bool UMainMenu::Initialize()
 		return false;
 	}
 
-	HostButton->OnClicked.AddDynamic(this, &UMainMenu::OpenHostMenu);
-	FindButton->OnClicked.AddDynamic(this, &UMainMenu::OpenFindGamesMenu);
-	OptionsButton->OnClicked.AddDynamic(this, &UMainMenu::OpenOptionsMenu);
-	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
+	HostButton->OnClicked.AddDynamic(this, &UHTMainMenu::OpenHostMenu);
+	FindButton->OnClicked.AddDynamic(this, &UHTMainMenu::OpenFindGamesMenu);
+	OptionsButton->OnClicked.AddDynamic(this, &UHTMainMenu::OpenOptionsMenu);
+	QuitButton->OnClicked.AddDynamic(this, &UHTMainMenu::QuitGame);
 
 	AvailableGamesList->ClearChildren();
 	
 	return true;
 }
 
-void UMainMenu::Setup()
+void UHTMainMenu::Setup()
 {
 	Super::Setup();
 
@@ -65,12 +65,12 @@ void UMainMenu::Setup()
 	HideSessionSearchInProgress();
 }
 
-void UMainMenu::Teardown()
+void UHTMainMenu::Teardown()
 {
 	Super::Teardown();
 }
 
-void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames)
+void UHTMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& AvailableGames)
 {
 	if (!ensure(AvailableGamesList != nullptr))
 	{
@@ -83,7 +83,7 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& Availab
 	uint32 i = 0;
 	for (const FAvailableGame& AvailableGame : AvailableGames)
 	{
-		UServerRow* ServerRow = CreateWidget<UServerRow>(this, ServerRowClass);
+		UHTServerRow* ServerRow = CreateWidget<UHTServerRow>(this, ServerRowClass);
 		if (!ensure(ServerRow != nullptr))
 		{
 			return;
@@ -106,14 +106,14 @@ void UMainMenu::PopulateAvailableGamesList(const TArray<FAvailableGame>& Availab
 	
 }
 
-void UMainMenu::JoinServerAtIndex(const uint32 ServerIndex) const
+void UHTMainMenu::JoinServerAtIndex(const uint32 ServerIndex) const
 {
 	if (AvailableGamesList == nullptr)
 	{
 		return;
 	}
 
-	const UServerRow* ServerRow = Cast<UServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
+	const UHTServerRow* ServerRow = Cast<UHTServerRow>(AvailableGamesList->GetChildAt(ServerIndex));
 	if (ServerRow && MultiplayerGameControls)
 	{
 		MultiplayerGameControls->JoinAvailableGame(ServerIndex);
@@ -121,17 +121,17 @@ void UMainMenu::JoinServerAtIndex(const uint32 ServerIndex) const
 	
 }
 
-void UMainMenu::ShowSessionSearchInProgress() const
+void UHTMainMenu::ShowSessionSearchInProgress() const
 {
 	SessionSearchInProgress->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UMainMenu::HideSessionSearchInProgress() const
+void UHTMainMenu::HideSessionSearchInProgress() const
 {
 	SessionSearchInProgress->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UMainMenu::OpenHostMenu()
+void UHTMainMenu::OpenHostMenu()
 {
 	if (!GetWorld())
 	{
@@ -144,7 +144,7 @@ void UMainMenu::OpenHostMenu()
 	}
 }
 
-void UMainMenu::OpenFindGamesMenu()
+void UHTMainMenu::OpenFindGamesMenu()
 {
 	if (SubmenuSwitcher)
 	{
@@ -157,7 +157,7 @@ void UMainMenu::OpenFindGamesMenu()
 	}
 }
 
-void UMainMenu::OpenOptionsMenu()
+void UHTMainMenu::OpenOptionsMenu()
 {
 	if (SubmenuSwitcher)
 	{
@@ -165,7 +165,7 @@ void UMainMenu::OpenOptionsMenu()
 	}
 }
 
-void UMainMenu::QuitGame()
+void UHTMainMenu::QuitGame()
 {
 	if (!GetWorld())
 	{
@@ -182,7 +182,7 @@ void UMainMenu::QuitGame()
 	PlayerController->ConsoleCommand("quit");
 }
 
-bool UMainMenu::IsEveryElementInitialized() const
+bool UHTMainMenu::IsEveryElementInitialized() const
 {
 	if (!ensure(HostButton != nullptr))
 	{
@@ -212,7 +212,7 @@ bool UMainMenu::IsEveryElementInitialized() const
 	return true;
 }
 
-void UMainMenu::SetupHostGameMenu() const
+void UHTMainMenu::SetupHostGameMenu() const
 {
 	if (HostGameMenuPanel == nullptr || !HostGameMenuClass || MultiplayerGameControls == nullptr)
 	{
@@ -240,7 +240,7 @@ void UMainMenu::SetupHostGameMenu() const
 	{
 		if (HostGameMenuChild->GetClass() == HostGameMenuClass)
 		{
-			UHostGameMenu* HostGameMenu = Cast<UHostGameMenu>(HostGameMenuChild);
+			UHTHostGameMenu* HostGameMenu = Cast<UHTHostGameMenu>(HostGameMenuChild);
 			if (HostGameMenu)
 			{
 				HostGameMenu->SetMultiplayerGameControls(MultiplayerGameControls);

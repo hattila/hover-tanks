@@ -1,26 +1,26 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "OpenableMenu.h"
+#include "HTOpenableMenu.h"
 
-bool UOpenableMenu::Initialize()
+bool UHTOpenableMenu::Initialize()
 {
 	return Super::Initialize();
 }
 
-void UOpenableMenu::Setup()
+void UHTOpenableMenu::Setup()
 {
 	AddToViewport();
 	SetupInputModeUIOnly();
 }
 
-void UOpenableMenu::Teardown()
+void UHTOpenableMenu::Teardown()
 {
 	RemoveFromParent();
 	SetInputModeGameOnly();
 }
 
-void UOpenableMenu::SetupInputModeUIOnly()
+void UHTOpenableMenu::SetupInputModeUIOnly()
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!ensure(PlayerController != nullptr))
@@ -36,7 +36,7 @@ void UOpenableMenu::SetupInputModeUIOnly()
 	PlayerController->SetShowMouseCursor(true);
 }
 
-void UOpenableMenu::SetupInputModeGameAndUi()
+void UHTOpenableMenu::SetupInputModeGameAndUi()
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!ensure(PlayerController != nullptr))
@@ -52,7 +52,7 @@ void UOpenableMenu::SetupInputModeGameAndUi()
 	PlayerController->SetShowMouseCursor(true);
 }
 
-void UOpenableMenu::SetInputModeGameOnly() const
+void UHTOpenableMenu::SetInputModeGameOnly() const
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!ensure(PlayerController != nullptr))
@@ -66,7 +66,7 @@ void UOpenableMenu::SetInputModeGameOnly() const
 	PlayerController->bShowMouseCursor = false;
 }
 
-bool UOpenableMenu::IsEveryElementInitialized() const
+bool UHTOpenableMenu::IsEveryElementInitialized() const
 {
 	return true;
 }

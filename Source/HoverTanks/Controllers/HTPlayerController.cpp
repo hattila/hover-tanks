@@ -4,7 +4,7 @@
 #include "HTPlayerController.h"
 
 #include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
-#include "HoverTanks/MenuSystem/InGameMenu.h"
+#include "..\MenuSystem\HTInGameMenu.h"
 #include "HoverTanks/Game/HTPSInTeam.h"
 #include "HoverTanks/Game/GameStates/HTGSTeamDeathMatch.h"
 #include "HoverTanks/Game/GameModes/HTGM_CanRequestRespawnInterface.h"
@@ -275,7 +275,7 @@ void AHTPlayerController::OpenInGameMenuActionStarted()
 
 	if (InGameMenu == nullptr)
 	{
-		InGameMenu = CreateWidget<UInGameMenu>(this, InGameMenuClass);
+		InGameMenu = CreateWidget<UHTInGameMenu>(this, InGameMenuClass);
 	}
 	
 	if (!ensure(InGameMenu != nullptr))

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "HostGameMenu.generated.h"
+#include "HTHostGameMenu.generated.h"
 
 class IHTGI_MultiplayerGameControlsInterface;
 class UButton;
@@ -13,7 +13,7 @@ class UComboBoxString;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UHostGameMenu : public UUserWidget
+class HOVERTANKS_API UHTHostGameMenu : public UUserWidget
 {
 	GENERATED_BODY()
 

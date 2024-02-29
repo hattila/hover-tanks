@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "OpenableMenu.generated.h"
+#include "HTOpenableMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UOpenableMenu : public UUserWidget
+class HOVERTANKS_API UHTOpenableMenu : public UUserWidget
 {
 	GENERATED_BODY()
 

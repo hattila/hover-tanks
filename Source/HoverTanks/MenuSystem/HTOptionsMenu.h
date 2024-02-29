@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "OptionsMenu.generated.h"
+#include "HTOptionsMenu.generated.h"
 
 class UButton;
 class UComboBoxString;
@@ -12,7 +12,7 @@ class UComboBoxString;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UOptionsMenu : public UUserWidget
+class HOVERTANKS_API UHTOptionsMenu : public UUserWidget
 {
 	GENERATED_BODY()
 

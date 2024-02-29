@@ -4,21 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "UMG/Public/Blueprint/UserWidget.h"
-#include "ServerRow.generated.h"
+#include "HTServerRow.generated.h"
 
-class UMainMenu;
+class UHTMainMenu;
 class UButton;
 class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UServerRow : public UUserWidget
+class HOVERTANKS_API UHTServerRow : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void Setup(uint32 InIndex, UMainMenu* InMainMenu);
+	void Setup(uint32 InIndex, UHTMainMenu* InMainMenu);
 
 	void SetServerName(const FString& Name);
 	void SetSessionIdString(const FString& InSessionIdString);
@@ -54,7 +54,7 @@ private:
 	uint32 Index;
 
 	UPROPERTY()
-	UMainMenu* MainMenu;
+	UHTMainMenu* MainMenu;
 
 	UFUNCTION()
 	void OnJoinButtonClicked();

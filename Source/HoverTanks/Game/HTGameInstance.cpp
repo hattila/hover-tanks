@@ -7,7 +7,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
 #include "Blueprint/UserWidget.h"
-#include "HoverTanks/MenuSystem/MainMenu.h"
+#include "..\MenuSystem\HTMainMenu.h"
 #include "HoverTanks/UI/HTToasterWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -60,7 +60,7 @@ void UHTGameInstance::ShowMainMenu()
 		return;
 	}
 
-	MainMenu = CreateWidget<UMainMenu>(this, MainMenuClass);
+	MainMenu = CreateWidget<UHTMainMenu>(this, MainMenuClass);
 	if (MainMenu == nullptr)
 	{
 		return;

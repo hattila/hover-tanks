@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OpenableMenu.h"
-#include "InGameMenu.generated.h"
+#include "HTOpenableMenu.h"
+#include "HTInGameMenu.generated.h"
 
 class UButton;
 /**
  * 
  */
 UCLASS()
-class HOVERTANKS_API UInGameMenu : public UOpenableMenu
+class HOVERTANKS_API UHTInGameMenu : public UHTOpenableMenu
 {
 	GENERATED_BODY()
 public:

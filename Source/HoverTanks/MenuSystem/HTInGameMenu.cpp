@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "InGameMenu.h"
+#include "HTInGameMenu.h"
 
 #include "Components/Button.h"
 
-bool UInGameMenu::Initialize()
+bool UHTInGameMenu::Initialize()
 {
 	const bool Success = Super::Initialize();
 
@@ -21,14 +21,14 @@ bool UInGameMenu::Initialize()
 		return false;
 	}
 
-	ResumeGameButton->OnClicked.AddDynamic(this, &UInGameMenu::ResumeGame);
-	QuitToMainMenuButton->OnClicked.AddDynamic(this, &UInGameMenu::QuitToMainMenu);
-	QuitGameButton->OnClicked.AddDynamic(this, &UInGameMenu::QuitGame);
+	ResumeGameButton->OnClicked.AddDynamic(this, &UHTInGameMenu::ResumeGame);
+	QuitToMainMenuButton->OnClicked.AddDynamic(this, &UHTInGameMenu::QuitToMainMenu);
+	QuitGameButton->OnClicked.AddDynamic(this, &UHTInGameMenu::QuitGame);
 
 	return true;
 }
 
-void UInGameMenu::Setup()
+void UHTInGameMenu::Setup()
 {
 	AddToViewport();
 	SetupInputModeGameAndUi();
@@ -36,14 +36,14 @@ void UInGameMenu::Setup()
 	bIsOpen = true;
 }
 
-void UInGameMenu::Teardown()
+void UHTInGameMenu::Teardown()
 {
 	Super::Teardown();
 
 	bIsOpen = false;
 }
 
-bool UInGameMenu::IsEveryElementInitialized() const
+bool UHTInGameMenu::IsEveryElementInitialized() const
 {
 	if (!ensure(ResumeGameButton != nullptr))
 	{
@@ -63,12 +63,12 @@ bool UInGameMenu::IsEveryElementInitialized() const
 	return true;
 }
 
-void UInGameMenu::ResumeGame()
+void UHTInGameMenu::ResumeGame()
 {
 	Teardown();
 }
 
-void UInGameMenu::QuitToMainMenu()
+void UHTInGameMenu::QuitToMainMenu()
 {
 	Teardown();
 
@@ -88,7 +88,7 @@ void UInGameMenu::QuitToMainMenu()
 /**
  * Duplicates method with same name in main menu
  */
-void UInGameMenu::QuitGame()
+void UHTInGameMenu::QuitGame()
 {
 	if (!GetWorld())
 	{

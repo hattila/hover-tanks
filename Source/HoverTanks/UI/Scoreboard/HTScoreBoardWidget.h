@@ -7,7 +7,7 @@
 #include "Components/TextBlock.h"
 #include "UObject/Interface.h"
 #include "HoverTanks/Game/HTPlayerScore.h"
-#include "HoverTanks/MenuSystem/OpenableMenu.h"
+#include "HoverTanks/MenuSystem/HTOpenableMenu.h"
 #include "HTScoreBoardWidget.generated.h"
 
 struct FHTPlayerScore;
@@ -18,7 +18,7 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class HOVERTANKS_API UHTScoreBoardWidget : public UOpenableMenu
+class HOVERTANKS_API UHTScoreBoardWidget : public UHTOpenableMenu
 {
 	GENERATED_BODY()
 
