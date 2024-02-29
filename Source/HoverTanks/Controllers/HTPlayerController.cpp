@@ -26,6 +26,9 @@ AHTPlayerController::AHTPlayerController()
 		InGameMenuClass = InGameMenuClassFinder.Class;
 	}
 
+	/**
+	 * Example of full CPP input objects referencing
+	 */
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> FindInputMappingContext(TEXT("/Game/HoverTanks/Input/IMC_HoverTankPlayerController"));
 	if (FindInputMappingContext.Succeeded())
 	{

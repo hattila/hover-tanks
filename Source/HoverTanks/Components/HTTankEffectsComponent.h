@@ -42,8 +42,11 @@ private:
 	UPROPERTY()
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UNiagaraComponent* TankBurningFX = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	FVector TankBurningFXOffset = FVector(-140.f, 0.f, 40.f);	
 	
 	// UPROPERTY(ReplicatedUsing=OnRep_IsBurningFxActive)
 	// bool bIsBurningFxActive = false;
