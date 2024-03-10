@@ -336,6 +336,17 @@ void UHTGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 			AvailableGames.Add(AvailableGame);
 		}
 
+		// FAvailableGame AvailableGame2;
+		// AvailableGame2.ServerName = FString::Printf(TEXT("Hello"));
+		// AvailableGame2.SessionIdString = FString::Printf(TEXT("Hello2"));
+		// AvailableGame2.MapName = FString::Printf(TEXT("MAP NAME"));
+		// AvailableGame2.GameModeName = FString::Printf(TEXT("GameModeName"));
+		// AvailableGame2.MaxPlayers = 10;
+		// AvailableGame2.CurrentPlayers = 2;
+		// AvailableGame2.Ping = FString::Printf(TEXT("%i ms"), 12);
+		//
+		// AvailableGames.Add(AvailableGame2);
+
 		MainMenu->PopulateAvailableGamesList(AvailableGames);
 		MainMenu->HideSessionSearchInProgress();
 
