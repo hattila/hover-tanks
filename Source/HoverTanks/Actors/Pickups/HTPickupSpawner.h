@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HTHealthPickup.h"
+#include "HTGameplayEffectPickup.h"
 #include "GameFramework/Actor.h"
 #include "HTPickupSpawner.generated.h"
 
@@ -34,7 +34,7 @@ private:
 	UStaticMeshComponent* BaseMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AHTHealthPickup> HealthPickupClass;
+	TSubclassOf<AHTGameplayEffectPickup> EffectPickupClass;
 
 	bool bCurrentlyHasPickup = false;
 	
