@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "HTHealthPickup.h"
+#include "HTGameplayEffectPickup.h"
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffect.h"
 #include "Net/UnrealNetwork.h"
 
-AHTHealthPickup::AHTHealthPickup()
+AHTGameplayEffectPickup::AHTGameplayEffectPickup()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -32,7 +32,7 @@ AHTHealthPickup::AHTHealthPickup()
 	// HealEffect = HealEffectAsset.Class;
 }
 
-void AHTHealthPickup::BeginPlay()
+void AHTGameplayEffectPickup::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -40,7 +40,7 @@ void AHTHealthPickup::BeginPlay()
 
 	if (HasAuthority())
 	{
-		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHTHealthPickup::OnOverlapBegin);
+		BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &AHTGameplayEffectPickup::OnOverlapBegin);
 
 		bIsSpawningIn = true;
 
@@ -49,19 +49,19 @@ void AHTHealthPickup::BeginPlay()
 		PickupMesh->SetWorldLocation(Height);
 
 		FTimerHandle SpawnInTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(SpawnInTimerHandle, this, &AHTHealthPickup::SpawnInComplete, 1.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(SpawnInTimerHandle, this, &AHTGameplayEffectPickup::SpawnInComplete, 1.0f, false);
 	}
 }
 
-void AHTHealthPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AHTGameplayEffectPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AHTHealthPickup, bIsPickedUp);
-	DOREPLIFETIME(AHTHealthPickup, bIsSpawningIn);
+	DOREPLIFETIME(AHTGameplayEffectPickup, bIsPickedUp);
+	DOREPLIFETIME(AHTGameplayEffectPickup, bIsSpawningIn);
 }
 
-void AHTHealthPickup::Tick(float DeltaTime)
+void AHTGameplayEffectPickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -82,7 +82,7 @@ void AHTHealthPickup::Tick(float DeltaTime)
 	
 }
 
-void AHTHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void AHTGameplayEffectPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (HasAuthority())
@@ -90,7 +90,7 @@ void AHTHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 		bool bVasValidPickup = false;
 
 		IAbilitySystemInterface* ActorWithAbilitySystem = Cast<IAbilitySystemInterface>(OtherActor);
-		if (HealEffect != nullptr && ActorWithAbilitySystem != nullptr)
+		if (GameplayEffect != nullptr && ActorWithAbilitySystem != nullptr)
 		{
 			UAbilitySystemComponent* TargetASC = ActorWithAbilitySystem->GetAbilitySystemComponent();
 			
@@ -100,13 +100,13 @@ void AHTHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 				EffectContext.AddSourceObject(this);
 				EffectContext.AddInstigator(GetInstigatorController(), this);
 				
-				FGameplayEffectSpecHandle HealEffectSpecHandle = TargetASC->MakeOutgoingSpec(HealEffect, 1.f, EffectContext);
-				FGameplayEffectSpec* HealEffectSpec = HealEffectSpecHandle.Data.Get();
+				FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffect, 1.f, EffectContext);
+				FGameplayEffectSpec* EffectSpec = EffectSpecHandle.Data.Get();
 				
-				HealEffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Healing")), HealAmount);
-				if (HealEffectSpecHandle.IsValid())
+				EffectSpec->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.EffectMagnitude")), EffectMagnitude);
+				if (EffectSpecHandle.IsValid())
 				{
-					TargetASC->ApplyGameplayEffectSpecToTarget(*HealEffectSpec, TargetASC);
+					TargetASC->ApplyGameplayEffectSpecToTarget(*EffectSpec, TargetASC);
 				}
 				bVasValidPickup = true;
 			}
@@ -121,23 +121,23 @@ void AHTHealthPickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, A
 	}
 }
 
-void AHTHealthPickup::DelayedDestroy()
+void AHTGameplayEffectPickup::DelayedDestroy()
 {
 	FTimerHandle DestroyTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AHTHealthPickup::DoDestroy, 1.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, this, &AHTGameplayEffectPickup::DoDestroy, 1.0f, false);
 }
 
-void AHTHealthPickup::DoDestroy()
+void AHTGameplayEffectPickup::DoDestroy()
 {
 	Destroy();
 }
 
-void AHTHealthPickup::SpawnInComplete()
+void AHTGameplayEffectPickup::SpawnInComplete()
 {
 	bIsSpawningIn = false;
 }
 
-void AHTHealthPickup::SpawnInAnimation(const float DeltaTime) const
+void AHTGameplayEffectPickup::SpawnInAnimation(const float DeltaTime) const
 {
 	FVector NewScale = PickupMesh->GetComponentScale();
 	NewScale.X = FMath::Lerp(NewScale.X, 1.0f, DeltaTime * 2);
@@ -150,7 +150,7 @@ void AHTHealthPickup::SpawnInAnimation(const float DeltaTime) const
 	PickupMesh->SetWorldLocation(NewHeight);
 }
 
-void AHTHealthPickup::FloatingAnimation(const float DeltaTime) const
+void AHTGameplayEffectPickup::FloatingAnimation(const float DeltaTime) const
 {
 	FVector NewLocation = PickupMesh->GetComponentLocation();
 	NewLocation.Z = InitialZ + FMath::Sin(GetGameTimeSinceCreation() * 2) * 50.0f;
@@ -162,7 +162,7 @@ void AHTHealthPickup::FloatingAnimation(const float DeltaTime) const
 	// PickupMesh->SetWorldRotation(NewRotation);	
 }
 
-void AHTHealthPickup::DeSpawnAnimation(const float DeltaTime) const
+void AHTGameplayEffectPickup::DeSpawnAnimation(const float DeltaTime) const
 {
 	FVector NewScale = PickupMesh->GetComponentScale();
 	NewScale.X = FMath::Lerp(NewScale.X, .05f, DeltaTime * 2);

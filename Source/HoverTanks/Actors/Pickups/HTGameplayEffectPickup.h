@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
-#include "HTHealthPickup.generated.h"
+#include "HTGameplayEffectPickup.generated.h"
 
 class UGameplayEffect;
 
 UCLASS()
-class HOVERTANKS_API AHTHealthPickup : public AActor
+class HOVERTANKS_API AHTGameplayEffectPickup : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AHTHealthPickup();
+	AHTGameplayEffectPickup();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -28,7 +28,7 @@ protected:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	float HealAmount = 60;
+	float EffectMagnitude = 60;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
@@ -38,7 +38,7 @@ private:
 	UStaticMeshComponent* PickupMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components|GAS", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UGameplayEffect> HealEffect;
+	TSubclassOf<UGameplayEffect> GameplayEffect;
 	
 	float InitialZ;
 

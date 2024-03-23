@@ -35,7 +35,7 @@ AHTPickupSpawner::AHTPickupSpawner()
 	// UMaterialInterface* TankBaseMaterialAssetObject = TankBaseMaterialAsset.Object;
 	// BaseMesh->SetMaterial(0, TankBaseMaterialAssetObject);
 
-	HealthPickupClass = AHTHealthPickup::StaticClass();
+	EffectPickupClass = AHTGameplayEffectPickup::StaticClass();
 	
 }
 
@@ -56,7 +56,7 @@ void AHTPickupSpawner::BeginPlay()
 void AHTPickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
+	if (OtherActor->IsA(AHTGameplayEffectPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = true;
 	}
@@ -65,7 +65,7 @@ void AHTPickupSpawner::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 void AHTPickupSpawner::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->IsA(AHTHealthPickup::StaticClass()))
+	if (OtherActor->IsA(AHTGameplayEffectPickup::StaticClass()))
 	{
 		bCurrentlyHasPickup = false;
 
@@ -80,7 +80,7 @@ void AHTPickupSpawner::SpawnPickup()
 	SpawnParams.Instigator = nullptr;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	AHTHealthPickup* SpawnedPickup = GetWorld()->SpawnActor<AHTHealthPickup>(HealthPickupClass, GetActorLocation(), GetActorRotation(), SpawnParams);
+	AHTGameplayEffectPickup* SpawnedPickup = GetWorld()->SpawnActor<AHTGameplayEffectPickup>(EffectPickupClass, GetActorLocation(), GetActorRotation(), SpawnParams);
 
 	bCurrentlyHasPickup = true;
 }
