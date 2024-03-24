@@ -207,7 +207,7 @@ void UHTTankMovementComponent::SimulateCannonRotate(const FHoverTankCannonRotate
 	BarrelRotationTowardControlRotation.Yaw = CannonRotate.ControlRotation.Yaw;
 	BarrelRotationTowardControlRotation.Roll = 0;
 	
-	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -10.0f, 15.0f);
+	BarrelRotationTowardControlRotation.Pitch = FMath::Clamp(BarrelRotationTowardControlRotation.Pitch, -20.0f, 25.0f);
 
 	// log out calculated Pitch
 	// UE_LOG(LogTemp, Warning, TEXT("BarrelRotationTowardControlRotation Pitch: %f"), BarrelRotationTowardControlRotation.Pitch);

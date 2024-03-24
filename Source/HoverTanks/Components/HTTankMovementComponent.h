@@ -125,9 +125,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float MaxDriftRatio = 0.5f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
-	float HoveringPowerUsageMultiplier = 1;
 	
 	float Throttle = 0;
 	float Steering = 0;
