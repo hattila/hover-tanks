@@ -44,7 +44,7 @@ public:
 protected:
 	TArray<APlayerStart*> SpawnPoints;
 
-	int32 MatchTimeInSeconds = 180;
+	int32 MatchTimeInSeconds = 300;
 
 	EMatchState MatchState = EMatchState::InProgress;
 	
