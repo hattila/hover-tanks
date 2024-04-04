@@ -36,7 +36,7 @@ bool UHTHostGameMenu::Initialize()
 
 	GameModeSelection->AddOption(TEXT("DeathMatch"));
 	GameModeSelection->AddOption(TEXT("TeamDeathMatch"));
-	GameModeSelection->AddOption(TEXT("DestructionOfTheAncients"));
+	// GameModeSelection->AddOption(TEXT("DestructionOfTheAncients"));
 	GameModeSelection->SetSelectedIndex(0);
 
 	GameModeSelection->OnSelectionChanged.AddDynamic(this, &UHTHostGameMenu::OnGameModeSelectionChanged);
