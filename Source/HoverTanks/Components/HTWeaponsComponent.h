@@ -40,6 +40,9 @@ public:
 	void SwitchToNextWeapon();
 	void SwitchToPrevWeapon();
 
+	void SwitchToCannon();
+	void SwitchToRockets();
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDestroyAttachedWeapons();
 

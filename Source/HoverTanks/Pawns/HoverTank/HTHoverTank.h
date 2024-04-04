@@ -232,6 +232,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrevWeaponAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SelectWeapon01Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SelectWeapon02Action;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ToggleLightsAction;
@@ -274,6 +280,9 @@ private:
 
 	void NextWeaponActionStarted(const FInputActionValue& Value);
 	void PrevWeaponActionStarted(const FInputActionValue& Value);
+
+	void SelectWeapon01ActionStarted();
+	void SelectWeapon02ActionStarted();
 
 	void ToggleLightsActionStarted();
 	

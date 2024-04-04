@@ -184,6 +184,9 @@ void AHTHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EnhancedInputComponent->BindAction(NextWeaponAction, ETriggerEvent::Started, this, &AHTHoverTank::NextWeaponActionStarted);
 		EnhancedInputComponent->BindAction(PrevWeaponAction, ETriggerEvent::Started, this, &AHTHoverTank::PrevWeaponActionStarted);
 
+		EnhancedInputComponent->BindAction(SelectWeapon01Action, ETriggerEvent::Started, this, &AHTHoverTank::SelectWeapon01ActionStarted);
+		EnhancedInputComponent->BindAction(SelectWeapon02Action, ETriggerEvent::Started, this, &AHTHoverTank::SelectWeapon02ActionStarted);
+
 		//Toggle lights
 		EnhancedInputComponent->BindAction(ToggleLightsAction, ETriggerEvent::Started, this, &AHTHoverTank::ToggleLightsActionStarted);
 		
@@ -706,6 +709,32 @@ void AHTHoverTank::PrevWeaponActionStarted(const FInputActionValue& Value)
 	if (WeaponsComponent)
 	{
 		WeaponsComponent->SwitchToPrevWeapon();
+	}
+}
+
+void AHTHoverTank::SelectWeapon01ActionStarted()
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	if (WeaponsComponent)
+	{
+		WeaponsComponent->SwitchToCannon();
+	}
+}
+
+void AHTHoverTank::SelectWeapon02ActionStarted()
+{
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	if (WeaponsComponent)
+	{
+		WeaponsComponent->SwitchToRockets();
 	}
 }
 

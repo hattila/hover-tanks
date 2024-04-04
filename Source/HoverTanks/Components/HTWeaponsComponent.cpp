@@ -84,6 +84,42 @@ void UHTWeaponsComponent::SwitchToPrevWeapon()
 	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);
 }
 
+void UHTWeaponsComponent::SwitchToCannon()
+{
+	if (CurrentWeapon == EAvailableWeapons::Cannon)
+	{
+		return;
+	}
+
+	CurrentWeapon = EAvailableWeapons::Cannon;
+
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);	
+}
+
+void UHTWeaponsComponent::SwitchToRockets()
+{
+	if (CurrentWeapon == EAvailableWeapons::RocketLauncher)
+	{
+		return;
+	}
+
+	CurrentWeapon = EAvailableWeapons::RocketLauncher;
+
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+	if (HoverTank == nullptr)
+	{
+		return;
+	}
+
+	HoverTank->OnWeaponSwitched.Broadcast(CurrentWeapon);	
+}
+
 void UHTWeaponsComponent::MulticastDestroyAttachedWeapons_Implementation()
 {
 	if (RocketLauncher)
