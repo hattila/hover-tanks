@@ -44,9 +44,8 @@ void UHTTankMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	
 	if (GetOwnerRole() == ROLE_AutonomousProxy || Owner->IsLocallyControlled())
 	{
-		LastMove = CreateMove(DeltaTime); // !! can crash on lever restart
+		LastMove = CreateMove(DeltaTime);
 		SimulateMove(LastMove);
-
 
 		if (!TankCannonMesh || !TankBarrelMesh)
 		{
@@ -369,7 +368,7 @@ FVector UHTTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& M
 /**
  * Move the GroundTraceStart component along the Velocity. As Velocity magnitude increases, the GroundTraceStart
  * component should move further ahead, maximized at MaxSpeed. As Velocity magnitude decreases, the GroundTraceStart
- * component should closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
+ * component should get closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
  */
 FVector UHTTankMovementComponent::CalculateGroundTraceStartLocation() const
 {

@@ -69,6 +69,9 @@ public:
 
 	FHoverTankMoveState GetHoverTankMoveState() const { return ServerMoveState; }
 
+	// create a getter for HoverTankMovementComponent
+	UHTTankMovementComponent* GetHoverTankMovementComponent() const { return HoverTankMovementComponent; }
+
 protected:
 	virtual void BeginPlay() override;
 

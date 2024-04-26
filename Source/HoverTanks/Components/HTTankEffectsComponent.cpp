@@ -20,6 +20,11 @@ UHTTankEffectsComponent::UHTTankEffectsComponent()
 	TankBurningFX->SetAutoActivate(false);
 	TankBurningFX->SetRelativeLocation(TankBurningFXOffset);
 	TankBurningFX->SetIsReplicated(true);
+
+	// initialize TankHoverSmokeFX
+	TankHoverSmokeFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Hover Smoke FX"));
+	TankHoverSmokeFX->SetAutoActivate(true);
+	TankHoverSmokeFX->SetIsReplicated(true);
 }
 
 void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,6 +35,44 @@ void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UHTTankEffectsComponent, bAreLightsOn);
 	DOREPLIFETIME(UHTTankEffectsComponent, TeamColorEmissiveStrength);
 	// DOREPLIFETIME(UHTTankEffectsComponent, bIsBurningFxActive);
+}
+
+
+void UHTTankEffectsComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UHTMovementReplicatorComponent>();
+	TankMovementComponent = MovementReplicatorComponent->GetHoverTankMovementComponent();
+
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	GetOwner()->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+	
+	TankLightsDynamicMaterialInstance = StaticMeshComponents[1]->CreateDynamicMaterialInstance(1);
+	
+	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
+	{
+		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
+	}
+
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		if (TankBurningFX)
+		{
+			TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		}
+
+		if (TankHoverSmokeFX)
+		{
+			TankHoverSmokeFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TankHoverSmokeFX->Activate();
+		}
+	}
+
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
 }
 
 void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -56,6 +99,43 @@ void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		else
 		{
 			ThrusterLights(false);
+		}
+
+		if (TankHoverSmokeFX && TankMovementComponent)
+		{
+			FVector GroundSurfaceNormal;
+			float DistanceFromGround;
+			bool bIsGrounded = TankMovementComponent->IsGrounded(GroundSurfaceNormal, DistanceFromGround);
+
+			if (!bIsGrounded)
+			{
+				return;
+			}
+
+			float MaxGroundDistance = 400;
+			
+			float MaxSpawnRate = 20000;
+			float SpawnRateMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
+			float SpawnRateValue = MaxSpawnRate * SpawnRateMultiplier;
+			TankHoverSmokeFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
+			
+			float MaxAttractionStrength = 500;
+			float MinAttractionStrength = 10;
+			float StrengthMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1); 
+			float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * StrengthMultiplier, MinAttractionStrength, MaxAttractionStrength);
+			
+			// AttractionStrength = -1 * FMath::Clamp(1/(DistanceFromGround + 1) * 300, 50, 300);
+			UE_LOG(LogTemp, Warning, TEXT("FX comp, TickComponent, DST: %f, AttractionStrength %f, SpawnRate: %f"), DistanceFromGround, AttractionStrength, SpawnRateValue);
+			
+			TankHoverSmokeFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
+
+			// set the TankHoverSmokeFX relative location to the ground
+			FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
+			GroundLocation.Z -= 50;
+			TankHoverSmokeFX->SetWorldLocation(GroundLocation);
+			
+			// sample the color of the ground texture, and apply it to the smoke
+			// FVector GroundColor = FVector(0.5, 0.5, 0.5);
 		}
 	}
 }
@@ -102,33 +182,6 @@ void UHTTankEffectsComponent::OnDeath()
 void UHTTankEffectsComponent::MulticastActivateBurningFX_Implementation()
 {
 	TankBurningFX->Activate();
-}
-
-void UHTTankEffectsComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UHTMovementReplicatorComponent>();
-
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	GetOwner()->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-	
-	TankLightsDynamicMaterialInstance = StaticMeshComponents[1]->CreateDynamicMaterialInstance(1);
-	
-	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
-	{
-		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
-	}
-
-	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
-	if (HoverTank)
-	{
-		TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	}
-
-	// FString RoleString;
-	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
 }
 
 // void UHTTankEffectsComponent::OnRep_IsBurningFxActive()
