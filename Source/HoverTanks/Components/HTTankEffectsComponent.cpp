@@ -22,7 +22,6 @@ UHTTankEffectsComponent::UHTTankEffectsComponent()
 	TankBurningFX->SetRelativeLocation(TankBurningFXOffset);
 	TankBurningFX->SetIsReplicated(true);
 
-	// initialize TankHoverSmokeFX
 	TankDustUpFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Dust Up FX"));
 	TankDustUpFX->SetAutoActivate(true);
 	TankDustUpFX->SetIsReplicated(true);
@@ -239,28 +238,21 @@ void UHTTankEffectsComponent::DustUp()
 	FHitResult GroundTranceHitResult;
 	bool bIsGrounded = TankMovementComponent->IsGrounded(GroundSurfaceNormal, DistanceFromGround, GroundTranceHitResult);
 
-	// log out if the tank is grounded
-	// UE_LOG(LogTemp, Warning, TEXT("FX comp, DustUp, bIsGrounded %s"), bIsGrounded ? TEXT("true") : TEXT("false"));
-	
 	if (!bIsGrounded)
 	{
 		TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), 0);
 		return;
 	}
 
-	// log out if the TankDustUpFX is active
-	// UE_LOG(LogTemp, Warning, TEXT("FX comp, DustUp, TankDustUpFX is active %s"), TankDustUpFX->IsActive() ? TEXT("true") : TEXT("false"));
-
 	float MaxGroundDistance = 400;
 			
 	float MaxSpawnRate = 20000;
-	float SpawnRateMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
-	float SpawnRateValue = MaxSpawnRate * SpawnRateMultiplier;
+	float DistanceMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
+	float SpawnRateValue = MaxSpawnRate * DistanceMultiplier;
 			
 	float MaxAttractionStrength = 500;
 	float MinAttractionStrength = 10;
-	float StrengthMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1); 
-	float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * StrengthMultiplier, MinAttractionStrength, MaxAttractionStrength);
+	float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * DistanceMultiplier, MinAttractionStrength, MaxAttractionStrength);
 			
 	FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
 	GroundLocation.Z -= 50;
