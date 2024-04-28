@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HTTankEffectsComponent.generated.h"
 
+class UHTTankMovementComponent;
 class UNiagaraComponent;
 class UHTTeamDataAsset;
 class UHTMovementReplicatorComponent;
@@ -40,13 +41,19 @@ private:
 	UHTMovementReplicatorComponent* MovementReplicatorComponent = nullptr;
 
 	UPROPERTY()
+	UHTTankMovementComponent* TankMovementComponent = nullptr;
+	
+	UPROPERTY()
 	UMaterialInstanceDynamic* TankLightsDynamicMaterialInstance = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UNiagaraComponent* TankBurningFX = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	FVector TankBurningFXOffset = FVector(-140.f, 0.f, 40.f);	
+	FVector TankBurningFXOffset = FVector(-140.f, 0.f, 40.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* TankDustUpFX = nullptr;
 	
 	// UPROPERTY(ReplicatedUsing=OnRep_IsBurningFxActive)
 	// bool bIsBurningFxActive = false;
@@ -115,4 +122,10 @@ private:
 
 	UFUNCTION()
 	void OnRep_TeamDataAsset();
+
+
+	void DustUp();
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastDeactivateDustUpFX();
 };

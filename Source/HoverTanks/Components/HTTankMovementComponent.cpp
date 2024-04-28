@@ -44,9 +44,8 @@ void UHTTankMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	
 	if (GetOwnerRole() == ROLE_AutonomousProxy || Owner->IsLocallyControlled())
 	{
-		LastMove = CreateMove(DeltaTime); // !! can crash on lever restart
+		LastMove = CreateMove(DeltaTime);
 		SimulateMove(LastMove);
-
 
 		if (!TankCannonMesh || !TankBarrelMesh)
 		{
@@ -101,12 +100,13 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FVector Acceleration;
 	FVector VerticalForce;
 
+	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
+
 	FVector GroundSurfaceNormal;
 	float DistanceFromGround;
+	FHitResult GroundTranceHitResult;
 
-	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
-	
-	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
+	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround, GroundTranceHitResult);
 	
 	if (!IsInputEnabled())
 	{
@@ -369,7 +369,7 @@ FVector UHTTankMovementComponent::CalculateVerticalForce(const FHoverTankMove& M
 /**
  * Move the GroundTraceStart component along the Velocity. As Velocity magnitude increases, the GroundTraceStart
  * component should move further ahead, maximized at MaxSpeed. As Velocity magnitude decreases, the GroundTraceStart
- * component should closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
+ * component should get closer to it's starting location. This way the HoverTank will rotate to match a slope sooner.
  */
 FVector UHTTankMovementComponent::CalculateGroundTraceStartLocation() const
 {
@@ -386,7 +386,7 @@ FVector UHTTankMovementComponent::CalculateGroundTraceStartLocation() const
 	return GroundTraceTargetLocation;
 }
 
-bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const
+bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround, FHitResult &HitResult) const
 {
 	if (GetOwner() == nullptr)
 	{
@@ -403,7 +403,7 @@ bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &D
 	}
 
 	FVector EndLocation = TraceStartLocation - FVector(0, 0, GroundCheckDistance);
-	FHitResult HitResult;
+	// FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 

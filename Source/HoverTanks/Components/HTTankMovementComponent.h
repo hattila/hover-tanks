@@ -92,6 +92,8 @@ public:
 	UStaticMeshComponent* GetTankCannonMesh() const { return TankCannonMesh; }
 	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
+	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround, FHitResult &HitResult) const;
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -177,7 +179,7 @@ private:
 	FVector CalculateVerticalForce(const FHoverTankMove& Move, float DistanceFromGround, bool bIsGrounded);
 	FVector CalculateGroundTraceStartLocation() const;
 	
-	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const;
+	// bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const;
 	bool IsInputEnabled();
 	bool IsTankDead() const;
 

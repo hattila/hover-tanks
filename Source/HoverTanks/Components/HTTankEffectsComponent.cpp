@@ -5,6 +5,7 @@
 
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
+#include "Landscape.h"
 #include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
@@ -20,6 +21,10 @@ UHTTankEffectsComponent::UHTTankEffectsComponent()
 	TankBurningFX->SetAutoActivate(false);
 	TankBurningFX->SetRelativeLocation(TankBurningFXOffset);
 	TankBurningFX->SetIsReplicated(true);
+
+	TankDustUpFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Dust Up FX"));
+	TankDustUpFX->SetAutoActivate(true);
+	TankDustUpFX->SetIsReplicated(true);
 }
 
 void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,6 +35,45 @@ void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UHTTankEffectsComponent, bAreLightsOn);
 	DOREPLIFETIME(UHTTankEffectsComponent, TeamColorEmissiveStrength);
 	// DOREPLIFETIME(UHTTankEffectsComponent, bIsBurningFxActive);
+}
+
+
+void UHTTankEffectsComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UHTMovementReplicatorComponent>();
+	TankMovementComponent = MovementReplicatorComponent->GetHoverTankMovementComponent();
+
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	GetOwner()->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+	
+	TankLightsDynamicMaterialInstance = StaticMeshComponents[1]->CreateDynamicMaterialInstance(1);
+	
+	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
+	{
+		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
+	}
+
+	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+	if (HoverTank)
+	{
+		if (TankBurningFX)
+		{
+			TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TankBurningFX->Deactivate();
+		}
+
+		if (TankDustUpFX)
+		{
+			TankDustUpFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TankDustUpFX->Activate();
+		}
+	}
+
+	// FString RoleString;
+	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
 }
 
 void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -56,6 +100,15 @@ void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		else
 		{
 			ThrusterLights(false);
+		}
+
+		if (TankDustUpFX && TankMovementComponent)
+		{
+			DustUp();
+		} else
+		{
+			// log
+			UE_LOG(LogTemp, Warning, TEXT("FX comp, TickComponent, no TankDustUpFX or TankMovementComponent"));
 		}
 	}
 }
@@ -97,56 +150,15 @@ void UHTTankEffectsComponent::OnDeath()
 	
 	// bIsBurningFxActive = true;
 	// OnRep_IsBurningFxActive();
+
+	TankDustUpFX->Deactivate();
+	MulticastDeactivateDustUpFX();
 }
 
 void UHTTankEffectsComponent::MulticastActivateBurningFX_Implementation()
 {
 	TankBurningFX->Activate();
 }
-
-void UHTTankEffectsComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	MovementReplicatorComponent = GetOwner()->FindComponentByClass<UHTMovementReplicatorComponent>();
-
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	GetOwner()->GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-	
-	TankLightsDynamicMaterialInstance = StaticMeshComponents[1]->CreateDynamicMaterialInstance(1);
-	
-	for (UStaticMeshComponent* StaticMeshComponent : StaticMeshComponents)
-	{
-		StaticMeshComponent->SetMaterial(1, TankLightsDynamicMaterialInstance);
-	}
-
-	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
-	if (HoverTank)
-	{
-		TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	}
-
-	// FString RoleString;
-	// UEnum::GetValueAsString(GetOwner()->GetLocalRole(), RoleString);
-	// UE_LOG(LogTemp, Warning, TEXT("FX comp, BeginPlay, role %s, TeamColorEmissiveStrength %f"), *RoleString, TeamColorEmissiveStrength);
-}
-
-// void UHTTankEffectsComponent::OnRep_IsBurningFxActive()
-// {
-// 	if (!TankBurningFx)
-// 	{
-// 		return;
-// 	}
-// 	
-// 	if (bIsBurningFxActive)
-// 	{
-// 		TankBurningFx->Activate();
-// 	}
-// 	else
-// 	{
-// 		TankBurningFx->Deactivate();
-// 	}
-// }
 
 void UHTTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 {
@@ -219,3 +231,60 @@ void UHTTankEffectsComponent::OnRep_LightsOn()
 	}
 }
 
+void UHTTankEffectsComponent::DustUp()
+{
+	FVector GroundSurfaceNormal;
+	float DistanceFromGround;
+	FHitResult GroundTranceHitResult;
+	bool bIsGrounded = TankMovementComponent->IsGrounded(GroundSurfaceNormal, DistanceFromGround, GroundTranceHitResult);
+
+	if (!bIsGrounded)
+	{
+		TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), 0);
+		return;
+	}
+
+	float MaxGroundDistance = 400;
+			
+	float MaxSpawnRate = 20000;
+	float DistanceMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
+	float SpawnRateValue = MaxSpawnRate * DistanceMultiplier;
+			
+	float MaxAttractionStrength = 500;
+	float MinAttractionStrength = 10;
+	float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * DistanceMultiplier, MinAttractionStrength, MaxAttractionStrength);
+			
+	FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
+	GroundLocation.Z -= 50;
+	TankDustUpFX->SetWorldLocation(GroundLocation);
+			
+	FLinearColor AlbedoColor = FLinearColor::Gray;
+	if (GroundTranceHitResult.GetActor()->IsA(ALandscape::StaticClass()))
+	{
+		ALandscape* HitLandscape = Cast<ALandscape>(GroundTranceHitResult.GetActor());
+		UMaterialInterface* LandscapeMaterial = HitLandscape->GetLandscapeMaterial(0);
+		if (LandscapeMaterial != nullptr)
+		{
+			LandscapeMaterial->GetVectorParameterValue(TEXT("Albedo Tint"), AlbedoColor);
+		}
+	}
+	else
+	{
+		/**
+		 * If we are not on a landscape (than likely on a static mesh), dusting is should be more subtle.
+		 * Materials could have a dustiness parameter that could be used to control the dust effect, if this will
+		 * be a core feature.
+		 */
+		SpawnRateValue = 1000;
+	}
+
+	AlbedoColor.A = 0.06;
+	TankDustUpFX->SetColorParameter(TEXT("DustColor"), AlbedoColor);
+	TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
+	TankDustUpFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
+}
+
+void UHTTankEffectsComponent::MulticastDeactivateDustUpFX_Implementation()
+{
+	TankDustUpFX->Deactivate();
+}

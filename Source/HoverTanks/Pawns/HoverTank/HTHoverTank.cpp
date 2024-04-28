@@ -39,13 +39,13 @@ AHTHoverTank::AHTHoverTank()
 	 * Create ActorComponents
 	 */
 	TankMovementComponent = CreateDefaultSubobject<UHTTankMovementComponent>(TEXT("Tank Movement Component"));
-
+	
 	MovementReplicatorComponent = CreateDefaultSubobject<UHTMovementReplicatorComponent>(TEXT("Movement Replicator Component"));
 	MovementReplicatorComponent->SetIsReplicated(true);
-
+	
 	WeaponsComponent = CreateDefaultSubobject<UHTWeaponsComponent>(TEXT("Weapons Component"));
 	WeaponsComponent->SetIsReplicated(true);
-
+	
 	TankEffectsComponent = CreateDefaultSubobject<UHTTankEffectsComponent>(TEXT("Tank Effects Component"));
 	TankEffectsComponent->SetIsReplicated(true);
 
