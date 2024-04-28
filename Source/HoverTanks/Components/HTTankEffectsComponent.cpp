@@ -153,8 +153,7 @@ void UHTTankEffectsComponent::OnDeath()
 	// OnRep_IsBurningFxActive();
 
 	TankDustUpFX->Deactivate();
-	// log
-	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnDeath"));
+	MulticastDeactivateDustUpFX();
 }
 
 void UHTTankEffectsComponent::MulticastActivateBurningFX_Implementation()
@@ -283,4 +282,9 @@ void UHTTankEffectsComponent::DustUp()
 
 	AlbedoColor.A = 0.06;
 	TankDustUpFX->SetColorParameter(TEXT("DustColor"), AlbedoColor);
+}
+
+void UHTTankEffectsComponent::MulticastDeactivateDustUpFX_Implementation()
+{
+	TankDustUpFX->Deactivate();
 }

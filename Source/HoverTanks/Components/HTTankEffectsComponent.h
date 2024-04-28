@@ -125,4 +125,7 @@ private:
 
 
 	void DustUp();
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastDeactivateDustUpFX();
 };
