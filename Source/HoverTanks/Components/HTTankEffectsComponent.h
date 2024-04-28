@@ -53,7 +53,7 @@ private:
 	FVector TankBurningFXOffset = FVector(-140.f, 0.f, 40.f);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UNiagaraComponent* TankHoverSmokeFX = nullptr;
+	UNiagaraComponent* TankDustUpFX = nullptr;
 	
 	// UPROPERTY(ReplicatedUsing=OnRep_IsBurningFxActive)
 	// bool bIsBurningFxActive = false;
@@ -122,4 +122,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_TeamDataAsset();
+
+
+	void DustUp();
 };

@@ -92,7 +92,7 @@ public:
 	UStaticMeshComponent* GetTankCannonMesh() const { return TankCannonMesh; }
 	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
-	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const;
+	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround, FHitResult &HitResult) const;
 	
 protected:
 	virtual void BeginPlay() override;

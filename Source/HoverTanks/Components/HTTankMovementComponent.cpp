@@ -100,12 +100,13 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	FVector Acceleration;
 	FVector VerticalForce;
 
+	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
+
 	FVector GroundSurfaceNormal;
 	float DistanceFromGround;
+	FHitResult GroundTranceHitResult;
 
-	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
-	
-	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround);
+	bool bIsGrounded = IsGrounded(GroundSurfaceNormal, DistanceFromGround, GroundTranceHitResult);
 	
 	if (!IsInputEnabled())
 	{
@@ -385,7 +386,7 @@ FVector UHTTankMovementComponent::CalculateGroundTraceStartLocation() const
 	return GroundTraceTargetLocation;
 }
 
-bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround) const
+bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround, FHitResult &HitResult) const
 {
 	if (GetOwner() == nullptr)
 	{
@@ -402,7 +403,7 @@ bool UHTTankMovementComponent::IsGrounded(FVector &GroundSurfaceNormal, float &D
 	}
 
 	FVector EndLocation = TraceStartLocation - FVector(0, 0, GroundCheckDistance);
-	FHitResult HitResult;
+	// FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 

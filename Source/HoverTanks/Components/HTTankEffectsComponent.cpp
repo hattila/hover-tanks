@@ -5,6 +5,7 @@
 
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
+#include "Landscape.h"
 #include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
@@ -22,9 +23,9 @@ UHTTankEffectsComponent::UHTTankEffectsComponent()
 	TankBurningFX->SetIsReplicated(true);
 
 	// initialize TankHoverSmokeFX
-	TankHoverSmokeFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Hover Smoke FX"));
-	TankHoverSmokeFX->SetAutoActivate(true);
-	TankHoverSmokeFX->SetIsReplicated(true);
+	TankDustUpFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Tank Dust Up FX"));
+	TankDustUpFX->SetAutoActivate(true);
+	TankDustUpFX->SetIsReplicated(true);
 }
 
 void UHTTankEffectsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -61,12 +62,13 @@ void UHTTankEffectsComponent::BeginPlay()
 		if (TankBurningFX)
 		{
 			TankBurningFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TankBurningFX->Deactivate();
 		}
 
-		if (TankHoverSmokeFX)
+		if (TankDustUpFX)
 		{
-			TankHoverSmokeFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-			TankHoverSmokeFX->Activate();
+			TankDustUpFX->AttachToComponent(HoverTank->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			TankDustUpFX->Activate();
 		}
 	}
 
@@ -101,41 +103,13 @@ void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 			ThrusterLights(false);
 		}
 
-		if (TankHoverSmokeFX && TankMovementComponent)
+		if (TankDustUpFX && TankMovementComponent)
 		{
-			FVector GroundSurfaceNormal;
-			float DistanceFromGround;
-			bool bIsGrounded = TankMovementComponent->IsGrounded(GroundSurfaceNormal, DistanceFromGround);
-
-			if (!bIsGrounded)
-			{
-				return;
-			}
-
-			float MaxGroundDistance = 400;
-			
-			float MaxSpawnRate = 20000;
-			float SpawnRateMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
-			float SpawnRateValue = MaxSpawnRate * SpawnRateMultiplier;
-			TankHoverSmokeFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
-			
-			float MaxAttractionStrength = 500;
-			float MinAttractionStrength = 10;
-			float StrengthMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1); 
-			float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * StrengthMultiplier, MinAttractionStrength, MaxAttractionStrength);
-			
-			// AttractionStrength = -1 * FMath::Clamp(1/(DistanceFromGround + 1) * 300, 50, 300);
-			UE_LOG(LogTemp, Warning, TEXT("FX comp, TickComponent, DST: %f, AttractionStrength %f, SpawnRate: %f"), DistanceFromGround, AttractionStrength, SpawnRateValue);
-			
-			TankHoverSmokeFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
-
-			// set the TankHoverSmokeFX relative location to the ground
-			FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
-			GroundLocation.Z -= 50;
-			TankHoverSmokeFX->SetWorldLocation(GroundLocation);
-			
-			// sample the color of the ground texture, and apply it to the smoke
-			// FVector GroundColor = FVector(0.5, 0.5, 0.5);
+			DustUp();
+		} else
+		{
+			// log
+			UE_LOG(LogTemp, Warning, TEXT("FX comp, TickComponent, no TankDustUpFX or TankMovementComponent"));
 		}
 	}
 }
@@ -177,29 +151,16 @@ void UHTTankEffectsComponent::OnDeath()
 	
 	// bIsBurningFxActive = true;
 	// OnRep_IsBurningFxActive();
+
+	TankDustUpFX->Deactivate();
+	// log
+	UE_LOG(LogTemp, Warning, TEXT("FX comp, OnDeath"));
 }
 
 void UHTTankEffectsComponent::MulticastActivateBurningFX_Implementation()
 {
 	TankBurningFX->Activate();
 }
-
-// void UHTTankEffectsComponent::OnRep_IsBurningFxActive()
-// {
-// 	if (!TankBurningFx)
-// 	{
-// 		return;
-// 	}
-// 	
-// 	if (bIsBurningFxActive)
-// 	{
-// 		TankBurningFx->Activate();
-// 	}
-// 	else
-// 	{
-// 		TankBurningFx->Deactivate();
-// 	}
-// }
 
 void UHTTankEffectsComponent::OnRep_TeamColorEmissiveStrength()
 {
@@ -272,3 +233,54 @@ void UHTTankEffectsComponent::OnRep_LightsOn()
 	}
 }
 
+void UHTTankEffectsComponent::DustUp()
+{
+	FVector GroundSurfaceNormal;
+	float DistanceFromGround;
+	FHitResult GroundTranceHitResult;
+	bool bIsGrounded = TankMovementComponent->IsGrounded(GroundSurfaceNormal, DistanceFromGround, GroundTranceHitResult);
+
+	// log out if the tank is grounded
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, DustUp, bIsGrounded %s"), bIsGrounded ? TEXT("true") : TEXT("false"));
+	
+	if (!bIsGrounded)
+	{
+		TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), 0);
+		return;
+	}
+
+	// log out if the TankDustUpFX is active
+	// UE_LOG(LogTemp, Warning, TEXT("FX comp, DustUp, TankDustUpFX is active %s"), TankDustUpFX->IsActive() ? TEXT("true") : TEXT("false"));
+
+	float MaxGroundDistance = 400;
+			
+	float MaxSpawnRate = 20000;
+	float SpawnRateMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
+	float SpawnRateValue = MaxSpawnRate * SpawnRateMultiplier;
+	TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
+			
+	float MaxAttractionStrength = 500;
+	float MinAttractionStrength = 10;
+	float StrengthMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1); 
+	float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * StrengthMultiplier, MinAttractionStrength, MaxAttractionStrength);
+	TankDustUpFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
+			
+	FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
+	GroundLocation.Z -= 50;
+	TankDustUpFX->SetWorldLocation(GroundLocation);
+			
+	FLinearColor AlbedoColor = FLinearColor::Gray;
+
+	if (GroundTranceHitResult.GetActor()->IsA(ALandscape::StaticClass()))
+	{
+		ALandscape* HitLandscape = Cast<ALandscape>(GroundTranceHitResult.GetActor());
+		UMaterialInterface* LandscapeMaterial = HitLandscape->GetLandscapeMaterial(0);
+		if (LandscapeMaterial != nullptr)
+		{
+			LandscapeMaterial->GetVectorParameterValue(TEXT("Albedo Tint"), AlbedoColor);
+		}
+	}
+
+	AlbedoColor.A = 0.06;
+	TankDustUpFX->SetColorParameter(TEXT("DustColor"), AlbedoColor);
+}
