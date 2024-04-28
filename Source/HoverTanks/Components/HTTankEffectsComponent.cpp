@@ -256,20 +256,17 @@ void UHTTankEffectsComponent::DustUp()
 	float MaxSpawnRate = 20000;
 	float SpawnRateMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1);
 	float SpawnRateValue = MaxSpawnRate * SpawnRateMultiplier;
-	TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
 			
 	float MaxAttractionStrength = 500;
 	float MinAttractionStrength = 10;
 	float StrengthMultiplier = FMath::Clamp(1 - DistanceFromGround / MaxGroundDistance, 0, 1); 
 	float AttractionStrength = -1 * FMath::Clamp(MaxAttractionStrength * StrengthMultiplier, MinAttractionStrength, MaxAttractionStrength);
-	TankDustUpFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
 			
 	FVector GroundLocation = TankMovementComponent->GetOwner()->GetActorLocation() - GroundSurfaceNormal * DistanceFromGround;
 	GroundLocation.Z -= 50;
 	TankDustUpFX->SetWorldLocation(GroundLocation);
 			
 	FLinearColor AlbedoColor = FLinearColor::Gray;
-
 	if (GroundTranceHitResult.GetActor()->IsA(ALandscape::StaticClass()))
 	{
 		ALandscape* HitLandscape = Cast<ALandscape>(GroundTranceHitResult.GetActor());
@@ -279,9 +276,20 @@ void UHTTankEffectsComponent::DustUp()
 			LandscapeMaterial->GetVectorParameterValue(TEXT("Albedo Tint"), AlbedoColor);
 		}
 	}
+	else
+	{
+		/**
+		 * If we are not on a landscape (than likely on a static mesh), dusting is should be more subtle.
+		 * Materials could have a dustiness parameter that could be used to control the dust effect, if this will
+		 * be a core feature.
+		 */
+		SpawnRateValue = 1000;
+	}
 
 	AlbedoColor.A = 0.06;
 	TankDustUpFX->SetColorParameter(TEXT("DustColor"), AlbedoColor);
+	TankDustUpFX->SetFloatParameter(TEXT("SpawnRate"), SpawnRateValue);
+	TankDustUpFX->SetFloatParameter(TEXT("AttractionStrength"), AttractionStrength);
 }
 
 void UHTTankEffectsComponent::MulticastDeactivateDustUpFX_Implementation()
