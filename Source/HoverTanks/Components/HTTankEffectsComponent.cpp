@@ -105,10 +105,6 @@ void UHTTankEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		if (TankDustUpFX && TankMovementComponent)
 		{
 			DustUp();
-		} else
-		{
-			// log
-			UE_LOG(LogTemp, Warning, TEXT("FX comp, TickComponent, no TankDustUpFX or TankMovementComponent"));
 		}
 	}
 }
@@ -271,7 +267,7 @@ void UHTTankEffectsComponent::DustUp()
 	else
 	{
 		/**
-		 * If we are not on a landscape (than likely on a static mesh), dusting is should be more subtle.
+		 * If we are not on a landscape (than likely on a static mesh), dusting should be more subtle.
 		 * Materials could have a dustiness parameter that could be used to control the dust effect, if this will
 		 * be a core feature.
 		 */
