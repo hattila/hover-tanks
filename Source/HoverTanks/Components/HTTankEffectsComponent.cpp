@@ -6,6 +6,7 @@
 #include "HTTankMovementComponent.h"
 #include "HTMovementReplicatorComponent.h"
 #include "Landscape.h"
+#include "LandscapeComponent.h"
 #include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "HoverTanks/Game/Teams/HTTeamDataAsset.h"
 
@@ -255,13 +256,26 @@ void UHTTankEffectsComponent::DustUp()
 	TankDustUpFX->SetWorldLocation(GroundLocation);
 			
 	FLinearColor AlbedoColor = FLinearColor::Gray;
+
 	if (GroundTranceHitResult.GetActor()->IsA(ALandscape::StaticClass()))
 	{
 		ALandscape* HitLandscape = Cast<ALandscape>(GroundTranceHitResult.GetActor());
-		UMaterialInterface* LandscapeMaterial = HitLandscape->GetLandscapeMaterial(0);
-		if (LandscapeMaterial != nullptr)
+
+		TSet<UActorComponent*> LandscapeComponents = HitLandscape->GetComponents();
+		for (UActorComponent* Component : LandscapeComponents)
 		{
-			LandscapeMaterial->GetVectorParameterValue(TEXT("Albedo Tint"), AlbedoColor);
+			if (Component->IsA(ULandscapeComponent::StaticClass()))
+			{
+				ULandscapeComponent* LandscapeComponent = Cast<ULandscapeComponent>(Component);
+
+				// Directly getting the material instance from the landscape component seems to be the only way.
+				UMaterialInterface* LandscapeMaterial = static_cast<UMaterialInterface*>(LandscapeComponent->MaterialInstances[0]);
+				if (LandscapeMaterial != nullptr)
+				{
+					LandscapeMaterial->GetVectorParameterValue(TEXT("Albedo Tint"), AlbedoColor);
+				}
+				break;
+			}
 		}
 	}
 	else
