@@ -135,7 +135,8 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	 * In order to never really hit the ground, Velocity.Z should be clamped to 0, if the ground is closer than 50 units
 	 * Moving around dunes is much smoother than bouncing around on the ground.
 	 */
-	if (IsInputEnabled() && DistanceFromGround < 50 && Velocity.Z < 0)
+	
+	if (IsInputEnabled() && DistanceFromGround < 50 && (Velocity.Z < 0 && Velocity.Z > -10))
 	{
 		Velocity.Z = 0;
 	}
