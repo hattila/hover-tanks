@@ -15,7 +15,13 @@
 
 AHTGMTeamDeathMatch::AHTGMTeamDeathMatch()
 {
+	/**
+	 * Work started on Blueprint GameModes, where the default pawn could be set. Currently, the game uses the CPP class
+	 * on OpenLevel calls to set the Game param to be the proper game mode
+	 */
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/BP_HoverTank"));
+	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/Big/BP_HoverTank_Big"));
+	// static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/HoverTanks/Pawns/HoverTank/Small/BP_HoverTank_Small"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
