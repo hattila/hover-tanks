@@ -3,6 +3,7 @@
 
 #include "HTMovementReplicatorComponent.h"
 
+#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
 #include "Net/UnrealNetwork.h"
 
 UHTMovementReplicatorComponent::UHTMovementReplicatorComponent(): ServerMoveState(),
@@ -123,6 +124,31 @@ void UHTMovementReplicatorComponent::InterpolateMovement(const float LerpRatio)
 	FQuat InterpolatedRotation = FQuat::Slerp(StartRotation, TargetRotation, LerpRatio);
 
 	GetOwner()->SetActorRotation(InterpolatedRotation);
+
+	/**
+	 * Implement an approximate version of the throttle lean in effect.
+	 */
+	const AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+	UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(HoverTank->GetTankBaseMesh());
+
+	const FRotator MeshRotation = Mesh->GetRelativeRotation();
+
+	const float Forward = ServerMoveState.LastMove.Throttle;
+	const float Right = ServerMoveState.LastMove.SideStrafeThrottle;
+
+	float MaxLean = 5;
+	if (ServerMoveState.LastMove.bIsBoosting)
+	{
+		MaxLean = 10;
+	}
+
+	const FRotator NewMeshRotation = FMath::RInterpTo(
+		MeshRotation,
+		FRotator(Forward * -MaxLean, 0, Right * MaxLean),
+		ServerMoveState.LastMove.DeltaTime,
+		5
+	);
+	Mesh->SetRelativeRotation(NewMeshRotation);
 }
 
 void UHTMovementReplicatorComponent::InterpolateCannon(const float LerpRatio)
