@@ -14,6 +14,8 @@ struct FHoverTankMove
 	UPROPERTY()
 	float Throttle;
 	UPROPERTY()
+	float SideStrafeThrottle;
+	UPROPERTY()
 	float Steering;
 	UPROPERTY()
 	bool bIsEBraking;
@@ -29,7 +31,7 @@ struct FHoverTankMove
 
 	bool IsValid() const
 	{
-		return FMath::Abs(Throttle) <= 1 && FMath::Abs(Steering) <= 1;
+		return FMath::Abs(Throttle) <= 1 && FMath::Abs(Steering) <= 1 && FMath::Abs(SideStrafeThrottle) <= 1;
 	}
 };
 
@@ -68,6 +70,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SetThrottle(const float InThrottle) { Throttle = InThrottle; }
+	void SetSideStrafeThrottle(const float InSideStrafeThrottle) { SideStrafeThrottle = InSideStrafeThrottle; }
 	void SetSteering(const float InSteering) { Steering = InSteering; }
 	void SetIsEBraking(const bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
 
@@ -127,9 +130,16 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPricateAccess = "true", ClampMin="0.0", ClampMax="1.0"))
 	float MaxDriftRatio = 0.5f;
-	
+
+	/** Value increases or decreases forward momentum */
 	float Throttle = 0;
+
+	/** Value increases or decreases side-strafe momentum */
+	float SideStrafeThrottle = 0;
+
+	/** Value increases or decreases turning */
 	float Steering = 0;
+
 	bool bIsEBraking = false;
 	bool bIsJumping = false;
 	bool bIsBoosting = false;

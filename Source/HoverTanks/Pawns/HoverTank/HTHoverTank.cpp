@@ -156,6 +156,13 @@ void AHTHoverTank::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AHTHoverTank::MoveTriggered);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AHTHoverTank::MoveCompleted);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Canceled, this, &AHTHoverTank::MoveCompleted);
+
+		EnhancedInputComponent->BindAction(AltAction, ETriggerEvent::Triggered, this, &AHTHoverTank::AltActionTriggered);
+		EnhancedInputComponent->BindAction(AltAction, ETriggerEvent::Completed, this, &AHTHoverTank::AltActionCompleted);
+
+		EnhancedInputComponent->BindAction(StrafeAction, ETriggerEvent::Triggered, this, &AHTHoverTank::StrafeTriggered);
+		EnhancedInputComponent->BindAction(StrafeAction, ETriggerEvent::Completed, this, &AHTHoverTank::StrafeCompleted);
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHTHoverTank::LookTriggered);
@@ -481,6 +488,7 @@ void AHTHoverTank::BindAbilitySystemComponentActions()
 void AHTHoverTank::MoveTriggered(const FInputActionValue& Value)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("Is input enabled: %s"), bIsInputEnabled ? TEXT("true") : TEXT("false"));
+	// UE_LOG(LogTemp, Warning, TEXT("MoveTriggered Value: %s"), *Value.ToString());
 	
 	if (bIsInputEnabled == false)
 	{
@@ -498,6 +506,8 @@ void AHTHoverTank::MoveTriggered(const FInputActionValue& Value)
 
 void AHTHoverTank::MoveCompleted()
 {
+	// UE_LOG(LogTemp, Warning, TEXT("Move Completed"));
+	
 	if (bIsInputEnabled == false)
 	{
 		return;
@@ -509,6 +519,60 @@ void AHTHoverTank::MoveCompleted()
 		TankMovementComponent->SetSteering(0);
 	}
 }
+
+/**
+ * A move does not get Completed if the modifier key is pressed or released, but it does get Canceled
+ */
+void AHTHoverTank::MoveCanceled()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Move Canceled"));
+	MoveCompleted(); // Maybe I should only nullify the steering, but not the throttle?
+}
+
+void AHTHoverTank::AltActionTriggered(const FInputActionValue& Value)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AltAction Value: %s"), *Value.ToString());
+}
+
+void AHTHoverTank::AltActionCompleted()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("AltAction Completed"));
+	StrafeCompleted();
+}
+
+void AHTHoverTank::StrafeTriggered(const FInputActionValue& Value)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Strafe Value: %s"), *Value.ToString());
+
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	const FVector2D StrafeVector = Value.Get<FVector2D>();
+
+	if (TankMovementComponent)
+	{
+		TankMovementComponent->SetSteering(0);
+		TankMovementComponent->SetSideStrafeThrottle(StrafeVector.X);
+	}
+}
+
+void AHTHoverTank::StrafeCompleted()
+{
+	// UE_LOG(LogTemp, Warning, TEXT("Strafe Completed"));
+
+	if (bIsInputEnabled == false)
+	{
+		return;
+	}
+
+	if (TankMovementComponent)
+	{
+		TankMovementComponent->SetSideStrafeThrottle(0);
+	}
+}
+
 
 void AHTHoverTank::LookTriggered(const FInputActionValue& Value)
 {

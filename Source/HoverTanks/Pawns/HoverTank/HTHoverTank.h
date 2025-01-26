@@ -208,6 +208,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AltAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* StrafeAction;
+	
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
@@ -254,6 +260,13 @@ private:
 	/** Called for movement input */
 	void MoveTriggered(const FInputActionValue& Value);
 	void MoveCompleted();
+	void MoveCanceled();
+
+	void AltActionTriggered(const FInputActionValue& Value);
+	void AltActionCompleted();
+
+	void StrafeTriggered(const FInputActionValue& Value);
+	void StrafeCompleted();
 
 	/** Called for looking input */
 	void LookTriggered(const FInputActionValue& Value);

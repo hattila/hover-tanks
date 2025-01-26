@@ -95,10 +95,8 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	/**
 	 * Initial Forces
 	 */
-
-	FVector ForceOnObject;
+	FVector VerticalPositionChange;
 	FVector Acceleration;
-	FVector VerticalForce;
 
 	GroundTraceLocation->SetWorldLocation(CalculateGroundTraceStartLocation());
 
@@ -113,23 +111,26 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		Acceleration = FVector::ZeroVector;
 
 		FVector Gravity = GetWorld()->GetGravityZ() / 100 * FVector(0, 0, 1);
-		VerticalForce = Gravity * Move.DeltaTime;
+		VerticalPositionChange = Gravity * Move.DeltaTime;
 	}
 	else
 	{
 		float ThrottleValue = Move.bIsBoosting ? BoostThrottle : MaxThrottle;
-		ForceOnObject = GetOwner()->GetActorForwardVector() * Move.Throttle * ThrottleValue;
+		FVector ForwardThrust = GetOwner()->GetActorForwardVector() * Move.Throttle * ThrottleValue;
+		FVector SideStrafeThrust = GetOwner()->GetActorRightVector() * Move.SideStrafeThrottle * ThrottleValue;
 	
 		FVector AirResistance = CalculateAirResistance();
 		FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
-
-		ForceOnObject = ForceOnObject + AirResistance + RollingResistance;
 		
-		VerticalForce = CalculateVerticalForce(Move, DistanceFromGround, bIsGrounded);
+		FVector ForceOnObject = ForwardThrust + SideStrafeThrust + AirResistance + RollingResistance;
 		Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
+
+		// UE_LOG(LogTemp, Warning, TEXT("Move.Throttle: %f\nMove.SideStrafeThrottle: %f"), Move.Throttle, Move.SideStrafeThrottle);
+
+		VerticalPositionChange = CalculateVerticalForce(Move, DistanceFromGround, bIsGrounded);
 	}
 
-	Velocity = Velocity + Acceleration + VerticalForce;
+	Velocity = Velocity + Acceleration + VerticalPositionChange;
 
 	/**
 	 * In order to never really hit the ground, Velocity.Z should be clamped to 0, if the ground is closer than 50 units
@@ -142,7 +143,7 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	}
 	
 	// clamp max speed
-	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed);
+	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed); // maybe shouldn't clamp the Z axis
 
 	if (IsInputEnabled())
 	{
@@ -230,8 +231,11 @@ FHoverTankMove UHTTankMovementComponent::CreateMove(float DeltaTime)
 {
 	FHoverTankMove Move;
 	Move.DeltaTime = DeltaTime;
+
 	Move.Throttle = Throttle;
+	Move.SideStrafeThrottle = SideStrafeThrottle;
 	Move.Steering = Steering;
+
 	Move.bIsEBraking = bIsEBraking;
 	Move.bIsJumping = bIsJumping;
 	Move.bIsBoosting = bIsBoosting;
