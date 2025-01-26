@@ -150,7 +150,7 @@ protected:
 
 private:
 	/**
-	 * Actor components
+	 * Actor components - Containers of logic
 	 */
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -166,7 +166,7 @@ private:
 	UHTTankEffectsComponent* TankEffectsComponent = nullptr;
 
 	/**
-	 * Game components
+	 * Game components - Bits and pieces
 	 */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

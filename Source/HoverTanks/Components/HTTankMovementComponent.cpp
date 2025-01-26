@@ -191,6 +191,34 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 		Velocity = BounceVector * Velocity.Size() * BounceDampening;
 		// Velocity = FVector::ZeroVector;
 	}
+
+	/**
+	 * As a cosmetic only effect, rotate the Tank Base mesh based on the Throttle and SideStrafeThrottle, to achieve
+	 * a leaning into the thrust effect.
+	 */
+	if (IsInputEnabled())
+	{
+		float Forward = Move.Throttle;
+		float Right = Move.SideStrafeThrottle;
+
+		AHTHoverTank* HoverTank = Cast<AHTHoverTank>(GetOwner());
+		UStaticMeshComponent* Mesh = Cast<UStaticMeshComponent>(HoverTank->GetTankBaseMesh());
+
+		float MaxLean = 5;
+		if (Move.bIsBoosting)
+        {
+            MaxLean = 10;
+        }
+	
+		FRotator MeshRotation = Mesh->GetRelativeRotation();
+		FRotator NewMeshRotation = FMath::RInterpTo(
+			MeshRotation,
+			FRotator(Forward * -MaxLean, 0, Right * MaxLean),
+			Move.DeltaTime,
+			5
+			);
+		Mesh->SetRelativeRotation(NewMeshRotation);
+	}
 }
 
 /**
