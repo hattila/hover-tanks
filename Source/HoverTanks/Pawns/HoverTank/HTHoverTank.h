@@ -6,6 +6,7 @@
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include "HoverTanks/Actors/Launchable.h"
 #include "HoverTanks/Pawns/HasTeamColors.h"
 #include "HTHoverTank.generated.h"
 
@@ -35,7 +36,8 @@ UCLASS()
 class HOVERTANKS_API AHTHoverTank :
 	public APawn,
 	public IAbilitySystemInterface,
-	public IHasTeamColors
+	public IHasTeamColors,
+	public ILaunchable
 {
 	GENERATED_BODY()
 	
@@ -93,8 +95,9 @@ public:
 	virtual void ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset) override;
 	//~ End of IHasTeamColors interface
 
-	//Here we will use a LaunchableInterface, but not today
-	void DirectionalLaunch(const FVector& LaunchVelocity);
+	//~ Begin ILaunchable interface
+	virtual void DirectionalLaunch(const FVector& LaunchVelocity) override;
+	//~ End ILaunchable interface
 	
 protected:
 	virtual void BeginPlay() override;

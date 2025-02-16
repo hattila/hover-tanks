@@ -157,25 +157,21 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	Velocity = Velocity + Acceleration + VerticalPositionChange;
 
 	/**
-	 * In order to never really hit the ground, Velocity.Z should be clamped to 0, if the ground is closer than 50 units
-	 * Moving around dunes is much smoother than bouncing around on the ground.
-	 * This should only applied if the downward velocity is less than 10. If it is greater, we could in fact hit the ground.
+	 * In order to never really hit the ground while crousing, Velocity.Z should be clamped to 0, if the ground is
+	 * closer than 50 units. Moving around dunes is much smoother than bouncing around on the ground.
+	 * This should only applied if the downward velocity is less than 10, presuming that we are not in a fall.
+	 * We should be able to hit the floor on a real fall
 	 */
 	if (IsInputEnabled() && DistanceFromGround < 50 && (Velocity.Z < 0 && Velocity.Z > -10))
 	{
 		Velocity.Z = 0;
 	}
-	
-	// clamp max speed
-	// Velocity = Velocity.GetClampedToMaxSize(MaxSpeed); // maybe shouldn't clamp the Z axis
-	// Apply the MaxSpeed constraint without clamping the entire velocity vector
 
-	if (GetOwner()->HasAuthority())
-	{
-		// log out the velocity
-		UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *Velocity.ToString());
-	}
-	
+	// if (GetOwner()->HasAuthority())
+	// {
+	// 	// log out the velocity
+	// 	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *Velocity.ToString());
+	// }
 
 	if (IsInputEnabled())
 	{

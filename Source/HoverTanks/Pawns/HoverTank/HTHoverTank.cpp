@@ -347,6 +347,9 @@ void AHTHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
 	TankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
+/**
+ * ILaunchable interface 
+ */
 void AHTHoverTank::DirectionalLaunch(const FVector& LaunchVelocity)
 {
 	if (TankMovementComponent)

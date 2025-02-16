@@ -4,7 +4,7 @@
 #include "HTDirectionalJumpPad.h"
 
 #include "Components/BoxComponent.h"
-#include "HoverTanks/Pawns/HoverTank/HTHoverTank.h"
+#include "HoverTanks/Actors/Launchable.h"
 
 
 // Sets default values
@@ -49,12 +49,11 @@ void AHTDirectionalJumpPad::OnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 	LaunchDirection.Z = JumpVectorUpwardComponent;
 	LaunchDirection.Normalize();
 
-	// Cast to the HoverTank, and launch it in the direction of the LaunchDirection while this is PoC
-	// Later, we might have a Launchable interface
-	AHTHoverTank* HoverTank = Cast<AHTHoverTank>(OtherActor);
-	if (HoverTank)
+	ILaunchable* LaunchableActor = Cast<ILaunchable>(OtherActor);
+	if (LaunchableActor)
 	{
-		HoverTank->DirectionalLaunch(LaunchDirection * JumpForce);
+		FVector LaunchVelocity = LaunchDirection * JumpForce;
+		LaunchableActor->DirectionalLaunch(LaunchVelocity);
 	}
 	
 }
@@ -63,5 +62,5 @@ void AHTDirectionalJumpPad::OnOverlapEnd(UPrimitiveComponent* OverlappedComponen
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	// log out that overlap ended with OtherActor
-	UE_LOG(LogTemp, Warning, TEXT("Overlap ended with %s"), *OtherActor->GetName());
+	// UE_LOG(LogTemp, Warning, TEXT("Overlap ended with %s"), *OtherActor->GetName());
 }
