@@ -23,6 +23,8 @@ struct FHoverTankMove
 	bool bIsJumping;
 	UPROPERTY()
 	bool bIsBoosting;
+	UPROPERTY()
+	FVector DirectionalLaunchVelocity; // probably should be a normalized vector, with a separate magnitude value for easier validation
 
 	UPROPERTY()
 	float DeltaTime;
@@ -73,6 +75,7 @@ public:
 	void SetSideStrafeThrottle(const float InSideStrafeThrottle) { SideStrafeThrottle = InSideStrafeThrottle; }
 	void SetSteering(const float InSteering) { Steering = InSteering; }
 	void SetIsEBraking(const bool bInIsEBraking) { bIsEBraking = bInIsEBraking; }
+	void SetDirectionalLaunchVelocity(const FVector& InVector) { DirectionalLaunchVelocity = InVector; };
 
 	void JumpTriggered();
 	void JumpCompleted();
@@ -96,7 +99,7 @@ public:
 	UStaticMeshComponent* GetTankBarrelMesh() const { return TankBarrelMesh; }
 
 	bool IsGrounded(FVector &GroundSurfaceNormal, float &DistanceFromGround, FHitResult &HitResult) const;
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -107,7 +110,7 @@ private:
 
 	/** In Newtons. The max driving force when boosting */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float BoostThrottle = 60000;
+	float BoostThrottle = 90000;
 
 	/** In Metres per second. The max speed */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
@@ -148,6 +151,11 @@ private:
 	float LookRight = 0;
 	
 	FVector Velocity;
+
+	/**
+	 * This is used to pass in a value from JumpPads or other objects that should launch the tank in a specific direction.
+	 */
+	FVector DirectionalLaunchVelocity = FVector::ZeroVector;
 
 	/** In Unreal Units (Centimeters) */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))

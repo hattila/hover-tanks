@@ -93,6 +93,9 @@ public:
 	virtual void ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset) override;
 	//~ End of IHasTeamColors interface
 
+	//Here we will use a LaunchableInterface, but not today
+	void DirectionalLaunch(const FVector& LaunchVelocity);
+	
 protected:
 	virtual void BeginPlay() override;
 

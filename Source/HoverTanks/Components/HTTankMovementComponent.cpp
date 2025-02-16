@@ -89,6 +89,7 @@ void UHTTankMovementComponent::BoostCompleted()
  *  - Bounce angle and dampening
  *  - Slopes and rotation along surface normals
  *  - Turning and Rotation
+ *  - Incoming external forces such as a JumpPad's added Velocity
  */
 void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 {
@@ -121,9 +122,32 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	
 		FVector AirResistance = CalculateAirResistance();
 		FVector RollingResistance = CalculateRollingResistance(Move.bIsEBraking);
+
+		/**
+		 * If our speed aleready reached MaxSpeed, we should not apply any more acceleration.
+		 */
+		if (Velocity.Size() > MaxSpeed)
+		{
+			ForwardThrust = FVector::ZeroVector;
+			SideStrafeThrust = FVector::ZeroVector;
+		}
 		
 		FVector ForceOnObject = ForwardThrust + SideStrafeThrust + AirResistance + RollingResistance;
 		Acceleration = (ForceOnObject / Mass) * Move.DeltaTime;
+
+		// log out force on object and Acceleration
+		// if (GetOwner()->HasAuthority())
+		// {
+		// 	UE_LOG(LogTemp, Warning, TEXT("ForceOnObject: %s, Acceleration: %s"), *ForceOnObject.ToString(), *Acceleration.ToString());
+		// }
+
+		// Add the DirectionalLaunchVelocity to the Acceleration
+		if (DirectionalLaunchVelocity.Size() > 0)
+		{
+			Acceleration += DirectionalLaunchVelocity;
+			DirectionalLaunchVelocity = FVector::ZeroVector;
+		}
+		
 
 		// UE_LOG(LogTemp, Warning, TEXT("Move.Throttle: %f\nMove.SideStrafeThrottle: %f"), Move.Throttle, Move.SideStrafeThrottle);
 
@@ -135,15 +159,23 @@ void UHTTankMovementComponent::SimulateMove(FHoverTankMove Move)
 	/**
 	 * In order to never really hit the ground, Velocity.Z should be clamped to 0, if the ground is closer than 50 units
 	 * Moving around dunes is much smoother than bouncing around on the ground.
+	 * This should only applied if the downward velocity is less than 10. If it is greater, we could in fact hit the ground.
 	 */
-	
 	if (IsInputEnabled() && DistanceFromGround < 50 && (Velocity.Z < 0 && Velocity.Z > -10))
 	{
 		Velocity.Z = 0;
 	}
 	
 	// clamp max speed
-	Velocity = Velocity.GetClampedToMaxSize(MaxSpeed); // maybe shouldn't clamp the Z axis
+	// Velocity = Velocity.GetClampedToMaxSize(MaxSpeed); // maybe shouldn't clamp the Z axis
+	// Apply the MaxSpeed constraint without clamping the entire velocity vector
+
+	if (GetOwner()->HasAuthority())
+	{
+		// log out the velocity
+		UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *Velocity.ToString());
+	}
+	
 
 	if (IsInputEnabled())
 	{
@@ -267,6 +299,9 @@ FHoverTankMove UHTTankMovementComponent::CreateMove(float DeltaTime)
 	Move.bIsEBraking = bIsEBraking;
 	Move.bIsJumping = bIsJumping;
 	Move.bIsBoosting = bIsBoosting;
+
+	Move.DirectionalLaunchVelocity = DirectionalLaunchVelocity;
+	
 	Move.Time = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 
 	return Move;

@@ -347,6 +347,14 @@ void AHTHoverTank::ApplyTeamColors(UHTTeamDataAsset* TeamDataAsset)
 	TankEffectsComponent->ApplyTeamColors(TeamDataAsset);
 }
 
+void AHTHoverTank::DirectionalLaunch(const FVector& LaunchVelocity)
+{
+	if (TankMovementComponent)
+	{
+		TankMovementComponent->SetDirectionalLaunchVelocity(LaunchVelocity);
+	}
+}
+
 /**
  * Is called on Possessed on the server and Onrep_PlayerState on the client
  */
